@@ -44,4 +44,6 @@ public class MainActivity extends AppCompatActivity {
     // và thanh điều hướng (navigation bar).Khi bạn kích hoạt tính năng này (thường được bật mặc định trong các theme Material3 mới),
     // hệ thống sẽ bỏ qua thuộc tính padding của layout gốc và áp dụng các "insets" (phần đệm an toàn) của riêng nó để đảm bảo nội dung
     // không bị các thanh hệ thống che khuất.
+
+    /// Hieu deptry
 }
