@@ -170,7 +170,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_search"
-                        android:tint="@android:color/darker_gray"/>
+                        app:tint="@android:color/darker_gray"/>
 
                     <EditText
                         android:layout_width="0dp"
