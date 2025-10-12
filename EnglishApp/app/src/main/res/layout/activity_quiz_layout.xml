@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
-        app:itemIconTint="@color/bottom_nav_color_selector"
-        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:itemIconTint="@color/blue"
+        app:itemTextColor="@color/black"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />
@@ -148,7 +148,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/background_selected_tab">
+                    android:background="@drawable/bg_speakingtest">
 
                     <TextView
                         android:id="@+id/tv_quiz_test_tab"
@@ -169,7 +169,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_marginStart="4dp"
-                        android:src="@drawable/ic_dropdown_arrow"
+                        android:src="@drawable/ic_double_down"
                         app:layout_constraintStart_toEndOf="@id/tv_quiz_test_tab"
                         app:layout_constraintTop_toTopOf="@id/tv_quiz_test_tab"
                         app:layout_constraintBottom_toBottomOf="@id/tv_quiz_test_tab"
