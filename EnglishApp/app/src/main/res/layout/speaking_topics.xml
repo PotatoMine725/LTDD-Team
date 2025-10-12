@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/main"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Header: Hello + user + bell -->
+    <TextView
+        android:id="@+id/tvHello"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="Hello 👋\nLet’s learn English with AI assistant!"
+        android:textColor="#212121"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/btnBell"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Screen title -->
+
+    <ImageButton
+        android:id="@+id/btnBell"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/circle_bg_header"
+        android:contentDescription="Notifications"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/tvHello"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvHello"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/ic_notification" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Speaking Topics"
+        android:textColor="#212121"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvHello" />
+
+    <!-- Card 1: Business English -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardBusiness"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#2F73FF"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cardTravel"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <!-- Image slot -->
+
+            <TextView
+                android:id="@+id/tvBusinessTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Business English"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:gravity="start"
+                android:paddingTop="8dp"/>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="106dp"
+                android:paddingTop="4dp"
+                android:text="Enhance talking as a native in everyday conversations"
+                android:textColor="#EAF0FF"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/imgBusiness"
+                android:layout_width="90dp"
+                android:layout_height="79dp"
+                android:contentDescription="Business illustration"
+                android:src="@drawable/avatar3_speakingscreen" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Card 2: Travel -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardTravel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#FF8A00"
+        app:layout_constraintTop_toTopOf="@id/cardBusiness"
+        app:layout_constraintStart_toEndOf="@id/cardBusiness"
+        app:layout_constraintEnd_toStartOf="@id/cardStudy"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Travel"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:paddingTop="8dp"/>
+
+            <TextView
+                android:layout_width="91dp"
+                android:layout_height="117dp"
+                android:paddingTop="4dp"
+                android:text="Practice speaking English while traveling and exploring the world"
+                android:textColor="#FFEBD1"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/imgTravel"
+                android:layout_width="86dp"
+                android:layout_height="70dp"
+                android:contentDescription="Travel illustration"
+                android:src="@drawable/avatar1_speakingscreen" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Card 3: Study Abroad -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardStudy"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#FF3B30"
+        app:layout_constraintTop_toTopOf="@id/cardBusiness"
+        app:layout_constraintStart_toEndOf="@id/cardTravel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Study Abroad"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:paddingTop="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:paddingTop="4dp"
+                android:text="Prepare your English skills for studying and living overseas"
+                android:textColor="#FFD5D2"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/imgStudy"
+                android:layout_width="87dp"
+                android:layout_height="70dp"
+                android:contentDescription="Study illustration"
+                android:src="@drawable/avatar2_speakingscreen" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Chatting label -->
+    <TextView
+        android:id="@+id/tvChatting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chatting"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/cardBusiness"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp"/>
+
+    <!-- Chat box -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardChat"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#F5F7FA"
+        app:layout_constraintTop_toBottomOf="@id/tvChatting"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="#03A9F4"
+            android:backgroundTint="#0686ED"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Bubble -->
+
+            <ImageView
+                android:id="@+id/imageView17"
+                android:layout_width="197dp"
+                android:layout_height="55dp"
+                app:srcCompat="@drawable/robot_chatting" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chat_input_background"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <!-- Ô nhập văn bản -->
+            <EditText
+                android:id="@+id/etMessageInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Hi AI friend!"
+                android:textColorHint="#9E9E9E"
+                android:textColor="#222222"
+                android:textSize="14sp"
+                android:background="@android:color/transparent"
+                android:maxLines="1"
+                android:inputType="text" />
+
+            <!-- Nút gửi tin nhắn -->
+            <ImageButton
+                android:id="@+id/btnSendMessage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/send_message"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Send Message"
+            android:scaleType="centerInside"
+            android:padding="8dp"/>
+        </LinearLayout>
+
+
+        <TextView
+                android:id="@+id/tvPrompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="12dp"
+                android:text="Send a 'Hi' message to start your chat journey with our AI assistant."
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Start chat button -->
+    <Button
+        android:id="@+id/btnStartChat"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:backgroundTint="#2F73FF"
+        android:text="Start Chat"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardChat" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
