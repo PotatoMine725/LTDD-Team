@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+             android:layout_height="match_parent"
+    android:id="@+id/main"
+             android:background="@drawable/bg_speakingtest"
+    >
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_page_speakingtest"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imageView14"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_prev" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="1/5"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/imageView18"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_next" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/bg_question_speakingtest"
+        android:padding="10dp"
+        android:text="How long have you worked? "
+        android:textColor="#000000"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+
+    <ImageView
+        android:id="@+id/imageView19"
+        android:layout_width="223dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView11"
+        app:srcCompat="@drawable/avatar3_speakingscreen" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="#D6F2FF"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView19">
+
+        <!-- Icon phía trên -->
+        <ImageView
+            android:id="@+id/imageView20"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_double_down" />
+
+        <!-- Câu trả lời -->
+        <TextView
+            android:id="@+id/textView15"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="12dp"
+            android:text="I have been working in UI field for about 3 years."
+            android:textColor="#008FFF"
+            android:textSize="18sp"
+            android:gravity="center" />
+
+        <!-- Feedback box -->
+        <TextView
+            android:id="@+id/textView16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/border_rec_blue"
+            android:padding="12dp"
+            android:text="Sound to improve: /ð/, /s/, /z/\nThe answer is a bit short and needs to be more detailed"
+            android:textColor="#090909"
+            android:textSize="16sp" />
+
+        <!-- Thanh công cụ dưới -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <ImageView
+                android:id="@+id/imageView24"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_bookmark1" />
+
+            <ImageView
+                android:id="@+id/imageView22"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/bg_micro"
+                android:padding="12dp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_micro"
+                app:tint="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/imageView23"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_ears" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="411dp"
+            android:layout_height="51dp"
+            android:layout_marginBottom="4dp"
+            android:orientation="vertical">
+
+            <include layout="@layout/bottom_navigation"></include>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

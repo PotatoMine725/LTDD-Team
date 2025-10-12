@@ -15,7 +15,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.speaking_topics);
+//        setContentView(R.layout.speaking_topics);
+        setContentView(R.layout.speaking_test);
         View mainView = findViewById(R.id.main);
         // Lưu lại padding ban đầu từ XML
         final int initialPaddingLeft = mainView.getPaddingLeft();
