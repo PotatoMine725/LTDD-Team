@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="background_header">#BBCCF1</color>
     <color name="blue">#0090FF</color>
+<!--    màu khi hover ở navbar-->
+    <color name="hover_navbar">#000000</color>
 </resources>
