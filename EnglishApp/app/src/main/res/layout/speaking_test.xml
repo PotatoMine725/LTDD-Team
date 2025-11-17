@@ -1,37 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-             android:layout_height="match_parent"
     android:id="@+id/main"
-             android:background="@drawable/bg_speakingtest"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_speakingtest">
 
+    <!-- Page Navigation Bar -->
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/page_navigation_bar"
         android:layout_width="350dp"
         android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:background="@drawable/bg_page_speakingtest"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/imageView14"
+            android:id="@+id/ic_prev"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="start"
             android:padding="8dp"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_prev" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/tv_page_number"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="3"
@@ -40,132 +37,167 @@
             android:textSize="16sp" />
 
         <ImageView
-            android:id="@+id/imageView18"
+            android:id="@+id/ic_next"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="end"
             android:padding="8dp"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_next" />
-
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textView11"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:background="@drawable/bg_question_speakingtest"
-        android:padding="10dp"
-        android:text="How long have you worked? "
-        android:textColor="#000000"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
-
-    <ImageView
-        android:id="@+id/imageView19"
-        android:layout_width="223dp"
-        android:layout_height="177dp"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView11"
-        app:srcCompat="@drawable/avatar3_speakingscreen" />
-
-    <LinearLayout
+    <!-- Main Content ScrollView -->
+    <ScrollView
+        android:id="@+id/scroll_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Question -->
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/bg_question_speakingtest"
+                android:padding="10dp"
+                android:text="How long have you worked? "
+                android:textColor="#000000"
+                android:textStyle="bold" />
+
+            <!-- Avatar Image -->
+            <ImageView
+                android:id="@+id/imageView19"
+                android:layout_width="223dp"
+                android:layout_height="177dp"
+                android:layout_marginTop="12dp"
+                app:srcCompat="@drawable/avatar3_speakingscreen" />
+
+            <!-- Answer Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="#D6F2FF"
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
+
+                <!-- Dropdown Icon -->
+                <ImageView
+                    android:id="@+id/imageView20"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@drawable/ic_double_down" />
+
+                <!-- Answer Text with Highlights -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:paddingVertical="12dp">
+
+                    <TextView
+                        android:id="@+id/tv15"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="I ha"
+                        android:textColor="#008FFF"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tv16"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ve"
+                        android:textColor="#FF0000"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tv17"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" been work"
+                        android:textColor="#008FFF"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tv18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ing"
+                        android:textColor="#FF0000"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tv19"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" in UI field for about 3 years."
+                        android:textColor="#008FFF"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <!-- Feedback Text -->
+                <TextView
+                    android:id="@+id/textView16"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:background="@drawable/border_rec_blue"
+                    android:padding="12dp"
+                    android:text="Sound to improve: /ð/, /s/, /z/\nThe answer is a bit short and needs to be more detailed"
+                    android:textColor="#090909"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Fixed Tool Bar -->
+    <LinearLayout
+        android:id="@+id/fixed_tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
         android:background="#D6F2FF"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView19">
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp">
 
-        <!-- Icon phía trên -->
         <ImageView
-            android:id="@+id/imageView20"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:id="@+id/imageView24"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/ic_double_down" />
+            app:srcCompat="@drawable/ic_bookmark1" />
 
-        <!-- Câu trả lời -->
-        <TextView
-            android:id="@+id/textView15"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="12dp"
-            android:text="I have been working in UI field for about 3 years."
-            android:textColor="#008FFF"
-            android:textSize="18sp"
-            android:gravity="center" />
+        <ImageView
+            android:id="@+id/imageView22"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/bg_micro"
 
-        <!-- Feedback box -->
-        <TextView
-            android:id="@+id/textView16"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:background="@drawable/border_rec_blue"
-            android:padding="12dp"
-            android:text="Sound to improve: /ð/, /s/, /z/\nThe answer is a bit short and needs to be more detailed"
-            android:textColor="#090909"
-            android:textSize="16sp" />
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_micro"
+            app:tint="#FFFFFF" />
 
-        <!-- Thanh công cụ dưới -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="96dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="4dp">
-
-            <ImageView
-                android:id="@+id/imageView24"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_bookmark1" />
-
-            <ImageView
-                android:id="@+id/imageView22"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:background="@drawable/bg_micro"
-                android:padding="12dp"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_micro"
-                app:tint="#FFFFFF" />
-
-            <ImageView
-                android:id="@+id/imageView23"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_ears" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="411dp"
-            android:layout_height="51dp"
-            android:layout_marginBottom="4dp"
-            android:orientation="vertical">
-
-            <include layout="@layout/bottom_navigation"></include>
-        </LinearLayout>
-
+        <ImageView
+            android:id="@+id/imageView23"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_ears" />
     </LinearLayout>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

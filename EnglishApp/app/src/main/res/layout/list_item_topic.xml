@@ -30,7 +30,8 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:padding="12dp"
-            tools:text="Topic Name" /> <TextView
+            tools:text="Topic Name" />
+        <TextView
         android:id="@+id/topic_progress_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,5 +42,6 @@
         android:gravity="center"
         android:padding="8dp"
         android:textColor="@android:color/black"
-        tools:text="0/5" /> </RelativeLayout>
+        tools:text="0/5" />
+    </RelativeLayout>
 </androidx.cardview.widget.CardView>
