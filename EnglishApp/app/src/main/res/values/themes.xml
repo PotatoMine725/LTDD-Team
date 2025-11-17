@@ -6,9 +6,15 @@
     </style>
 
     <style name="Theme.EnglishApp" parent="Base.Theme.EnglishApp" />
+
     <style name="TopicTitle">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ThemeOverlay.EnglishApp.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
+        <item name="fullscreenTextColor">@color/light_blue_A200</item>
     </style>
 </resources>
