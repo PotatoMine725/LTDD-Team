@@ -241,11 +241,9 @@ public class ListeningTopicActivity extends Fragment {
                 Log.d(TAG, "Bottom navigation setup completed");
             } else {
                 Log.e(TAG, "bottom_navigation not found in layout");
-                showError("Bottom navigation not available");
             }
         } catch (Exception e) {
             Log.e(TAG, "Error setting up bottom navigation", e);
-            showError("Failed to setup navigation");
         }
     }
 

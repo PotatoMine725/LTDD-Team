@@ -61,13 +61,17 @@ public class LessonFragment extends Fragment {
                     getParentFragmentManager()
             );
 
+            //Reset quiz tab text về "Quiz/Test"
+            tabNavigationHelper.resetQuizTabText();
+
             // Set tab hiện tại là Vocabulary
-            tabNavigationHelper.setCurrentTab(TopTabNavigationHelper.TabType.VOCABULARY);
+            if (tabNavigationHelper.getCurrentTab() == null) {
+                tabNavigationHelper.setCurrentTab(TopTabNavigationHelper.TabType.VOCABULARY);
+            }
 
             // Lắng nghe sự kiện chọn tab
             tabNavigationHelper.setOnTabSelectedListener(tabType -> {
                 Log.d(TAG, "Tab selected: " + tabType);
-                // Handle tab selection if needed
             });
 
             Log.d(TAG, "Tab navigation setup successfully");
@@ -134,7 +138,7 @@ public class LessonFragment extends Fragment {
 
                     Log.d(TAG, "Assigned click listener for CardView: " + topicTitle);
                 } else if (child instanceof ViewGroup) {
-                    // Recursively find CardViews in nested ViewGroups
+                    // Tìm cardview trong viewgroup
                     assignCardClickListeners(child);
                 }
             }

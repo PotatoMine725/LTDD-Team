@@ -55,11 +55,5 @@ public class FlashcardFragment extends Fragment {
                 }
             });
         }
-
-        // Có thể cập nhật title nếu cần
-        // TextView tvTitle = view.findViewById(R.id.tv_title);
-        // if (tvTitle != null && topicTitle != null) {
-        //     tvTitle.setText(topicTitle);
-        // }
     }
 }
