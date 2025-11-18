@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFFFFF"
-    tools:context=".QuizActivity">
+    android:background="#FFFFFF">
 
     <!-- Top Bar -->
     <RelativeLayout
@@ -29,7 +27,7 @@
             app:srcCompat="@drawable/profile_img" />
 
         <ImageView
-            android:id="@+id/notification_icon"
+            android:id="@+id/btn_notification"
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_alignParentEnd="true"
@@ -43,7 +41,7 @@
             android:id="@+id/look_icon"
             android:layout_width="55dp"
             android:layout_height="55dp"
-            android:layout_toStartOf="@id/notification_icon"
+            android:layout_toStartOf="@id/btn_notification"
             android:layout_alignTop="@id/avatar_image"
             android:layout_marginEnd="16dp"
             android:background="@drawable/circle_bg_header"
@@ -79,209 +77,184 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <!-- Main Content with ScrollView -->
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:paddingBottom="30dp">
 
-        <ScrollView
-            android:id="@+id/scrollView"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="6dp">
+            android:layout_height="wrap_content">
 
+            <!-- Tab Navigation -->
+            <include layout="@layout/top_tab_navigation" />
+
+            <!-- Question Number -->
+            <TextView
+                android:id="@+id/tv_question_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="5dp"
+                android:background="#0083EF"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:text="Question 1"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Quiz Image -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="298dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <ImageView
+                    android:id="@+id/iv_quiz_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_dog_funny" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Question Button -->
+            <Button
+                android:id="@+id/btn_question"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#81D4FA"
+                android:text="What is this?"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false" />
+
+            <!-- Answer Buttons -->
             <LinearLayout
-                android:id="@+id/ln_content"
+                android:id="@+id/answer_choices_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical">
 
-                <!-- Tab Navigation - Include -->
-                <include layout="@layout/top_tab_navigation" />
-
-                <!-- Question Number -->
-                <TextView
-                    android:id="@+id/tv_question_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#0083EF"
-                    android:backgroundTint="#00ADFF"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:text="Question 1"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <!-- Quiz Image Card -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_quiz_image"
-                    android:layout_width="298dp"
-                    android:layout_height="150dp"
-                    android:layout_gravity="center"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginTop="15dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="4dp">
-
-                    <ImageView
-                        android:id="@+id/iv_quiz_image"
-                        android:layout_width="300dp"
-                        android:layout_height="150dp"
-                        android:contentDescription="Quiz Image"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_dog_funny" />
-                </androidx.cardview.widget.CardView>
-
-                <!-- Question Button -->
-                <Button
-                    android:id="@+id/btn_question"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="#81D4FA"
-                    android:text="What is this?"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    app:cornerRadius="12dp" />
-
-                <!-- Answer Choices -->
+                <!-- Row 1 -->
                 <LinearLayout
-                    android:id="@+id/answer_choices_layout"
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/btn_answer_a"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:backgroundTint="#F44336"
+                        android:text="A. A bird"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/btn_answer_b"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="#81D4FA"
+                        android:text="B. A cat"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_marginTop="12dp"
-                    android:paddingBottom="24dp"
-                    android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                    <!-- Row 1: A and B -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/btn_answer_c"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:backgroundTint="#8BC34A"
+                        android:text="C. A dog"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false" />
 
-                        <Button
-                            android:id="@+id/btn_answer_a"
-                            android:layout_width="0dp"
-                            android:layout_height="50dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            android:backgroundTint="#F44336"
-                            android:text="A. A bird"
-                            android:textAllCaps="false"
-                            android:textColor="#FFFFFF"
-                            app:cornerRadius="10dp" />
-
-                        <Button
-                            android:id="@+id/btn_answer_b"
-                            android:layout_width="0dp"
-                            android:layout_height="50dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:backgroundTint="#81D4FA"
-                            android:text="B. A cat"
-                            android:textAllCaps="false"
-                            android:textColor="#FFFFFF"
-                            app:cornerRadius="10dp" />
-                    </LinearLayout>
-
-                    <!-- Row 2: C and D -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btn_answer_c"
-                            android:layout_width="0dp"
-                            android:layout_height="50dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            android:backgroundTint="#8BC34A"
-                            android:text="C. A dog"
-                            android:textAllCaps="false"
-                            android:textColor="#FFFFFF"
-                            app:cornerRadius="10dp" />
-
-                        <Button
-                            android:id="@+id/btn_answer_d"
-                            android:layout_width="0dp"
-                            android:layout_height="50dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:backgroundTint="#81D4FA"
-                            android:text="D. A ruler"
-                            android:textAllCaps="false"
-                            android:textColor="#FFFFFF"
-                            app:cornerRadius="10dp" />
-                    </LinearLayout>
+                    <Button
+                        android:id="@+id/btn_answer_d"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="#81D4FA"
+                        android:text="D. A ruler"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false" />
                 </LinearLayout>
             </LinearLayout>
-        </ScrollView>
 
-        <!-- Check and Next Buttons (Overlay) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="80dp"
-            android:layout_marginHorizontal="22dp"
-            android:orientation="horizontal">
+            <!-- ⭐ CHECK + NEXT — ĐẶT NGAY DƯỚI CÙNG ⭐ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="22dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="40dp"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btn_check"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="11dp"
-                android:backgroundTint="#8BC34A"
-                android:text="Check"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                app:cornerRadius="12dp" />
+                <Button
+                    android:id="@+id/btn_check"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="11dp"
+                    android:backgroundTint="#8BC34A"
+                    android:text="Check"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:id="@+id/btn_next"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_weight="1"
-                android:layout_marginStart="11dp"
-                android:backgroundTint="#FFFFFF"
-                android:text="Next"
-                android:textAllCaps="false"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_arrow_forward"
-                app:iconGravity="end"
-                app:iconTint="#000000"
-                app:strokeColor="#DDDDDD"
-                app:strokeWidth="1dp" />
+                <Button
+                    android:id="@+id/btn_next"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="11dp"
+                    android:text="Next"
+                    android:textSize="18sp"
+                    android:textColor="#000000"
+                    android:backgroundTint="#FFFFFF"
+                    android:textAllCaps="false"
+                    app:icon="@drawable/ic_arrow_forward"
+                    app:iconGravity="end"
+                    app:iconTint="#000000"
+                    app:strokeColor="#DDDDDD"
+                    app:strokeWidth="1dp" />
+            </LinearLayout>
+
         </LinearLayout>
-    </FrameLayout>
+    </ScrollView>
 
-    <!-- Bottom Divider -->
-    <View
-        android:id="@+id/divider_bottom_line"
-        android:layout_width="match_parent"
-        android:layout_height="1.5dp"
-        android:background="@android:color/black" />
-
-    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
-        app:itemGravity="center"
         app:itemIconTint="@color/bottom_nav_color"
         app:itemTextColor="@color/bottom_nav_color"
         app:labelVisibilityMode="labeled"

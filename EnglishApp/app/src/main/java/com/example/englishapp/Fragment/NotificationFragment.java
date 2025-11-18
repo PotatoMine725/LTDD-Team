@@ -51,7 +51,7 @@ public class NotificationFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.btnBack.setOnClickListener(new View.OnClickListener() {
+        binding.backIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Gọi dismiss() để đóng DialogFragment, tự động quay lại HomeActivity

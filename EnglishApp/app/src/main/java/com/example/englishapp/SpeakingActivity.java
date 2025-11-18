@@ -17,6 +17,10 @@ import androidx.fragment.app.FragmentManager;
 import com.example.englishapp.Fragment.NotificationFragment;
 import com.example.englishapp.utils.TopTabNavigationHelper;
 
+/**
+ * SpeakingActivity - Main speaking screen
+ * Shows welcome screen with "Start Learning" button
+ */
 public class SpeakingActivity extends Fragment {
 
     private static final String TAG = "SpeakingActivity";
@@ -32,29 +36,41 @@ public class SpeakingActivity extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Khởi tạo Tab Navigation Helper
-        tabNavigationHelper = new TopTabNavigationHelper(
-                view,
-                requireContext(),
-                getParentFragmentManager()
-        );
+        try {
+            // Khởi tạo Tab Navigation Helper
+            tabNavigationHelper = new TopTabNavigationHelper(
+                    view,
+                    requireContext(),
+                    getParentFragmentManager()
+            );
 
-        // Set tab hiện tại là Speaking
-        tabNavigationHelper.setCurrentTab(TopTabNavigationHelper.TabType.SPEAKING);
+            tabNavigationHelper.resetQuizTabText();
 
-        // Tìm button notification
+            // Set tab hiện tại là Speaking
+            tabNavigationHelper.setCurrentTab(TopTabNavigationHelper.TabType.SPEAKING);
+
+            // Setup các components
+            setupNotificationButton(view);
+            setupAvatarClick(view);
+            setupStartLearningButton(view);
+
+            Log.d(TAG, "SpeakingActivity initialized successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onViewCreated", e);
+            showMessage("Failed to initialize speaking screen");
+        }
+    }
+
+    /**
+     * Setup notification button
+     */
+    private void setupNotificationButton(View view) {
         ImageView btnNotification = view.findViewById(R.id.notification_icon);
         if (btnNotification != null) {
             btnNotification.setOnClickListener(v -> showNotificationFragment());
         } else {
             Log.e(TAG, "notification_icon not found in layout");
         }
-
-        // Setup avatar click
-        setupAvatarClick(view);
-
-        // Setup Start Learning button
-        setupStartLearningButton(view);
     }
 
     /**
@@ -74,17 +90,52 @@ public class SpeakingActivity extends Fragment {
     }
 
     /**
-     * Setup Start Learning button
+     * Setup Start Learning button - Navigate to Speaking Topics
      */
     private void setupStartLearningButton(View view) {
-        Button startButton = view.findViewById(R.id.button);
+        Button startButton = view.findViewById(R.id.btn_start);
         if (startButton != null) {
             startButton.setOnClickListener(v -> {
                 Log.d(TAG, "Start Learning button clicked");
-                startSpeakingLesson();
+                navigateToSpeakingTopics();
             });
         } else {
-            Log.e(TAG, "Start Learning button not found in layout");
+            Log.e(TAG, "Start Learning button (btn_start) not found in layout");
+        }
+    }
+
+    /**
+     * Navigate to Speaking Topics Fragment
+     */
+    private void navigateToSpeakingTopics() {
+        try {
+            Log.d(TAG, "Navigating to Speaking Topics");
+
+            if (getActivity() == null) {
+                Log.e(TAG, "Activity is null, cannot navigate");
+                showMessage("Cannot open speaking topics");
+                return;
+            }
+
+            SpeakingTopicsActivity topicsFragment = new SpeakingTopicsActivity();
+
+            // Use Activity's FragmentManager for navigation
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_in_right,  // enter
+                            R.anim.slide_out_left,  // exit
+                            R.anim.slide_in_left,   // popEnter
+                            R.anim.slide_out_right  // popExit
+                    )
+                    .replace(R.id.container, topicsFragment, "SpeakingTopicsActivity")
+                    .addToBackStack("SpeakingToTopics")
+                    .commit();
+
+            Log.d(TAG, "Navigation to Speaking Topics committed successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to speaking topics", e);
+            showMessage("Failed to open speaking topics");
         }
     }
 
@@ -92,18 +143,15 @@ public class SpeakingActivity extends Fragment {
      * Show notification fragment
      */
     private void showNotificationFragment() {
-        NotificationFragment fragment = new NotificationFragment();
-        FragmentManager fragmentManager = getParentFragmentManager();
-        fragment.show(fragmentManager, "notification_dialog");
-    }
-
-    /**
-     * Start speaking lesson
-     */
-    private void startSpeakingLesson() {
-        // TODO: Implement navigation to speaking lesson/practice screen
-        showMessage("Starting speaking lesson...");
-        Log.d(TAG, "Speaking lesson started");
+        try {
+            NotificationFragment fragment = new NotificationFragment();
+            FragmentManager fragmentManager = getParentFragmentManager();
+            fragment.show(fragmentManager, "notification_dialog");
+            Log.d(TAG, "Notification dialog shown");
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing notification", e);
+            showMessage("Failed to show notifications");
+        }
     }
 
     /**
@@ -113,5 +161,12 @@ public class SpeakingActivity extends Fragment {
         if (getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "SpeakingActivity destroyed");
+        tabNavigationHelper = null;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.englishapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -9,8 +10,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.os.TraceCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -27,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ViewGroup topBar;
     private View scrollViewHomeContent;
-    private String currentTab = "home"; // Track current tab
+    private String currentTab = "home";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +42,10 @@ public class HomeActivity extends AppCompatActivity {
             setupBottomNavigation();
             setupVocabularyButton();
 
-            // Mặc định mở Home
-            setHomeActive();
+            // Hàm thiết lập xử lý nút back mới
+            setupOnBackPressed();
+
+            handleIncomingIntent();
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
             Toast.makeText(this, "Failed to initialize app", Toast.LENGTH_SHORT).show();
@@ -62,7 +67,10 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void setupBottomNavigation() {
+    /**
+     * PUBLIC method để TopTabNavigationHelper có thể restore listener
+     */
+    public void setupBottomNavigation() {
         if (bottomNavigationView == null) {
             Log.e(TAG, "Bottom navigation view is null");
             return;
@@ -118,8 +126,8 @@ public class HomeActivity extends AppCompatActivity {
 
             Log.d(TAG, "Navigating to Home");
 
-            // Clear ALL fragments from back stack
-            clearAllFragments();
+            // 🔧 FIX #3: Clear ALL fragments properly
+            clearAllFragmentsProperly();
 
             // Show home content
             setHomeContentVisibility(View.VISIBLE);
@@ -145,13 +153,13 @@ public class HomeActivity extends AppCompatActivity {
             Log.d(TAG, "Navigating to Lesson");
 
             // Clear all fragments first
-            clearAllFragments();
+            clearAllFragmentsProperly();
 
             // Hide home content
             setHomeContentVisibility(View.GONE);
             setTopBarVisibility(View.GONE);
 
-            // Load LessonFragment (which will show ListeningActivity by default)
+            // Load LessonFragment (which will show Vocabulary by default)
             Fragment lessonFragment = new LessonFragment();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, lessonFragment, "LessonFragment")
@@ -176,7 +184,7 @@ public class HomeActivity extends AppCompatActivity {
 
             Log.d(TAG, "Navigating to Statistics");
 
-            clearAllFragments();
+            clearAllFragmentsProperly();
             setHomeContentVisibility(View.GONE);
             setTopBarVisibility(View.GONE);
 
@@ -204,7 +212,7 @@ public class HomeActivity extends AppCompatActivity {
 
             Log.d(TAG, "Navigating to Profile");
 
-            clearAllFragments();
+            clearAllFragmentsProperly();
             setHomeContentVisibility(View.GONE);
             setTopBarVisibility(View.GONE);
 
@@ -220,31 +228,178 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Thêm vào HomeActivity.java
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent();
+    }
+
     /**
-     * Clear all fragments from container and back stack
+     * Handle intent từ QuizActivity hoặc các Activity khác
      */
-    private void clearAllFragments() {
+    private void handleIncomingIntent() {
+        try {
+            Intent intent = getIntent();
+            String selectedTab = intent.getStringExtra("SELECTED_TAB");
+
+            if (selectedTab != null) {
+                Log.d(TAG, "Handling intent with tab: " + selectedTab);
+
+                switch (selectedTab) {
+                    case "VOCABULARY":
+                        // 🔧 FIX: Navigate đến Lesson, rồi trigger tab Vocabulary
+                        navigateToLesson();
+                        if (bottomNavigationView != null) {
+                            bottomNavigationView.setSelectedItemId(R.id.nav_lesson);
+                        }
+                        break;
+
+                    case "LISTENING":
+                        // 🔧 FIX: Navigate đến Listening tab
+                        navigateToListeningTab();
+                        break;
+
+                    case "SPEAKING":
+                        // 🔧 FIX: Navigate đến Speaking tab
+                        navigateToSpeakingTab();
+                        break;
+
+                    case "STATISTICS":
+                        navigateToStatistics();
+                        if (bottomNavigationView != null) {
+                            bottomNavigationView.setSelectedItemId(R.id.nav_statistics);
+                        }
+                        break;
+
+                    case "PROFILE":
+                        navigateToProfile();
+                        if (bottomNavigationView != null) {
+                            bottomNavigationView.setSelectedItemId(R.id.nav_profile);
+                        }
+                        break;
+
+                    default:
+                        setHomeActive();
+                        break;
+                }
+
+                // Clear intent để tránh re-trigger khi rotate screen
+                intent.removeExtra("SELECTED_TAB");
+            } else {
+                // Không có intent đặc biệt → hiển thị Home
+                setHomeActive();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling intent", e);
+            setHomeActive();
+        }
+    }
+
+    /**
+     * Navigate to Listening tab
+     */
+    private void navigateToListeningTab() {
+        try {
+            Log.d(TAG, "Navigating to Listening Tab");
+
+            clearAllFragmentsProperly();
+            setHomeContentVisibility(View.GONE);
+            setTopBarVisibility(View.GONE);
+
+            // Load ListeningActivity fragment
+            Fragment listeningFragment = new ListeningActivity();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, listeningFragment, "ListeningActivity")
+                    .commit();
+
+            currentTab = "lesson";
+
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setSelectedItemId(R.id.nav_lesson);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to listening", e);
+            Toast.makeText(this, "Failed to navigate to listening", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Navigate to Speaking tab
+     */
+    private void navigateToSpeakingTab() {
+        try {
+            Log.d(TAG, "Navigating to Speaking Tab");
+
+            clearAllFragmentsProperly();
+            setHomeContentVisibility(View.GONE);
+            setTopBarVisibility(View.GONE);
+
+            // Load SpeakingActivity fragment
+            Fragment speakingFragment = new SpeakingActivity();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, speakingFragment, "SpeakingActivity")
+                    .commit();
+
+            currentTab = "lesson";
+
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setSelectedItemId(R.id.nav_lesson);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to speaking", e);
+            Toast.makeText(this, "Failed to navigate to speaking", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 🔧 FIX #3: Clear all fragments PROPERLY - sử dụng popBackStackImmediate
+     * Phương pháp này đảm bảo back stack được clear NGAY LẬP TỨC và ĐỒNG BỘ
+     */
+    private void clearAllFragmentsProperly() {
         try {
             FragmentManager fm = getSupportFragmentManager();
 
-            // Pop all back stack entries
+            // Method 1: Pop tất cả back stack entries NGAY LẬP TỨC
             if (fm.getBackStackEntryCount() > 0) {
                 Log.d(TAG, "Clearing " + fm.getBackStackEntryCount() + " back stack entries");
-                fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                // 🔧 SỬ DỤNG popBackStackImmediate thay vì popBackStack
+                // popBackStackImmediate() thực thi ĐỒNG BỘ (synchronous)
+                // popBackStack() thực thi BẤT ĐỒNG BỘ (asynchronous) → có thể gây bug
+                fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
 
-            // Remove current fragment if exists
+            // Method 2: Remove current fragment if exists
             Fragment currentFragment = fm.findFragmentById(R.id.container);
             if (currentFragment != null) {
                 Log.d(TAG, "Removing current fragment: " + currentFragment.getClass().getSimpleName());
+
+                // 🔧 SỬ DỤNG commitNow() thay vì commit()
+                // commitNow() thực thi ĐỒNG BỘ (synchronous)
+                // commit() thực thi BẤT ĐỒNG BỘ (asynchronous)
                 fm.beginTransaction()
                         .remove(currentFragment)
-                        .commitNow(); // Use commitNow to execute immediately
+                        .commitNow();
             }
 
-            Log.d(TAG, "All fragments cleared");
+            Log.d(TAG, "All fragments cleared properly");
         } catch (Exception e) {
             Log.e(TAG, "Error clearing fragments", e);
+
+            // Fallback: Nếu có lỗi, thử clear bằng cách khác
+            try {
+                FragmentManager fm = getSupportFragmentManager();
+                for (Fragment fragment : fm.getFragments()) {
+                    if (fragment != null) {
+                        fm.beginTransaction().remove(fragment).commitNowAllowingStateLoss();
+                    }
+                }
+            } catch (Exception ex) {
+                Log.e(TAG, "Fallback clear also failed", ex);
+            }
         }
     }
 
@@ -253,7 +408,7 @@ public class HomeActivity extends AppCompatActivity {
      */
     private void setHomeActive() {
         try {
-            clearAllFragments();
+            clearAllFragmentsProperly();
             setHomeContentVisibility(View.VISIBLE);
             setTopBarVisibility(View.VISIBLE);
             currentTab = "home";
@@ -293,44 +448,65 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        try {
-            FragmentManager fm = getSupportFragmentManager();
+    private void setupOnBackPressed() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* bật callback theo mặc định */) {
+            @Override
+            public void handleOnBackPressed() {
 
-            // Check if there are fragments in back stack (nested navigation)
-            if (fm.getBackStackEntryCount() > 0) {
-                Log.d(TAG, "Popping back stack, entries: " + fm.getBackStackEntryCount());
-                fm.popBackStack();
-                return;
-            }
+                try {
+                    FragmentManager fm = getSupportFragmentManager();
 
-            // Check current fragment
-            Fragment currentFragment = fm.findFragmentById(R.id.container);
-            if (currentFragment != null) {
-                // If on a fragment, go back to home
-                Log.d(TAG, "On fragment, returning to home");
-                navigateToHome();
-                if (bottomNavigationView != null) {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_home);
+                    //Có fragments trong back stack
+                    if (fm.getBackStackEntryCount() > 0) {
+                        Log.d(TAG, "Popping back stack, entries: " + fm.getBackStackEntryCount());
+                        fm.popBackStackImmediate();
+                        return;
+                    }
+
+                    //Đang ở một fragment chính (Lesson/Statistics/Profile) -> quay về Home
+                    Fragment currentFragment = fm.findFragmentById(R.id.container);
+                    if (currentFragment != null && !currentTab.equals("home")) {
+                        Log.d(TAG, "On fragment, returning to home");
+                        navigateToHome();
+                        if (bottomNavigationView != null) {
+                            bottomNavigationView.setSelectedItemId(R.id.nav_home);
+                        }
+                        return;
+                    }
+
+                    //Đã ở Home -> thoát ứng dụng
+                    // Để thoát, ta phải vô hiệu hóa callback này và gọi lại super.onBackPressed()
+                    if (currentTab.equals("home")) {
+                        Log.d(TAG, "On home, exiting app");
+                        // Vô hiệu hóa callback này để tránh vòng lặp vô hạn
+                        setEnabled(false);
+                        // Gọi lại hành vi mặc định (sẽ thoát app vì không còn gì trong back stack)
+                        getOnBackPressedDispatcher().onBackPressed();
+                        // Bật lại nếu cần (ví dụ: nếu người dùng không thoát)
+                        setEnabled(true);
+                        return;
+                    }
+
+                    // Fallback: Về home
+                    Log.d(TAG, "Fallback: navigating to home");
+                    navigateToHome();
+                    if (bottomNavigationView != null) {
+                        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+                    }
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Error handling back press", e);
+                    // Nếu có lỗi, gọi hành vi mặc định để tránh crash
+                    if (TraceCompat.isEnabled()) {
+                        setEnabled(false);
+                        getOnBackPressedDispatcher().onBackPressed();
+                        setEnabled(true);
+                    }
                 }
-                return;
             }
+        };
 
-            // If already on home, exit app
-            if (currentTab.equals("home")) {
-                Log.d(TAG, "On home, exiting app");
-                super.onBackPressed();
-            } else {
-                // Fallback: go to home
-                navigateToHome();
-                if (bottomNavigationView != null) {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_home);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error handling back press", e);
-            super.onBackPressed();
-        }
+        // Đăng ký callback với dispatcher của Activity
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 }

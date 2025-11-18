@@ -1,5 +1,6 @@
 package com.example.englishapp.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -8,7 +9,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,10 +18,12 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.englishapp.Fragment.LessonFragment;
+import com.example.englishapp.HomeActivity;
 import com.example.englishapp.ListeningActivity;
 import com.example.englishapp.QuizActivity;
 import com.example.englishapp.R;
 import com.example.englishapp.SpeakingActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class TopTabNavigationHelper {
 
@@ -45,6 +47,9 @@ public class TopTabNavigationHelper {
 
     // Flag để biết có đang ở QuizActivity không
     private boolean isInQuizMode = false;
+
+    // 🔧 FIX #2: Flag để tránh recursive navigation
+    private boolean isNavigating = false;
 
     // Tab containers
     private LinearLayout tabVocabularyContainer;
@@ -188,7 +193,6 @@ public class TopTabNavigationHelper {
         try {
             if (tabVocabularyContainer != null) {
                 tabVocabularyContainer.setOnClickListener(v -> {
-                    // Navigate về Vocabulary screen (không phải quiz)
                     if (listener != null) {
                         listener.onTabSelected(TabType.VOCABULARY);
                     }
@@ -197,7 +201,6 @@ public class TopTabNavigationHelper {
 
             if (tabListeningContainer != null) {
                 tabListeningContainer.setOnClickListener(v -> {
-                    // Navigate về Listening screen (không phải quiz)
                     if (listener != null) {
                         listener.onTabSelected(TabType.LISTENING);
                     }
@@ -206,7 +209,6 @@ public class TopTabNavigationHelper {
 
             if (tabSpeakingContainer != null) {
                 tabSpeakingContainer.setOnClickListener(v -> {
-                    // Navigate về Speaking screen
                     if (listener != null) {
                         listener.onTabSelected(TabType.SPEAKING);
                     }
@@ -225,6 +227,12 @@ public class TopTabNavigationHelper {
 
     public void selectTab(TabType tabType) {
         try {
+            // 🔧 FIX #2: Kiểm tra flag để tránh recursive call
+            if (isNavigating) {
+                Log.d(TAG, "Navigation already in progress, ignoring selectTab");
+                return;
+            }
+
             Log.d(TAG, "Selecting tab: " + tabType);
 
             updateTabUI(tabType);
@@ -313,7 +321,72 @@ public class TopTabNavigationHelper {
         }
     }
 
+    /**
+     * 🔧 FIX #1 & #2: Handle navigation với logic mới - KHÔNG dùng Thread.sleep()
+     * Sử dụng post() để đợi bottom nav update xong
+     */
     private void handleNavigation(TabType tabType) {
+        try {
+            // 🔧 FIX #2: Set flag để tránh recursive call
+            if (isNavigating) {
+                Log.d(TAG, "Already navigating, skip");
+                return;
+            }
+
+            // Check nếu context là HomeActivity
+            if (context instanceof HomeActivity) {
+                HomeActivity homeActivity = (HomeActivity) context;
+                BottomNavigationView bottomNav = homeActivity.findViewById(R.id.bottom_navigation);
+
+                if (bottomNav != null) {
+                    int selectedItemId = bottomNav.getSelectedItemId();
+
+                    // Nếu KHÔNG đang ở tab Lesson → trigger bottom nav
+                    if (selectedItemId != R.id.nav_lesson) {
+                        Log.d(TAG, "Not on Lesson tab, triggering bottom navigation to Lesson");
+
+                        // 🔧 FIX #2: Set flag TRƯỚC KHI trigger bottom nav
+                        isNavigating = true;
+
+                        // Set listener một lần để biết khi nào bottom nav đã switch xong
+                        bottomNav.setOnItemSelectedListener(item -> {
+                            if (item.getItemId() == R.id.nav_lesson) {
+                                // 🔧 FIX #1: Dùng post() thay vì Thread.sleep()
+                                // post() sẽ chạy sau khi bottom nav đã update xong UI
+                                bottomNav.post(() -> {
+                                    performTabNavigation(tabType);
+                                    // Reset flag sau khi navigation xong
+                                    isNavigating = false;
+                                });
+
+                                // Restore lại listener cũ (từ HomeActivity)
+                                homeActivity.setupBottomNavigation();
+                                return true;
+                            }
+                            return false;
+                        });
+
+                        // Trigger bottom nav switch
+                        bottomNav.setSelectedItemId(R.id.nav_lesson);
+                        return;
+                    }
+                }
+            }
+
+            // Nếu đã ở tab Lesson hoặc không phải HomeActivity → navigate bình thường
+            performTabNavigation(tabType);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling navigation", e);
+            isNavigating = false; // Reset flag nếu có lỗi
+            showError("Navigation failed");
+        }
+    }
+
+    /**
+     * Thực hiện navigation thực sự giữa các tab
+     */
+    private void performTabNavigation(TabType tabType) {
         try {
             switch (tabType) {
                 case VOCABULARY:
@@ -330,8 +403,7 @@ public class TopTabNavigationHelper {
                     break;
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error handling navigation", e);
-            showError("Navigation failed");
+            Log.e(TAG, "Error performing tab navigation", e);
         }
     }
 
@@ -386,6 +458,9 @@ public class TopTabNavigationHelper {
     /**
      * Show popup menu trong normal mode (khi không ở QuizActivity)
      */
+    /**
+     * Show popup menu trong normal mode (khi không ở QuizActivity)
+     */
     private void showQuizPopupMenu() {
         try {
             if (tabQuizContainer == null) {
@@ -411,9 +486,7 @@ public class TopTabNavigationHelper {
 
                     if (!quizType.isEmpty()) {
                         currentQuizType = quizType;
-
-                        // Update Quiz tab text với dropdown
-                        updateQuizTabText(quizType + " ▼");
+                        updateQuizTabText(quizType);
 
                         if (quizListener != null) {
                             quizListener.onQuizTypeSelected(quizType);
@@ -428,6 +501,15 @@ public class TopTabNavigationHelper {
                 return true;
             });
 
+            // 🔧 FIX: Khi dismiss popup menu, reset text về "Quiz/Test"
+            popupMenu.setOnDismissListener(menu -> {
+                // Chỉ reset nếu KHÔNG navigate đến QuizActivity
+                // (nếu navigate rồi thì sẽ finish activity này)
+                if (context instanceof Activity && !((Activity) context).isFinishing()) {
+                    updateQuizTabText("Quiz/Test");
+                }
+            });
+
             popupMenu.show();
         } catch (Exception e) {
             Log.e(TAG, "Error showing quiz popup menu", e);
@@ -436,8 +518,7 @@ public class TopTabNavigationHelper {
     }
 
     /**
-     * Show popup menu TRONG QuizActivity - update text và highlight Quiz/Test tab
-     * KHÔNG highlight tab Vocabulary hoặc Listening bên trái
+     * Show popup menu TRONG QuizActivity
      */
     private void showQuizPopupMenuInQuizMode() {
         try {
@@ -464,15 +545,8 @@ public class TopTabNavigationHelper {
 
                     if (!quizType.isEmpty()) {
                         currentQuizType = quizType;
-
-                        // Reset tất cả tabs về unselected
                         resetAllTabs();
-
-
-                        // Highlight CHỈ Quiz/Test tab (chữ màu xanh + bold)
                         highlightQuizTab();
-
-                        // KHÔNG highlight tab Vocabulary hoặc Listening bên trái
 
                         if (quizListener != null) {
                             quizListener.onQuizTypeSelected(quizType);
@@ -492,9 +566,6 @@ public class TopTabNavigationHelper {
         }
     }
 
-    /**
-     * Cập nhật text của Quiz/Test tab
-     */
     private void updateQuizTabText(String text) {
         try {
             if (quizText != null) {
@@ -539,9 +610,6 @@ public class TopTabNavigationHelper {
         }
     }
 
-    /**
-     * Set current tab (only update UI, no navigation)
-     */
     public void setCurrentTab(TabType tabType) {
         try {
             currentTab = tabType;
@@ -552,53 +620,31 @@ public class TopTabNavigationHelper {
         }
     }
 
-    /**
-     * Setup cho QuizActivity
-     * Update text Quiz/Test tab VÀ highlight Quiz/Test tab
-     * KHÔNG highlight tab Vocabulary hoặc Listening bên trái
-     */
     public void setupForQuizMode(String quizType) {
         try {
             this.currentQuizType = quizType;
             this.isInQuizMode = true;
-
-            // Reset tất cả tabs về unselected - KHÔNG highlight gì cả
             resetAllTabs();
-
-            // Update Quiz tab text với dropdown icon
-            updateQuizTabText(quizType + " ▼");
-
-            // Highlight CHỈ Quiz/Test tab
+            updateQuizTabText(quizType);
             highlightQuizTab();
-
-            // KHÔNG highlight tab Vocabulary hoặc Listening
-            // Vì các tab này chỉ dùng để navigate về màn hình chính
-
             Log.d(TAG, "Setup for quiz mode with type: " + quizType);
         } catch (Exception e) {
             Log.e(TAG, "Error setting up quiz mode", e);
         }
     }
 
-    /**
-     * Highlight CHỈ Quiz/Test tab (màu xanh + bold + indicator)
-     * Giống như setTabSelected() cho các tab khác
-     */
     private void highlightQuizTab() {
         try {
-            // Set text color và bold
             if (quizText != null) {
                 quizText.setTextColor(colorSelected);
                 quizText.setTypeface(null, Typeface.BOLD);
             }
 
-            // Show indicator (gạch dưới màu xanh)
             if (quizIndicator != null) {
                 quizIndicator.setVisibility(View.VISIBLE);
                 quizIndicator.setBackgroundColor(colorIndicator);
             }
 
-            // Set alpha = 1.0
             if (tabQuizContainer != null) {
                 tabQuizContainer.setAlpha(1.0f);
             }
@@ -633,6 +679,49 @@ public class TopTabNavigationHelper {
         this.colorIndicator = indicatorColor;
         updateTabUI(currentTab);
     }
+
+    /**
+     * 🆕 Cleanup method để tránh memory leak
+     */
+    public void cleanup() {
+        listener = null;
+        quizListener = null;
+        isNavigating = false;
+        Log.d(TAG, "TopTabNavigationHelper cleaned up");
+    }
+
+    /**
+     * ✅ Reset quiz tab text về "Quiz/Test" (dùng khi về normal mode)
+     */
+    public void resetQuizTabText() {
+        try {
+            updateQuizTabText("Quiz/Test");
+            this.currentQuizType = ""; // Clear quiz type
+            this.isInQuizMode = false;
+            Log.d(TAG, "Quiz tab text reset to 'Quiz/Test'");
+        } catch (Exception e) {
+            Log.e(TAG, "Error resetting quiz tab text", e);
+        }
+    }
+
+    /**
+     * ✅ Setup for normal mode (không phải quiz mode)
+     */
+    public void setupForNormalMode() {
+        try {
+            this.isInQuizMode = false;
+            this.currentQuizType = "";
+            resetQuizTabText();
+
+            // Reset listeners về normal mode
+            setupListeners();
+
+            Log.d(TAG, "Setup for normal mode completed");
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up normal mode", e);
+        }
+    }
+
 
     private void showError(String message) {
         if (context != null) {

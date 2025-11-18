@@ -38,6 +38,8 @@ public class ListeningActivity extends Fragment {
                 getParentFragmentManager()
         );
 
+        tabNavigationHelper.resetQuizTabText();
+
         // Set tab hiện tại là Listening
         tabNavigationHelper.setCurrentTab(TopTabNavigationHelper.TabType.LISTENING);
 
