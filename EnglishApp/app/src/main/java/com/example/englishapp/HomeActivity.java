@@ -23,7 +23,11 @@ import com.example.englishapp.Fragment.ProfileFragment;
 import com.example.englishapp.Fragment.StatisticsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-
+import com.google.firebase.analytics.FirebaseAnalytics; // Thêm dòng này
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
@@ -46,11 +50,15 @@ public class HomeActivity extends AppCompatActivity {
             setupOnBackPressed();
 
             handleIncomingIntent();
+
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
             Toast.makeText(this, "Failed to initialize app", Toast.LENGTH_SHORT).show();
         }
+
     }
+    // COPY HÀM NÀY DÁN ĐÈ LÊN HÀM testFirebaseConnection CŨ
+
 
     private void setupViews() {
         try {
