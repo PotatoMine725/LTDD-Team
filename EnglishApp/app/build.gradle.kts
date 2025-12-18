@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.cardview)
     implementation(libs.legacy.support.v4)
     implementation(libs.recyclerview)
+    implementation(libs.play.services.measurement.api)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -53,4 +54,8 @@ dependencies {
 // Thư viện Analytics (hoặc Firestore/Auth sau này bạn cần)
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
+    // Thêm dòng này vào file build.gradle.kts
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 }
