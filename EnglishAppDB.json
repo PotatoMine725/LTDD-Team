@@ -1,0 +1,184 @@
+{
+  "topics": {
+    "listening": {
+      "lt_01": {
+        "id": "lt_01",
+        "name": "Daily Communication",
+        "image_res_name": "ic_communication_topic_1",
+        "total_lessons": 5,
+        "description": "Basic conversations for everyday life",
+        "exercises": {
+          "ex_01": {
+            "question_text": "What are the speakers discussing?",
+            "audio_url": "https://example.com/audio/lesson1.mp3",
+            "options": [
+              "A meeting schedule",
+              "Lunch plans",
+              "A new project",
+              "The weather"
+            ],
+            "correct_answer_index": 1
+          },
+          "ex_02": {
+            "question_text": "When will the event take place?",
+            "audio_url": "https://example.com/audio/lesson1_part2.mp3",
+            "options": [
+              "Monday morning",
+              "Friday night",
+              "Sunday afternoon",
+              "Next week"
+            ],
+            "correct_answer_index": 2
+          }
+        }
+      },
+      "lt_02": {
+        "id": "lt_02",
+        "name": "Technology Trends",
+        "image_res_name": "topic_technology",
+        "total_lessons": 8,
+        "description": "Discussing modern tech devices",
+        "exercises": {
+          "ex_01": {
+            "question_text": "Which device is mentioned first?",
+            "audio_url": "https://example.com/audio/tech1.mp3",
+            "options": [
+              "Smartphone",
+              "Laptop",
+              "Smartwatch",
+              "Tablet"
+            ],
+            "correct_answer_index": 0
+          }
+        }
+      },
+      "lt_03": {
+        "id": "lt_03",
+        "name": "Mental Health",
+        "image_res_name": "topic_mental_health",
+        "total_lessons": 4,
+        "description": "Vocabulary related to health and well-being",
+        "exercises": {}
+      }
+    },
+    "speaking": {
+      "st_01": {
+        "id": "st_01",
+        "name": "Self Introduction",
+        "image_res_name": "ic_person",
+        "total_lessons": 3,
+        "questions": {
+          "sq_01": {
+            "text": "Tell me about yourself.",
+            "sample_audio": "url_sample_1"
+          },
+          "sq_02": {
+            "text": "What are your hobbies?",
+            "sample_audio": "url_sample_2"
+          }
+        }
+      },
+      "st_02": {
+        "id": "st_02",
+        "name": "Shopping",
+        "image_res_name": "ic_shopping_cart",
+        "total_lessons": 5,
+        "questions": {}
+      }
+    },
+    "vocabulary": {
+      "vt_01": {
+        "id": "vt_01",
+        "name": "Animals",
+        "image_res_name": "ic_idiom_animals",
+        "words": {
+          "w_01": {
+            "english": "Elephant",
+            "vietnamese": "Con voi",
+            "pronunciation": "/ˈel.ɪ.fənt/",
+            "type": "noun",
+            "example": "The elephant has a long trunk.",
+            "image_url": "url_image_elephant",
+            "audio_url": "url_audio_elephant"
+          },
+          "w_02": {
+            "english": "Lion",
+            "vietnamese": "Sư tử",
+            "pronunciation": "/ˈlaɪ.ən/",
+            "type": "noun",
+            "example": "Lions are dangerous predators.",
+            "image_url": "url_image_lion",
+            "audio_url": "url_audio_lion"
+          }
+        }
+      }
+    }
+  },
+  "quizzes": {
+    "vocabulary_quiz": {
+      "q_01": {
+        "question": "Choose the correct meaning for: 'Delicious'",
+        "options": ["Tệ hại", "Ngon miệng", "Đắt tiền", "Xấu xí"],
+        "correct_index": 1
+      },
+      "q_02": {
+        "question": "Choose the synonym for: 'Happy'",
+        "options": ["Sad", "Angry", "Joyful", "Tired"],
+        "correct_index": 2
+      }
+    },
+    "listening_quiz": {
+      "q_01": {
+        "audio_url": "url_quiz_audio_1",
+        "question": "What number did you hear?",
+        "options": ["15", "50", "5", "55"],
+        "correct_index": 0
+      }
+    }
+  },
+  "users": {
+    "user_placeholder_id_1": {
+      "profile": {
+        "uid": "user_placeholder_id_1",
+        "email": "test@example.com",
+        "display_name": "Student A",
+        "avatar_url": "default",
+        "created_at": 1715420000000
+      },
+      "statistics": {
+        "current_streak": 5,
+        "total_xp": 350,
+        "words_learned": 25,
+        "time_spent_minutes": 120
+      },
+      "progress": {
+        "listening": {
+          "lt_01": {
+            "completed_lessons": 2,
+            "status": "in_progress",
+            "last_score": 80
+          },
+          "lt_02": {
+            "completed_lessons": 0,
+            "status": "locked",
+            "last_score": 0
+          }
+        },
+        "speaking": {
+          "st_01": {
+            "is_completed": true,
+            "best_score": 90
+          }
+        }
+      },
+      "notifications": {
+        "notif_01": {
+          "title": "Welcome!",
+          "message": "Welcome to EnglishApp. Start learning now!",
+          "is_read": false,
+          "timestamp": 1715420000000
+        }
+      }
+    }
+  }
+}
