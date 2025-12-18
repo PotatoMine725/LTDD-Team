@@ -76,7 +76,7 @@ public class ListeningTopicAdapter extends RecyclerView.Adapter<ListeningTopicAd
         public TopicViewHolder(@NonNull View itemView) {
             super(itemView);
             cardView = (CardView) itemView;
-            topicImage = itemView.findViewById(R.id.topic_image);
+            topicImage = itemView.findViewById(R.id.iv_topic);
             topicTitleText = itemView.findViewById(R.id.topic_title_text);
             topicProgressText = itemView.findViewById(R.id.topic_progress_text);
         }
