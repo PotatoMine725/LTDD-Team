@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -46,4 +47,14 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    // Thư viện nòng cốt (BOM) - Giúp quản lý phiên bản tự động
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+// Thư viện Analytics (hoặc Firestore/Auth sau này bạn cần)
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    // Thêm dòng này vào file build.gradle.kts
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 }
