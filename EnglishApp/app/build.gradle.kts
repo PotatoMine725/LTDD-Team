@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -17,14 +18,13 @@ android {
     }
 
     buildTypes {
-        debug {
-            buildConfigField "String", "API_URL", "\"http://192.168.1.100:8080/api/\""
-            buildConfigField "int", "API_TIMEOUT", "30"
-        }
         release {
-            buildConfigField "String", "API_URL", "\"https://api.yourdomain.com/api/\""
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
-
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -47,9 +47,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    dependencies {
-    // Retrofit để gọi API
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0' // Để chuyển JSON sang Object
-}
+    // Thư viện nòng cốt (BOM) - Giúp quản lý phiên bản tự động
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+// Thư viện Analytics (hoặc Firestore/Auth sau này bạn cần)
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
 }
