@@ -1,4 +1,4 @@
-package com.example.englishapp.adapter;
+package com.example.englishapp.ui.listening;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.englishapp.R;
-import com.example.englishapp.model.ListeningTopic;
+import com.example.englishapp.data.model.ListeningTopic;
 
 import java.util.List;
 
@@ -76,7 +76,7 @@ public class ListeningTopicAdapter extends RecyclerView.Adapter<ListeningTopicAd
         public TopicViewHolder(@NonNull View itemView) {
             super(itemView);
             cardView = (CardView) itemView;
-            topicImage = itemView.findViewById(R.id.iv_topic);
+            topicImage = itemView.findViewById(R.id.topic_image);
             topicTitleText = itemView.findViewById(R.id.topic_title_text);
             topicProgressText = itemView.findViewById(R.id.topic_progress_text);
         }

@@ -1,4 +1,4 @@
-package com.example.englishapp;
+package com.example.englishapp.ui.listening;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -15,8 +15,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.englishapp.adapter.ListeningTopicAdapter;
-import com.example.englishapp.model.ListeningTopic;
+import com.example.englishapp.R;
+import com.example.englishapp.data.model.ListeningTopic;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -28,7 +28,6 @@ public class ListeningTopicActivity extends Fragment {
     private RecyclerView topicsRecyclerView;
     private ListeningTopicAdapter topicAdapter;
     private BottomNavigationView bottomNavigationView;
-
 
     @Nullable
     @Override
@@ -380,8 +379,7 @@ public class ListeningTopicActivity extends Fragment {
 
             // Tạo ListeningExerciseActivity fragment với topic name
             ListeningExerciseActivity exerciseFragment =
-                    // Truyền Topic ID và Lesson ID (ví dụ: "lt_daily" và "ls_daily_01")
-                    ListeningExerciseActivity.newInstance("lt_daily", "ls_daily_01");
+                    ListeningExerciseActivity.newInstance(topic.getTopicName());
 
             // Navigate với animation
             getActivity().getSupportFragmentManager()
