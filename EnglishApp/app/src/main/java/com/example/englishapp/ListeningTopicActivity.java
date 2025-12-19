@@ -29,6 +29,7 @@ public class ListeningTopicActivity extends Fragment {
     private ListeningTopicAdapter topicAdapter;
     private BottomNavigationView bottomNavigationView;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -379,7 +380,8 @@ public class ListeningTopicActivity extends Fragment {
 
             // Tạo ListeningExerciseActivity fragment với topic name
             ListeningExerciseActivity exerciseFragment =
-                    ListeningExerciseActivity.newInstance(topic.getTopicName());
+                    // Truyền Topic ID và Lesson ID (ví dụ: "lt_daily" và "ls_daily_01")
+                    ListeningExerciseActivity.newInstance("lt_daily", "ls_daily_01");
 
             // Navigate với animation
             getActivity().getSupportFragmentManager()
