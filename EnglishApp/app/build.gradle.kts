@@ -15,6 +15,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // map api key từ local peroperies vào buildconfig
+        buildConfigField(
+                "String",
+                "OPENAI_API_KEY",
+                "\"${project.properties["OPENAI_API_KEY"]}\""
+            )
     }
 
     buildTypes {
@@ -32,6 +38,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true // tự dinh ra buildconfig
     }
 }
 
@@ -53,4 +60,11 @@ dependencies {
 // Thư viện Analytics (hoặc Firestore/Auth sau này bạn cần)
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
+    // Thêm dòng này vào file build.gradle.kts
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+
+    // dùng để gửi request từ phía client
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
 }
