@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.englishapp.Fragment.NotificationFragment;
-import com.example.englishapp.utils.TopTabNavigationHelper;
+import com.example.englishapp.ui.common.TopTabNavigationHelper;
 
 /**
  * SpeakingActivity - Main speaking screen
