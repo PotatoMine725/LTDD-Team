@@ -38,7 +38,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".QuizActivity"
+            android:name=".ui.quiz.QuizActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.quiz.QuizResultActivity" />

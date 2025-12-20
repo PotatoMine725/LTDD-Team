@@ -20,10 +20,10 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.englishapp.ui.vocabulary.LessonFragment;
 import com.example.englishapp.ui.home.HomeActivity;
 import com.example.englishapp.ui.listening.ListeningActivity;
-import com.example.englishapp.ui.quiz.QuizActivity;
 import com.example.englishapp.R;
 import com.example.englishapp.ui.speaking.SpeakingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.englishapp.ui.quiz.QuizActivity;
 
 public class TopTabNavigationHelper {
 
