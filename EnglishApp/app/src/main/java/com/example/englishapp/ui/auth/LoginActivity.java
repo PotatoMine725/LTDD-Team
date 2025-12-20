@@ -18,7 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -66,33 +66,36 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
+        if (!btnLogin.isEnabled()) return;
+
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
             edtEmail.setError("Vui lòng nhập Email");
-            edtEmail.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
             edtPassword.setError("Vui lòng nhập Mật khẩu");
-            edtPassword.requestFocus();
             return;
         }
 
+        btnLogin.setEnabled(false);
+
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Đăng nhập thành công!",
-                                    Toast.LENGTH_SHORT).show();
-                            navigateToHome();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Đăng nhập thất bại.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                .addOnCompleteListener(task -> {
+                    btnLogin.setEnabled(true);
+
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this,
+                                "Đăng nhập thành công!",
+                                Toast.LENGTH_SHORT).show();
+                        navigateToHome();
+                    } else {
+                        Toast.makeText(this,
+                                task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
