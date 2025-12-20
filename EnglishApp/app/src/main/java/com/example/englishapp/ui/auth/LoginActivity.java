@@ -29,21 +29,12 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // Kiểm tra user hiện tại
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            navigateToHome();
-        }
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lyt_login);
 
         mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
 
         // --- BẮT ĐẦU SỬA ---
         // 1. Ánh xạ View (Kiểm tra kỹ ID trong lyt_login.xml)
