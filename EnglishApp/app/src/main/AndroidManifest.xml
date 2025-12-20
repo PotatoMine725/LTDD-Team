@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EnglishApp">
         <activity
+            android:name=".ui.chat.ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".GetStartedActivity"
             android:exported="true">
             <intent-filter>
@@ -19,28 +24,20 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Màn hình Đăng nhập -->
+        </activity> <!-- Màn hình Đăng nhập -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
-
-        <!-- Màn hình Đăng ký -->
+            android:exported="false" /> <!-- Màn hình Đăng ký -->
         <activity
             android:name=".RegisterActivity"
-            android:exported="false" />
-
-        <!-- Màn hình Chính (Home) -->
+            android:exported="false" /> <!-- Màn hình Chính (Home) -->
         <activity
             android:name=".HomeActivity"
             android:exported="false" />
-
         <activity
             android:name=".QuizActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.quiz.QuizResultActivity" />
+        <activity android:name=".ui.quiz.QuizResultActivity" />
     </application>
 
 </manifest>

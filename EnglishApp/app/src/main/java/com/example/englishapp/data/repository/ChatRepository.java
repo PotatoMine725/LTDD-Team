@@ -2,6 +2,7 @@ package com.example.englishapp.data.repository;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.englishapp.data.api.OpenAICallBack;
 import com.example.englishapp.data.api.OpenAIService;
 import com.example.englishapp.data.model.ChatMessage;
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,8 +54,50 @@ public class ChatRepository {
                     }
                 });
     }
-    public  void sendMessage(String message, MutableLiveData<List<ChatMessage>> liveData){
-        
+    public void sendMessage(String message, MutableLiveData<List<ChatMessage>> liveData){
+        FirebaseUser user = getUser();
+        if(user == null)
+            return;
+        long now = System.currentTimeMillis();// lấy thời gian hiện tại mili giây
+        // lưu message của user lên firebase
+        ChatMessage usermsg = new ChatMessage(message, "user", now);
+        pushMessage(user.getUid(), usermsg);
+        // thêm tin nhắn vào Mutiltable ra UI
+        addToLiveData(liveData, usermsg);
+
+
+        // gọi AI để laasy respone
+        openAIService.sendMessage(message, new OpenAICallBack() {
+            @Override
+            public void onSuccess(String reply) {
+                ChatMessage aiMs = new ChatMessage(reply, "ai", System.currentTimeMillis());
+                // lưu câu trả lời của ai lên realtime
+                pushMessage(user.getUid(), aiMs);
+            }
+
+            @Override
+            public void onError(String error) {
+                ChatMessage aiMs = new ChatMessage(error, "ai", System.currentTimeMillis());
+                pushMessage(user.getUid(), aiMs);
+            }
+        }
+    }
+//    hàm lưu tin nhắn ở local vào firebase
+    public void pushMessage(String userId, ChatMessage message){
+        rootRef.child("users")
+                .child(userId)
+                .child("chats")
+                .push()
+                .setValue(message);// -> realtime trên firebase tự động convert từ obj ->json
+    }
+    // hàm cập nhật dữ liệu cho UI thông qua MutableLiveData
+    public void addToLiveData(MutableLiveData<List<ChatMessage>> liveData, ChatMessage message){
+        List<ChatMessage> currentList = liveData.getValue();
+        if(currentList == null){
+            currentList = new ArrayList<>();
+        }
+        currentList.add(message);
+        liveData.postValue(currentList);
     }
 }
 
