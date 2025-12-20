@@ -1,4 +1,4 @@
-package com.example.englishapp;
+package com.example.englishapp.ui.listening;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -12,11 +12,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
+import com.example.englishapp.R;
 import com.example.englishapp.adapter.ListeningLessonAdapter;
 import com.example.englishapp.model.ListeningLesson;
 import com.example.englishapp.service.FirebaseService;

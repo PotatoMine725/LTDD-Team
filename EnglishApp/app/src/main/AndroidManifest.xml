@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EnglishApp">
         <activity
-            android:name=".GetStartedActivity"
+            android:name=".ui.auth.GetStartedActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,17 +24,17 @@
 
         <!-- Màn hình Đăng nhập -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.auth.LoginActivity"
             android:exported="false" />
 
         <!-- Màn hình Đăng ký -->
         <activity
-            android:name=".RegisterActivity"
+            android:name=".ui.auth.RegisterActivity"
             android:exported="false" />
 
         <!-- Màn hình Chính (Home) -->
         <activity
-            android:name=".HomeActivity"
+            android:name=".ui.home.HomeActivity"
             android:exported="false" />
 
         <activity

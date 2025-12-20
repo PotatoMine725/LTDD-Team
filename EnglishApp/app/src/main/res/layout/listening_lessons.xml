@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@android:color/white"
-    tools:context=".ListeningLessonsFragment">
+    tools:context=".ui.listening.ListeningLessonsFragment">
 
     <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout

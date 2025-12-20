@@ -1,5 +1,5 @@
 package com.example.englishapp.ui.quiz;
-import com.example.englishapp.HomeActivity;
+import com.example.englishapp.ui.home.HomeActivity;
 import com.example.englishapp.R;
 
 import android.content.Intent;
