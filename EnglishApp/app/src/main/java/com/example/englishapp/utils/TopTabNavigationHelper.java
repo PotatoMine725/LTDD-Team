@@ -18,7 +18,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.englishapp.Fragment.LessonFragment;
-import com.example.englishapp.HomeActivity;
+import com.example.englishapp.ui.home.HomeActivity;
 import com.example.englishapp.ListeningActivity;
 import com.example.englishapp.QuizActivity;
 import com.example.englishapp.R;

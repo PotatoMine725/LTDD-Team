@@ -17,13 +17,13 @@ import androidx.core.os.TraceCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.englishapp.ui.vocabulary.LessonFragment;
-import com.example.englishapp.ui.common.NotificationFragment;
-import com.example.englishapp.ui.profile.ProfileFragment;
-import com.example.englishapp.ui.stats.StatisticsFragment;
-import com.example.englishapp.ui.listening.ListeningActivity;
+import com.example.englishapp.Fragment.LessonFragment;
+import com.example.englishapp.Fragment.NotificationFragment;
+import com.example.englishapp.Fragment.ProfileFragment;
+import com.example.englishapp.Fragment.StatisticsFragment;
+import com.example.englishapp.ListeningActivity;
 import com.example.englishapp.R;
-import com.example.englishapp.ui.speaking.SpeakingActivity;
+import com.example.englishapp.SpeakingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -49,11 +49,15 @@ public class HomeActivity extends AppCompatActivity {
             setupOnBackPressed();
 
             handleIncomingIntent();
+
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
             Toast.makeText(this, "Failed to initialize app", Toast.LENGTH_SHORT).show();
         }
+
     }
+    // COPY HÀM NÀY DÁN ĐÈ LÊN HÀM testFirebaseConnection CŨ
+
 
     private void setupViews() {
         try {

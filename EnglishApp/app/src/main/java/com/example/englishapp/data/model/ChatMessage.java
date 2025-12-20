@@ -12,4 +12,8 @@ public class ChatMessage {
         this.sender = sender;
         this.timestamp = timestamp;
     }
+    // xác đinh kiểu messgae, user hoặc ai
+    public int getViewType() {
+        return sender != null && sender.equals("user") ? 0 : 1;
+    }
 }

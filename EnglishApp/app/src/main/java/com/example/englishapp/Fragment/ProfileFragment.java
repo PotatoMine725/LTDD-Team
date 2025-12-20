@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.englishapp.LoginActivity;
 import com.example.englishapp.R;
 
 public class ProfileFragment extends Fragment {

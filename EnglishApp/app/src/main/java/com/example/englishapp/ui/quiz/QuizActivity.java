@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
-import com.example.englishapp.ui.home.HomeActivity;
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;

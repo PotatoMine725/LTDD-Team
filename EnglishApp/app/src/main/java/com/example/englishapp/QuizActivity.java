@@ -1,10 +1,10 @@
 package com.example.englishapp;
+import com.example.englishapp.ui.home.HomeActivity;
 import com.example.englishapp.ui.quiz.QuizResultActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,7 +23,6 @@ import com.example.englishapp.model.QuizQuestion;
 
 import com.example.englishapp.utils.TopTabNavigationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
