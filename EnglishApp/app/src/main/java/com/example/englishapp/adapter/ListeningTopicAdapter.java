@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.englishapp.R;
 import com.example.englishapp.model.ListeningTopic;
 
@@ -89,8 +90,21 @@ public class ListeningTopicAdapter extends RecyclerView.Adapter<ListeningTopicAd
                 // Set progress
                 topicProgressText.setText(topic.getProgressText());
 
-                // Set image
-                topicImage.setImageResource(topic.getImageResourceId());
+                // Set image từ URL hoặc fallback resource
+                if (topic.hasImageUrl()) {
+                    Log.d(TAG, "Loading image from URL: " + topic.getImageUrl());
+                    Glide.with(itemView.getContext())
+                            .load(topic.getImageUrl())
+                            .placeholder(R.drawable.topic_technology) // Placeholder khi đang load
+                            .error(R.drawable.topic_technology) // Ảnh lỗi nếu load fail
+                            .centerCrop()
+                            .into(topicImage);
+                } else {
+                    // Fallback to resource ID nếu không có URL
+                    Log.d(TAG, "Using resource image for topic: " + topic.getTopicName());
+                    topicImage.setImageResource(topic.getImageResourceId() != 0 ? 
+                            topic.getImageResourceId() : R.drawable.topic_technology);
+                }
 
                 // Click listener cho toàn bộ card
                 cardView.setOnClickListener(v -> {
