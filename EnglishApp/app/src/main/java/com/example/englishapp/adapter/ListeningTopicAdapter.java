@@ -95,8 +95,8 @@ public class ListeningTopicAdapter extends RecyclerView.Adapter<ListeningTopicAd
                     Log.d(TAG, "Loading image from URL: " + topic.getImageUrl());
                     Glide.with(itemView.getContext())
                             .load(topic.getImageUrl())
-                            .placeholder(R.drawable.topic_technology) // Placeholder khi đang load
-                            .error(R.drawable.topic_technology) // Ảnh lỗi nếu load fail
+                            .placeholder(R.drawable.topic_technology)
+                            .error(R.drawable.topic_technology)
                             .centerCrop()
                             .into(topicImage);
                 } else {

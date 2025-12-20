@@ -21,10 +21,10 @@ import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
 
 /**
- * SpeakingTopicsActivity - Displays speaking topics and AI chat
+ * SpeakingTopicsFragment - Displays speaking topics and AI chat
  * User can navigate back to Speaking screen or forward to SpeakingTest
  */
-public class SpeakingTopicsActivity extends Fragment {
+public class SpeakingTopicsFragment extends Fragment {
 
     private static final String TAG = "SpeakingTopicsFragment";
 
@@ -93,14 +93,14 @@ public class SpeakingTopicsActivity extends Fragment {
                 return;
             }
 
-            // Pop back stack để quay về SpeakingActivity
+            // Pop back stack để quay về SpeakingFragment
             if (getActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
                 getActivity().getSupportFragmentManager().popBackStack();
                 Log.d(TAG, "Navigated back successfully");
             } else {
                 Log.w(TAG, "No back stack entry found");
-                // Fallback: Manually navigate to SpeakingActivity
-                SpeakingActivity speakingFragment = new SpeakingActivity();
+                // Fallback: Manually navigate to SpeakingFragment
+                SpeakingFragment speakingFragment = new SpeakingFragment();
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(
@@ -109,7 +109,7 @@ public class SpeakingTopicsActivity extends Fragment {
                                 R.anim.slide_in_right,  // popEnter
                                 R.anim.slide_out_left   // popExit
                         )
-                        .replace(R.id.container, speakingFragment, "SpeakingActivity")
+                        .replace(R.id.container, speakingFragment, "SpeakingFragment")
                         .commit();
                 Log.d(TAG, "Manually navigated back to Speaking screen");
             }
@@ -129,13 +129,10 @@ public class SpeakingTopicsActivity extends Fragment {
             cardTravel = view.findViewById(R.id.cardTravel);
             cardStudy = view.findViewById(R.id.cardStudy);
 
-            // Chat section
+            // Chat section - các component để tương tác với AI chat
             btnStartChat = view.findViewById(R.id.btnStartChat);
             etMessageInput = view.findViewById(R.id.etMessageInput);
             btnSendMessage = view.findViewById(R.id.btnSendMessage);
-
-
-            // Notification button
             btnNotification = view.findViewById(R.id.btn_notification);
 
             Log.d(TAG, "All views initialized successfully");
@@ -170,12 +167,12 @@ public class SpeakingTopicsActivity extends Fragment {
                 cardStudy.setOnClickListener(v -> onTopicCardClicked("Study Abroad"));
             }
 
-            // Start Chat button
+            // Start Chat button - khởi động cuộc trò chuyện với AI
             if (btnStartChat != null) {
                 btnStartChat.setOnClickListener(v -> onStartChatClicked());
             }
 
-            // Send message button
+            // Send message button - gửi tin nhắn đến AI để xử lý ngôn ngữ tự nhiên
             if (btnSendMessage != null) {
                 btnSendMessage.setOnClickListener(v -> onSendMessageClicked());
             }
@@ -213,8 +210,8 @@ public class SpeakingTopicsActivity extends Fragment {
                 return;
             }
 
-            // Navigate to SpeakingTestActivity
-            SpeakingTestActivity speakingTestFragment = SpeakingTestActivity.newInstance(topicName);
+            // Navigate to SpeakingTestFragment
+            SpeakingTestFragment speakingTestFragment = SpeakingTestFragment.newInstance(topicName);
 
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -224,7 +221,7 @@ public class SpeakingTopicsActivity extends Fragment {
                             R.anim.slide_in_left,   // popEnter
                             R.anim.slide_out_right  // popExit
                     )
-                    .replace(R.id.container, speakingTestFragment, "SpeakingTestActivity")
+                    .replace(R.id.container, speakingTestFragment, "SpeakingTestFragment")
                     .addToBackStack("SpeakingTest")
                     .commit();
 
@@ -239,6 +236,8 @@ public class SpeakingTopicsActivity extends Fragment {
 
     /**
      * Handle Start Chat button click
+     * Khởi động cuộc trò chuyện với AI để học tiếng Anh
+     * Sử dụng machine learning để phân tích và trả lời câu hỏi
      */
     private void onStartChatClicked() {
         Intent intent = new Intent(getActivity(), ChatActivity.class);
@@ -247,6 +246,8 @@ public class SpeakingTopicsActivity extends Fragment {
 
     /**
      * Handle Send Message button click
+     * Gửi tin nhắn đến AI để xử lý ngôn ngữ tự nhiên
+     * AI sẽ phân tích và trả lời câu hỏi tiếng Anh của người dùng
      */
     private void onSendMessageClicked() {
         try {
@@ -292,7 +293,7 @@ public class SpeakingTopicsActivity extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "SpeakingTopicsActivity destroyed");
+        Log.d(TAG, "SpeakingTopicsFragment destroyed");
 
         // Clean up references
         cardBusiness = null;
@@ -305,3 +306,4 @@ public class SpeakingTopicsActivity extends Fragment {
         btnBack = null;
     }
 }
+

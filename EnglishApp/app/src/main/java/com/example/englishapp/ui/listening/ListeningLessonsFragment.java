@@ -186,8 +186,8 @@ public class ListeningLessonsFragment extends Fragment {
 
             Log.d(TAG, "Navigating to exercise - Topic: " + topicId + ", Lesson: " + lesson.getLessonId());
 
-            ListeningExerciseActivity exerciseFragment =
-                    ListeningExerciseActivity.newInstance(topicId, lesson.getLessonId());
+            ListeningExerciseFragment exerciseFragment =
+                    ListeningExerciseFragment.newInstance(topicId, lesson.getLessonId());
 
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -197,7 +197,7 @@ public class ListeningLessonsFragment extends Fragment {
                             R.anim.slide_in_left,
                             R.anim.slide_out_right
                     )
-                    .replace(R.id.container, exerciseFragment, "ListeningExerciseActivity")
+                    .replace(R.id.container, exerciseFragment, "ListeningExerciseFragment")
                     .addToBackStack("LessonsToExercise")
                     .commit();
         } catch (Exception e) {
