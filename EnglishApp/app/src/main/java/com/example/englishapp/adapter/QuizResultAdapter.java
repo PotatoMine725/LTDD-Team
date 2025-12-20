@@ -48,17 +48,15 @@ public class QuizResultAdapter extends RecyclerView.Adapter<QuizResultAdapter.Vi
             holder.tvYourAnswer.setText("Your answer: " + userAnsText);
 
             if (userIndex == correctIndex) {
-                // ĐÚNG
-                holder.tvYourAnswer.setTextColor(Color.parseColor("#4CAF50")); // Xanh
+                holder.tvYourAnswer.setTextColor(Color.parseColor("#4CAF50"));
                 holder.tvCorrectAnswer.setVisibility(View.GONE);
-                holder.ivStatus.setImageResource(R.drawable.ic_check_circle); // Hoặc ic_check_green
+                holder.ivStatus.setImageResource(R.drawable.ic_check_circle);
                 holder.ivStatus.setColorFilter(Color.parseColor("#4CAF50"));
             } else {
-                // SAI
                 holder.tvYourAnswer.setTextColor(Color.RED);
                 holder.tvCorrectAnswer.setVisibility(View.VISIBLE);
                 holder.tvCorrectAnswer.setText("Correct answer: " + options.get(correctIndex));
-                holder.ivStatus.setImageResource(R.drawable.ic_exit); // Dùng tạm icon X hoặc tạo icon close
+                holder.ivStatus.setImageResource(R.drawable.ic_exit);
                 holder.ivStatus.setColorFilter(Color.RED);
             }
         } else {

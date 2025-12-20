@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ListeningExerciseActivity extends Fragment {
+public class ListeningExerciseFragment extends Fragment {
 
-    private static final String TAG = "ListeningExercise";
+    private static final String TAG = "ListeningExerciseFragment";
     private static final String ARG_TOPIC_ID = "topic_id";
     private static final String ARG_LESSON_ID = "lesson_id";
 
@@ -88,8 +88,8 @@ public class ListeningExerciseActivity extends Fragment {
         }
     }
 
-    public static ListeningExerciseActivity newInstance(String topicId, String lessonId) {
-        ListeningExerciseActivity fragment = new ListeningExerciseActivity();
+    public static ListeningExerciseFragment newInstance(String topicId, String lessonId) {
+        ListeningExerciseFragment fragment = new ListeningExerciseFragment();
         Bundle args = new Bundle();
         args.putString(ARG_TOPIC_ID, topicId);
         args.putString(ARG_LESSON_ID, lessonId);

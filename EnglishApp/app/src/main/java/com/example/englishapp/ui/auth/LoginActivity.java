@@ -12,7 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.englishapp.ui.home.HomeActivity; // SỬA: Import đúng đường dẫn HomeActivity
+import com.example.englishapp.ui.home.HomeActivity;
 import com.example.englishapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,15 +45,10 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // --- BẮT ĐẦU SỬA ---
-        // 1. Ánh xạ View (Kiểm tra kỹ ID trong lyt_login.xml)
-        edtEmail = findViewById(R.id.edt_username);       // Sửa ID cho đúng chuẩn (thường là edt_email)
+        edtEmail = findViewById(R.id.edt_username);
         edtPassword = findViewById(R.id.edt_password);
         btnLogin = findViewById(R.id.btn_login);
-
-        // QUAN TRỌNG: Phải ánh xạ tvRegister trước khi sử dụng
         tvRegister = findViewById(R.id.tv_sign_up);
-        // --- KẾT THÚC SỬA ---
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override

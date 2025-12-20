@@ -10,23 +10,31 @@ public class QuizQuestion implements Serializable {
     private int correctIndex;
     private String imageUrl;
 
-    // Biến lưu trạng thái người dùng chọn (mặc định là -1: chưa chọn)
+    /**
+     * Biến lưu trạng thái người dùng chọn (mặc định là -1: chưa chọn)
+     */
     private int userSelectedIndex = -1;
 
-    // 1. Constructor rỗng (Bắt buộc cho Firebase)
+    /**
+     * Constructor rỗng bắt buộc cho Firebase
+     */
     public QuizQuestion() {
     }
 
-    // 2. Constructor chính (Sửa để khớp với QuizActivity)
+    /**
+     * Constructor chính để tạo QuizQuestion
+     */
     public QuizQuestion(String id, String question, List<String> options, int correctIndex) {
         this.id = id;
         this.question = question;
         this.options = options;
         this.correctIndex = correctIndex;
-        this.userSelectedIndex = -1; // Mặc định chưa chọn
+        this.userSelectedIndex = -1;
     }
-
-    // 3. Constructor đầy đủ (Nếu cần dùng sau này)
+    
+    /**
+     * Constructor đầy đủ bao gồm imageUrl
+     */
     public QuizQuestion(String id, String question, List<String> options, int correctIndex, String imageUrl) {
         this.id = id;
         this.question = question;
@@ -35,8 +43,6 @@ public class QuizQuestion implements Serializable {
         this.imageUrl = imageUrl;
         this.userSelectedIndex = -1;
     }
-
-    // --- Getter & Setter ---
 
     public String getId() {
         return id;

@@ -5,10 +5,12 @@ public class ChatMessage {
     public static final int TYPE_AI = 1;
 
     private String message;
-    private String sender; // "user" | "ai"
+    private String sender; // "user" hoặc "ai"
     private long timestamp;
-
-    // Firestore cần constructor rỗng
+    
+    /**
+     * Constructor rỗng bắt buộc cho Firebase Firestore
+     */
     public ChatMessage() {
     }
 

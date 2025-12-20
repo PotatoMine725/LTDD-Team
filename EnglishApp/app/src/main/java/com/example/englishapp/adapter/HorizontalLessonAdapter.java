@@ -82,8 +82,8 @@ public class HorizontalLessonAdapter extends RecyclerView.Adapter<HorizontalLess
                         Log.d(TAG, "Loading lesson image from URL: " + lesson.getImageUrl());
                         Glide.with(itemView.getContext())
                                 .load(lesson.getImageUrl())
-                                .placeholder(R.drawable.ic_idiom_animals) // Placeholder
-                                .error(R.drawable.ic_idiom_animals) // Error image
+                                .placeholder(R.drawable.ic_idiom_animals)
+                                .error(R.drawable.ic_idiom_animals)
                                 .centerCrop()
                                 .into(lessonImage);
                     } else {
