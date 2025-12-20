@@ -297,10 +297,32 @@ public class ListeningTopicActivity extends Fragment {
             }
 
             Log.d(TAG, "Navigating to lessons for topic: " + topic.getTopicName());
-            showMessage("Opening " + topic.getTopicName());
+            
+            // Lấy topicId từ topic object
+            String topicId = topic.getTopicId();
+            if (topicId == null || topicId.isEmpty()) {
+                // Fallback: tạo topicId từ tên topic
+                topicId = "lt_" + topic.getTopicName().toLowerCase().replace(" ", "_");
+                Log.w(TAG, "Topic ID not found, using generated ID: " + topicId);
+            }
 
-            // TODO: Implement navigation to lessons fragment
+            // Navigate đến ListeningLessonsFragment
+            ListeningLessonsFragment lessonsFragment = 
+                    ListeningLessonsFragment.newInstance(topicId, topic.getTopicName());
 
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left,
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_right
+                    )
+                    .replace(R.id.container, lessonsFragment, "ListeningLessonsFragment")
+                    .addToBackStack("TopicToLessons")
+                    .commit();
+
+            Log.d(TAG, "Navigated to lessons for topic: " + topicId);
         } catch (Exception e) {
             Log.e(TAG, "Error navigating to topic lessons", e);
             showError("Failed to open topic");

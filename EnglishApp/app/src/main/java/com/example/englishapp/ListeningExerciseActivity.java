@@ -26,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ListeningExerciseActivity extends Fragment {
@@ -45,6 +46,40 @@ public class ListeningExerciseActivity extends Fragment {
 
     private MediaPlayer mediaPlayer;
     private String audioUrlFromFirebase; // Biến lưu link nhạc
+    
+    // Danh sách lessons để chuyển đổi
+    private List<LessonInfo> availableLessons = new ArrayList<>();
+    private int currentLessonIndex = -1;
+    
+    // Inner class để lưu thông tin lesson
+    private static class LessonInfo {
+        String lessonId;
+        String title;
+        String imageUrl;
+        boolean hasContent;
+
+        LessonInfo(String lessonId, String title, String imageUrl, boolean hasContent) {
+            this.lessonId = lessonId;
+            this.title = title;
+            this.imageUrl = imageUrl;
+            this.hasContent = hasContent;
+        }
+    }
+    
+    // Inner class để lưu trữ dữ liệu câu hỏi
+    private static class QuestionData {
+        String questionText;
+        List<String> options;
+        int correctIndex;
+        int order;
+
+        QuestionData(String questionText, List<String> options, int correctIndex, int order) {
+            this.questionText = questionText;
+            this.options = options;
+            this.correctIndex = correctIndex;
+            this.order = order;
+        }
+    }
 
     public static ListeningExerciseActivity newInstance(String topicId, String lessonId) {
         ListeningExerciseActivity fragment = new ListeningExerciseActivity();
@@ -89,7 +124,21 @@ public class ListeningExerciseActivity extends Fragment {
         ImageView playPauseButton = view.findViewById(R.id.play_pause_button);
         ImageView stopButton = view.findViewById(R.id.stop_button);
 
-        loadDataFromFirebase();
+        // Thêm click listener cho ảnh để chuyển lesson
+        if (ivTopic != null) {
+            ivTopic.setOnClickListener(v -> {
+                Log.d(TAG, "Image clicked! Current lesson: " + lessonId);
+                switchToNextLesson();
+            });
+            // Đảm bảo ảnh có thể click được
+            ivTopic.setClickable(true);
+            ivTopic.setFocusable(true);
+        } else {
+            Log.e(TAG, "ivTopic is null! Cannot set click listener");
+        }
+
+        // Load danh sách lessons trước, sau đó load lesson hiện tại
+        loadLessonsList();
 
         submitButton.setOnClickListener(v -> checkAnswers());
         backIcon.setOnClickListener(v -> getParentFragmentManager().popBackStack());
@@ -110,6 +159,149 @@ public class ListeningExerciseActivity extends Fragment {
         });
     }
 
+    /**
+     * Load danh sách lessons của topic để có thể chuyển đổi
+     */
+    private void loadLessonsList() {
+        if (topicId == null) {
+            Log.e(TAG, "Topic ID is null");
+            loadDataFromFirebase();
+            return;
+        }
+
+        DatabaseReference lessonsRef = mDatabase.child("topics")
+                .child("listening")
+                .child(topicId)
+                .child("lessons");
+
+        lessonsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                availableLessons.clear();
+                
+                if (snapshot.exists()) {
+                    for (DataSnapshot lessonSnapshot : snapshot.getChildren()) {
+                        try {
+                            String lessonIdFromFirebase = lessonSnapshot.getKey();
+                            String title = lessonSnapshot.child("title").getValue(String.class);
+                            String imageUrl = lessonSnapshot.child("image_url").getValue(String.class);
+                            
+                            // Kiểm tra xem lesson có questions không (có nội dung)
+                            DataSnapshot questionsSnapshot = lessonSnapshot.child("questions");
+                            boolean hasContent = questionsSnapshot.exists() && questionsSnapshot.getChildrenCount() > 0;
+                            
+                            if (title != null && lessonIdFromFirebase != null) {
+                                availableLessons.add(new LessonInfo(
+                                        lessonIdFromFirebase,
+                                        title,
+                                        imageUrl != null ? imageUrl : "",
+                                        hasContent
+                                ));
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing lesson info", e);
+                        }
+                    }
+                    
+                    // Sắp xếp lessons theo ID để đảm bảo thứ tự
+                    Collections.sort(availableLessons, (l1, l2) -> l1.lessonId.compareTo(l2.lessonId));
+                    
+                    // Tìm index của lesson hiện tại
+                    for (int i = 0; i < availableLessons.size(); i++) {
+                        if (availableLessons.get(i).lessonId.equals(lessonId)) {
+                            currentLessonIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    Log.d(TAG, "Loaded " + availableLessons.size() + " lessons, current index: " + currentLessonIndex);
+                }
+                
+                // Sau khi load xong danh sách lessons, load lesson hiện tại
+                loadDataFromFirebase();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Firebase Error loading lessons list: " + error.getMessage());
+                // Vẫn load lesson hiện tại nếu lỗi
+                loadDataFromFirebase();
+            }
+        });
+    }
+
+    /**
+     * Chuyển sang lesson tiếp theo (chỉ 2 lesson đầu tiên có nội dung)
+     */
+    private void switchToNextLesson() {
+        Log.d(TAG, "switchToNextLesson called. Available lessons: " + availableLessons.size());
+        
+        if (availableLessons.isEmpty()) {
+            Log.w(TAG, "No lessons available, reloading lessons list...");
+            loadLessonsList();
+            Toast.makeText(getContext(), "Đang tải danh sách bài học...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Lọc chỉ lấy 2 lesson đầu tiên có nội dung
+        List<LessonInfo> lessonsWithContent = new ArrayList<>();
+        for (LessonInfo lesson : availableLessons) {
+            if (lesson.hasContent && lessonsWithContent.size() < 2) {
+                lessonsWithContent.add(lesson);
+                Log.d(TAG, "Added lesson with content: " + lesson.title + " (ID: " + lesson.lessonId + ")");
+            }
+        }
+
+        if (lessonsWithContent.isEmpty()) {
+            Toast.makeText(getContext(), "Không có lesson nào có nội dung", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (lessonsWithContent.size() < 2) {
+            Toast.makeText(getContext(), "Chỉ có " + lessonsWithContent.size() + " lesson có nội dung", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Tìm lesson hiện tại trong danh sách có nội dung
+        int currentIndexInContentList = -1;
+        for (int i = 0; i < lessonsWithContent.size(); i++) {
+            if (lessonsWithContent.get(i).lessonId.equals(lessonId)) {
+                currentIndexInContentList = i;
+                Log.d(TAG, "Found current lesson at index: " + i);
+                break;
+            }
+        }
+
+        // Nếu không tìm thấy lesson hiện tại, mặc định chuyển sang lesson đầu tiên
+        if (currentIndexInContentList == -1) {
+            Log.w(TAG, "Current lesson not found in content list, switching to first lesson");
+            currentIndexInContentList = 0;
+        }
+
+        // Chuyển sang lesson tiếp theo (hoặc quay lại lesson đầu tiên nếu đang ở lesson cuối)
+        int nextIndex = (currentIndexInContentList + 1) % lessonsWithContent.size();
+        LessonInfo nextLesson = lessonsWithContent.get(nextIndex);
+
+        Log.d(TAG, "Switching from lesson " + lessonId + " to lesson: " + nextLesson.title + " (ID: " + nextLesson.lessonId + ")");
+
+        // Dừng audio nếu đang phát
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        
+        // Reset radio buttons
+        if (radioGroup1 != null) radioGroup1.clearCheck();
+        if (radioGroup2 != null) radioGroup2.clearCheck();
+        
+        // Cập nhật lessonId và reload
+        lessonId = nextLesson.lessonId;
+        
+        // Reload dữ liệu
+        loadDataFromFirebase();
+    }
+
     private void loadDataFromFirebase() {
 //        if (topicId == null || lessonId == null) {
 //            Log.e("CHECK_DATA", "LỖI: Một trong hai ID bị null!");
@@ -126,50 +318,150 @@ public class ListeningExerciseActivity extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    Log.d("DEBUG", "Dữ liệu đã về!");
+                    Log.d(TAG, "Dữ liệu đã về! Topic: " + topicId + ", Lesson: " + lessonId);
+                    
                     // 1. Load tiêu đề và ảnh
                     String title = snapshot.child("title").getValue(String.class);
                     String imageUrl = snapshot.child("image_url").getValue(String.class);
                     audioUrlFromFirebase = snapshot.child("audio_url").getValue(String.class);
 
-                    if (tvTitle != null) tvTitle.setText(title);
-
-                    // Load ảnh bằng Glide (Phải đúng ID view là now_playing_image)
-                    if (imageUrl != null && isAdded()) {
-                        Glide.with(ListeningExerciseActivity.this).load(imageUrl).into(ivTopic);
+                    if (tvTitle != null && title != null) {
+                        tvTitle.setText(title);
                     }
 
-                    // 2. Load danh sách câu hỏi
+                    // Load ảnh bằng Glide với placeholder và error handling
+                    if (isAdded() && ivTopic != null) {
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Log.d(TAG, "Loading image from URL: " + imageUrl);
+                            Glide.with(requireContext())
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.topic_technology) // Ảnh placeholder
+                                    .error(R.drawable.topic_technology) // Ảnh lỗi
+                                    .into(ivTopic);
+                            Log.d(TAG, "Image load request sent to Glide");
+                        } else {
+                            // Nếu không có imageUrl, dùng ảnh mặc định
+                            ivTopic.setImageResource(R.drawable.topic_technology);
+                            Log.w(TAG, "No image URL found, using default image");
+                        }
+                    } else {
+                        Log.e(TAG, "Cannot load image: isAdded=" + isAdded() + ", ivTopic=" + (ivTopic != null));
+                    }
+
+                    // 2. Load danh sách câu hỏi (questions là một array)
                     DataSnapshot questionsSnapshot = snapshot.child("questions");
                     correctAnswers.clear();
-                    int count = 0;
+                    
+                    Log.d(TAG, "Questions snapshot exists: " + questionsSnapshot.exists());
+                    if (questionsSnapshot.exists()) {
+                        Log.d(TAG, "Questions children count: " + questionsSnapshot.getChildrenCount());
+                    }
+                    
+                    // Tạo list để sắp xếp questions theo order
+                    List<QuestionData> questionList = new ArrayList<>();
+                    
+                    if (questionsSnapshot.exists() && questionsSnapshot.getChildrenCount() > 0) {
+                        int questionIndex = 0;
+                        for (DataSnapshot qSnap : questionsSnapshot.getChildren()) {
+                            try {
+                                Log.d(TAG, "Processing question at index " + questionIndex + ", key: " + qSnap.getKey());
+                                
+                                String qText = qSnap.child("question_text").getValue(String.class);
+                                Integer correctIdx = qSnap.child("correct_index").getValue(Integer.class);
+                                Integer order = qSnap.child("order").getValue(Integer.class);
 
-                    for (DataSnapshot qSnap : questionsSnapshot.getChildren()) {
-                        String qText = qSnap.child("question_text").getValue(String.class);
-                        Integer correctIdx = qSnap.child("correct_index").getValue(Integer.class);
+                                Log.d(TAG, "Question data - text: " + qText + ", correctIdx: " + correctIdx + ", order: " + order);
 
-                        // Lấy danh sách options thủ công để tránh lỗi ép kiểu
-                        List<String> options = new ArrayList<>();
-                        for (DataSnapshot opt : qSnap.child("options").getChildren()) {
-                            options.add(opt.getValue(String.class));
+                                // Lấy danh sách options từ array
+                                List<String> options = new ArrayList<>();
+                                DataSnapshot optionsSnapshot = qSnap.child("options");
+                                if (optionsSnapshot.exists()) {
+                                    Log.d(TAG, "Options exists, children count: " + optionsSnapshot.getChildrenCount());
+                                    
+                                    // Sắp xếp theo key để đảm bảo thứ tự đúng
+                                    List<DataSnapshot> optionSnapshots = new ArrayList<>();
+                                    for (DataSnapshot opt : optionsSnapshot.getChildren()) {
+                                        optionSnapshots.add(opt);
+                                    }
+                                    // Sắp xếp theo key (numeric)
+                                    optionSnapshots.sort((s1, s2) -> {
+                                        try {
+                                            int key1 = Integer.parseInt(s1.getKey());
+                                            int key2 = Integer.parseInt(s2.getKey());
+                                            return Integer.compare(key1, key2);
+                                        } catch (NumberFormatException e) {
+                                            return s1.getKey().compareTo(s2.getKey());
+                                        }
+                                    });
+                                    
+                                    for (DataSnapshot opt : optionSnapshots) {
+                                        String optionValue = opt.getValue(String.class);
+                                        if (optionValue != null) {
+                                            options.add(optionValue);
+                                            Log.d(TAG, "Added option: " + optionValue);
+                                        }
+                                    }
+                                } else {
+                                    Log.w(TAG, "Options snapshot does not exist for question");
+                                }
+
+                                if (qText != null && correctIdx != null && order != null) {
+                                    questionList.add(new QuestionData(qText, options, correctIdx, order));
+                                    Log.d(TAG, "Successfully loaded question " + order + ": " + qText + " with " + options.size() + " options");
+                                } else {
+                                    Log.w(TAG, "Question data incomplete - text: " + (qText != null) + ", correctIdx: " + (correctIdx != null) + ", order: " + (order != null));
+                                }
+                                questionIndex++;
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing question at index " + questionIndex, e);
+                            }
                         }
+                    } else {
+                        Log.w(TAG, "No questions found in snapshot or snapshot is empty");
+                    }
 
-                        if (correctIdx != null) correctAnswers.add(correctIdx);
+                    // Sắp xếp questions theo order
+                    questionList.sort((q1, q2) -> Integer.compare(q1.order, q2.order));
+
+                    Log.d(TAG, "Total questions loaded: " + questionList.size());
+
+                    // Hiển thị 2 câu hỏi đầu tiên
+                    int count = 0;
+                    for (QuestionData questionData : questionList) {
+                        if (count >= 2) break;
+
+                        correctAnswers.add(questionData.correctIndex);
 
                         if (count == 0 && tvQuestion1 != null) {
-                            tvQuestion1.setText(qText);
-                            fillOptions(radioGroup1, options);
+                            tvQuestion1.setText("Question " + (count + 1) + ":\n" + questionData.questionText);
+                            fillOptions(radioGroup1, questionData.options);
+                            Log.d(TAG, "Displayed question 1: " + questionData.questionText);
                         } else if (count == 1 && tvQuestion2 != null) {
-                            tvQuestion2.setText(qText);
-                            fillOptions(radioGroup2, options);
+                            tvQuestion2.setText("Question " + (count + 1) + ":\n" + questionData.questionText);
+                            fillOptions(radioGroup2, questionData.options);
+                            Log.d(TAG, "Displayed question 2: " + questionData.questionText);
                         }
                         count++;
                     }
+                    
+                    if (questionList.isEmpty()) {
+                        Log.e(TAG, "No questions were loaded! Check Firebase structure.");
+                        Toast.makeText(getContext(), "Không tìm thấy câu hỏi", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.d(TAG, "Successfully loaded and displayed " + count + " questions out of " + questionList.size());
+                    }
+                    
+                    // Reset radio buttons
+                    if (radioGroup1 != null) radioGroup1.clearCheck();
+                    if (radioGroup2 != null) radioGroup2.clearCheck();
 
                     // Tự động phát nhạc nếu có link
-                    if (audioUrlFromFirebase != null) playAudio(audioUrlFromFirebase);
+                    if (audioUrlFromFirebase != null && !audioUrlFromFirebase.isEmpty()) {
+                        playAudio(audioUrlFromFirebase);
+                    }
                 } else {
-                    Log.d("DEBUG", "Đường dẫn sai, không tìm thấy dữ liệu tại: " + lessonRef.toString());
+                    Log.e(TAG, "Đường dẫn sai, không tìm thấy dữ liệu tại: " + lessonRef.toString());
+                    Toast.makeText(getContext(), "Không tìm thấy dữ liệu bài học", Toast.LENGTH_SHORT).show();
                 }
             }
 
