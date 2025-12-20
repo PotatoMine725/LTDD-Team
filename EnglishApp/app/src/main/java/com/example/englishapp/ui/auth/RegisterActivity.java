@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
-import androidx.appcompat.app.AppCompatActivity; // ĐÃ SỬA: Kế thừa từ AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.englishapp.R;
 
