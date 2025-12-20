@@ -51,10 +51,19 @@ dependencies {
     implementation(libs.cardview)
     implementation(libs.legacy.support.v4)
     implementation(libs.recyclerview)
+    implementation(libs.play.services.measurement.api)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    // Thư viện nòng cốt (BOM) - Giúp quản lý phiên bản tự động
+    
+    // Firebase BOM - Quản lý phiên bản Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-analytics")
+    
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
 // Thư viện Analytics (hoặc Firestore/Auth sau này bạn cần)
