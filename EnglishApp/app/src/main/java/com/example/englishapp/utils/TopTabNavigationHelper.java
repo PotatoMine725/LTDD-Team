@@ -20,7 +20,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.englishapp.Fragment.LessonFragment;
 import com.example.englishapp.HomeActivity;
 import com.example.englishapp.ListeningActivity;
-import com.example.englishapp.QuizActivity;
+import com.example.englishapp.ui.quiz.QuizActivity;
 import com.example.englishapp.R;
 import com.example.englishapp.SpeakingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
