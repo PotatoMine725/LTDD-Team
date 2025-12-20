@@ -1,7 +1,8 @@
 package com.example.englishapp.model;
 
 import java.util.List;
-public class QuizQuestion {
+import java.io.Serializable;
+public class QuizQuestion implements Serializable {
     private String id;
     private String question;
     private List<String> options;
@@ -10,7 +11,8 @@ public class QuizQuestion {
     //constructor
     public QuizQuestion() {
     }
-
+    // 3. Thêm trường lưu đáp án người dùng chọn
+    private int userSelectedIndex = -1;
     public QuizQuestion(String id, String question, List<String> options, int correctIndex) {
         this.id = id;
         this.question = question;
@@ -51,4 +53,7 @@ public class QuizQuestion {
     public void setCorrectIndex(int correctIndex) {
         this.correctIndex = correctIndex;
     }
+    // 4. Getter & Setter cho userSelectedIndex
+    public int getUserSelectedIndex() { return userSelectedIndex; }
+    public void setUserSelectedIndex(int userSelectedIndex) { this.userSelectedIndex = userSelectedIndex; }
 }

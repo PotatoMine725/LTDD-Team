@@ -245,6 +245,9 @@ public class QuizActivity extends AppCompatActivity {
         if (selectedAnswerIndex == -1) return;
 
         QuizQuestion currentQ = questionList.get(currentQuestionIndex);
+
+        currentQ.setUserSelectedIndex(selectedAnswerIndex);
+
         boolean isCorrect = (selectedAnswerIndex == currentQ.getCorrectIndex());
 
         if (isCorrect) {
@@ -271,21 +274,21 @@ public class QuizActivity extends AppCompatActivity {
         btnNext.setEnabled(true);
     }
 
+    // 2. Sửa lại hàm finishQuiz()
     private void finishQuiz() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Quiz Completed!");
-        builder.setMessage("Your score: " + score + " / " + questionList.size());
-        builder.setCancelable(false);
-        builder.setPositiveButton("Back to Home", (dialog, which) -> {
-            navigateToHome();
-        });
-        builder.setNegativeButton("Retry", (dialog, which) -> {
-            // Reset và làm lại
-            currentQuestionIndex = 0;
-            score = 0;
-            displayQuestion(0);
-        });
-        builder.show();
+        // Thay vì hiện AlertDialog, ta chuyển sang Activity kết quả
+        Intent intent = new Intent(QuizActivity.this, com.example.englishapp.ui.quiz.QuizResultActivity.class); // Nhớ import hoặc viết full path
+
+        // Truyền điểm số
+        intent.putExtra("SCORE", score);
+        intent.putExtra("TOTAL", questionList.size());
+
+        // Truyền danh sách câu hỏi (đã chứa đáp án người dùng chọn)
+        // Ép kiểu về Serializable (ArrayList mặc định đã là Serializable)
+        intent.putExtra("RESULT_LIST", (java.io.Serializable) questionList);
+
+        startActivity(intent);
+        finish(); // Đóng QuizActivity hiện tại để không back lại được
     }
 
     // ==========================================
