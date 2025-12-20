@@ -17,7 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.englishapp.adapter.ListeningTopicAdapter;
 import com.example.englishapp.model.ListeningTopic;
+import com.example.englishapp.service.FirebaseService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,19 +140,69 @@ public class ListeningTopicActivity extends Fragment {
     }
 
     /**
-     * Load topics data
+     * Load topics data từ Firebase
      */
     private void loadTopicsData() {
         try {
-            List<ListeningTopic> topics = getSampleTopics();
+            Log.d(TAG, "Loading topics from Firebase...");
+            
+            FirebaseService firebaseService = FirebaseService.getInstance();
+            firebaseService.getListeningTopicsRef().addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    List<ListeningTopic> topics = new ArrayList<>();
+                    
+                    if (snapshot.exists()) {
+                        for (DataSnapshot topicSnapshot : snapshot.getChildren()) {
+                            try {
+                                String topicId = topicSnapshot.getKey();
+                                String topicName = topicSnapshot.child("name").getValue(String.class);
+                                String imageUrl = topicSnapshot.child("image_url").getValue(String.class);
+                                Integer totalLessons = topicSnapshot.child("total_lessons").getValue(Integer.class);
+                                
+                                if (topicId != null && topicName != null) {
+                                    ListeningTopic topic = new ListeningTopic(
+                                        topicId,
+                                        topicName,
+                                        imageUrl != null ? imageUrl : "",
+                                        0, // currentProgress
+                                        totalLessons != null ? totalLessons : 0
+                                    );
+                                    topics.add(topic);
+                                    Log.d(TAG, "Loaded topic: " + topicName + " with image: " + imageUrl);
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing topic data", e);
+                            }
+                        }
+                    } else {
+                        Log.w(TAG, "No topics found in Firebase");
+                        // Fallback to sample data
+                        topics = getSampleTopics();
+                    }
 
-            if (topicAdapter != null) {
-                topicAdapter.updateData(topics);
-                Log.d(TAG, "Loaded " + topics.size() + " topics");
-            } else {
-                Log.e(TAG, "Topic adapter is null");
-                showError("Failed to load topics");
-            }
+                    if (topicAdapter != null) {
+                        topicAdapter.updateData(topics);
+                        Log.d(TAG, "Updated adapter with " + topics.size() + " topics from Firebase");
+                    } else {
+                        Log.e(TAG, "Topic adapter is null");
+                        showError("Failed to load topics");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Firebase Error loading topics: " + error.getMessage());
+                    // Fallback to sample data
+                    List<ListeningTopic> topics = getSampleTopics();
+                    if (topicAdapter != null) {
+                        topicAdapter.updateData(topics);
+                        Log.d(TAG, "Using fallback sample topics");
+                    }
+                    showError("Lỗi tải dữ liệu từ Firebase, sử dụng dữ liệu mẫu");
+                }
+            });
+            
         } catch (Exception e) {
             Log.e(TAG, "Error loading topics data", e);
             showError("Failed to load topics");
@@ -156,53 +210,23 @@ public class ListeningTopicActivity extends Fragment {
     }
 
     /**
-     * Get sample topics data
+     * Get sample topics data - fallback nếu Firebase không hoạt động
      */
     private List<ListeningTopic> getSampleTopics() {
         List<ListeningTopic> topics = new ArrayList<>();
 
         try {
-            int defaultImage = R.drawable.topic_technology;
-
-            topics.add(new ListeningTopic("Electric Vehicles",
-                    getImageResourceOrDefault("topic_electric_vehicles", defaultImage), 0, 5));
-            topics.add(new ListeningTopic("Technology",
-                    getImageResourceOrDefault("topic_technology", defaultImage), 2, 5));
-            topics.add(new ListeningTopic("Mental Health",
-                    getImageResourceOrDefault("topic_mental_health", defaultImage), 1, 5));
-            topics.add(new ListeningTopic("Energy",
-                    getImageResourceOrDefault("topic_energy", defaultImage), 0, 5));
-            topics.add(new ListeningTopic("Environment",
-                    getImageResourceOrDefault("topic_environment", defaultImage), 3, 5));
-            topics.add(new ListeningTopic("Education",
-                    getImageResourceOrDefault("topic_education", defaultImage), 0, 5));
-            topics.add(new ListeningTopic("Business",
-                    getImageResourceOrDefault("topic_business", defaultImage), 1, 5));
-            topics.add(new ListeningTopic("Travel",
-                    getImageResourceOrDefault("topic_travel", defaultImage), 0, 5));
-            topics.add(new ListeningTopic("Food & Culture",
-                    getImageResourceOrDefault("topic_food", defaultImage), 2, 5));
-            topics.add(new ListeningTopic("Sports",
-                    getImageResourceOrDefault("topic_sports", defaultImage), 0, 5));
+            // Sử dụng imageUrl thay vì resource ID
+            topics.add(new ListeningTopic("lt_daily", "Daily Life",
+                    "https://images.unsplash.com/photo-1506784983877-45594efa4cbe", 0, 5));
+            topics.add(new ListeningTopic("lt_technology", "Technology",
+                    "https://images.unsplash.com/photo-1518709268805-4e9042af2176", 0, 5));
+                    
         } catch (Exception e) {
             Log.e(TAG, "Error creating sample topics", e);
         }
 
         return topics;
-    }
-
-    /**
-     * Get image resource ID or return default
-     */
-    private int getImageResourceOrDefault(String resourceName, int defaultResource) {
-        try {
-            int resourceId = getResources().getIdentifier(
-                    resourceName, "drawable", requireContext().getPackageName());
-            return resourceId != 0 ? resourceId : defaultResource;
-        } catch (Exception e) {
-            Log.w(TAG, "Image resource not found: " + resourceName, e);
-            return defaultResource;
-        }
     }
 
     /**
@@ -400,10 +424,13 @@ public class ListeningTopicActivity extends Fragment {
 
             Log.d(TAG, "Navigating to exercise for topic: " + topic.getTopicName());
 
-            // Tạo ListeningExerciseActivity fragment với topic name
+            // Sử dụng topicId thực từ topic object
+            String topicId = topic.getTopicId();
+            String firstLessonId = getFirstLessonId(topicId);
+
+            // Tạo ListeningExerciseActivity fragment với topic ID thực
             ListeningExerciseActivity exerciseFragment =
-                    // Truyền Topic ID và Lesson ID (ví dụ: "lt_daily" và "ls_daily_01")
-                    ListeningExerciseActivity.newInstance("lt_daily", "ls_daily_01");
+                    ListeningExerciseActivity.newInstance(topicId, firstLessonId);
 
             // Navigate với animation
             getActivity().getSupportFragmentManager()
@@ -422,6 +449,20 @@ public class ListeningTopicActivity extends Fragment {
         } catch (Exception e) {
             Log.e(TAG, "Error navigating to exercise", e);
             showError("Failed to open exercise");
+        }
+    }
+    
+    /**
+     * Lấy lesson ID đầu tiên của topic
+     */
+    private String getFirstLessonId(String topicId) {
+        switch (topicId) {
+            case "lt_daily":
+                return "ls_daily_01";
+            case "lt_technology":
+                return "ls_tech_01";
+            default:
+                return "ls_daily_01"; // fallback
         }
     }
 

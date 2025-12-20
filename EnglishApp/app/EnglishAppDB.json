@@ -5,7 +5,8 @@
         "id": "lt_daily",
         "name": "Daily Life",
         "image_res_name": "topic_daily_life",
-        "total_lessons": 2,
+        "image_url": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe",
+        "total_lessons": 5,
         "description": "Listening practice about everyday activities",
         "lessons": {
           "ls_daily_01": {
@@ -137,6 +138,33 @@
                 "correct_index": 1
               }
             ]
+          },
+          "ls_daily_03": {
+            "id": "ls_daily_03",
+            "title": "Weekend Plans",
+            "image_url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
+            "audio_url": "",
+            "duration": 0,
+            "transcript": "",
+            "questions": []
+          },
+          "ls_daily_04": {
+            "id": "ls_daily_04", 
+            "title": "Family Dinner",
+            "image_url": "https://images.unsplash.com/photo-1543353071-873f17a7a088",
+            "audio_url": "",
+            "duration": 0,
+            "transcript": "",
+            "questions": []
+          },
+          "ls_daily_05": {
+            "id": "ls_daily_05",
+            "title": "Morning Exercise",
+            "image_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
+            "audio_url": "",
+            "duration": 0,
+            "transcript": "",
+            "questions": []
           }
         }
       },
@@ -144,7 +172,8 @@
         "id": "lt_technology",
         "name": "Technology",
         "image_res_name": "topic_technology",
-        "total_lessons": 2,
+        "image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af2176",
+        "total_lessons": 5,
         "description": "Listening practice about modern technology",
         "lessons": {
           "ls_tech_01": {
@@ -276,6 +305,33 @@
                 "correct_index": 1
               }
             ]
+          },
+          "ls_tech_03": {
+            "id": "ls_tech_03",
+            "title": "Social Media",
+            "image_url": "https://images.unsplash.com/photo-1611162617474-5b21e879e113",
+            "audio_url": "",
+            "duration": 0,
+            "transcript": "",
+            "questions": []
+          },
+          "ls_tech_04": {
+            "id": "ls_tech_04",
+            "title": "Artificial Intelligence",
+            "image_url": "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+            "audio_url": "",
+            "duration": 0,
+            "transcript": "",
+            "questions": []
+          },
+          "ls_tech_05": {
+            "id": "ls_tech_05",
+            "title": "Future Technology",
+            "image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af2176",
+            "audio_url": "",
+            "duration": 0,
+            "transcript": "",
+            "questions": []
           }
         }
       },

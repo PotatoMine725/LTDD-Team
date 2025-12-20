@@ -19,10 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.englishapp.adapter.ListeningLessonAdapter;
 import com.example.englishapp.model.ListeningLesson;
+import com.example.englishapp.service.FirebaseService;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class ListeningLessonsFragment extends Fragment {
     private String topicId, topicName;
     private RecyclerView lessonsRecyclerView;
     private ListeningLessonAdapter lessonAdapter;
-    private DatabaseReference mDatabase;
+    private FirebaseService firebaseService;
     private TextView tvTopicTitle;
 
     public static ListeningLessonsFragment newInstance(String topicId, String topicName) {
@@ -56,8 +56,7 @@ public class ListeningLessonsFragment extends Fragment {
             topicId = getArguments().getString(ARG_TOPIC_ID);
             topicName = getArguments().getString(ARG_TOPIC_NAME);
         }
-        mDatabase = FirebaseDatabase.getInstance("https://englishappdb-db02d-default-rtdb.asia-southeast1.firebasedatabase.app")
-                .getReference();
+        firebaseService = FirebaseService.getInstance();
     }
 
     @Nullable
@@ -109,18 +108,20 @@ public class ListeningLessonsFragment extends Fragment {
     private void loadLessonsFromFirebase() {
         if (topicId == null) {
             Log.e(TAG, "Topic ID is null");
+            showError("Topic ID không hợp lệ");
             return;
         }
 
-        DatabaseReference lessonsRef = mDatabase.child("topics")
-                .child("listening")
-                .child(topicId)
-                .child("lessons");
+        Log.d(TAG, "Loading lessons for topic: " + topicId);
+        
+        DatabaseReference lessonsRef = firebaseService.getLessonsRef(topicId);
 
         lessonsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<ListeningLesson> lessons = new ArrayList<>();
+
+                Log.d(TAG, "Firebase response - exists: " + snapshot.exists() + ", children: " + snapshot.getChildrenCount());
 
                 if (snapshot.exists()) {
                     for (DataSnapshot lessonSnapshot : snapshot.getChildren()) {
@@ -151,18 +152,28 @@ public class ListeningLessonsFragment extends Fragment {
                             Log.e(TAG, "Error parsing lesson data", e);
                         }
                     }
+                } else {
+                    Log.w(TAG, "No lessons found for topic: " + topicId);
+                    showError("Không tìm thấy bài học cho chủ đề này");
                 }
 
                 if (lessonAdapter != null) {
                     lessonAdapter.updateData(lessons);
-                    Log.d(TAG, "Loaded " + lessons.size() + " lessons");
+                    Log.d(TAG, "Updated adapter with " + lessons.size() + " lessons");
+                    
+                    if (lessons.isEmpty()) {
+                        showError("Chủ đề này chưa có bài học");
+                    }
+                } else {
+                    Log.e(TAG, "Lesson adapter is null");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Firebase Error: " + error.getMessage());
-                showError("Failed to load lessons");
+                Log.e(TAG, "Error details: " + error.getDetails());
+                showError("Lỗi kết nối Firebase: " + error.getMessage());
             }
         });
     }
