@@ -1,22 +1,40 @@
 package com.example.englishapp.ui.quiz;
+import com.example.englishapp.ui.home.HomeActivity;
+import com.example.englishapp.R;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import com.bumptech.glide.Glide;
+import com.example.englishapp.model.QuizQuestion;
+// Lưu ý: Nếu QuizResultActivity nằm ở package khác, hãy import đúng, ví dụ:
+// import com.example.englishapp.ui.quiz.QuizResultActivity;
+// Nếu chưa có file đó ở package ui.quiz thì tạm thời comment dòng Intent hoặc sửa đường dẫn
 
 import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -24,283 +42,313 @@ public class QuizActivity extends AppCompatActivity {
     private String quizType;
     private TopTabNavigationHelper tabHelper;
     private BottomNavigationView bottomNavigationView;
-    private ImageView btnNotification;
+
+    // --- BIẾN CHO VOCABULARY QUIZ ---
+    private List<QuizQuestion> questionList;
+    private int currentQuestionIndex = 0;
+    private int score = 0;
+    private int selectedAnswerIndex = -1;
+
+    // UI Elements
+    private TextView tvQuestionNumber;
+    private ImageView ivQuizImage;
+    private Button btnQuestion;
+    private Button btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD;
+    private Button btnCheck, btnNext;
+
+    private Button[] answerButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Lấy quiz type từ Intent
+        // 1. Lấy loại Quiz
         quizType = getIntent().getStringExtra("QUIZ_TYPE");
-        if (quizType == null) {
-            quizType = "Vocabulary"; // Default
-        }
+        if (quizType == null) quizType = "Vocabulary";
 
-        Log.d(TAG, "onCreate with quiz type: " + quizType);
-
-        // Load layout tương ứng với quiz type
+        // 2. Load Layout
         loadLayoutForQuizType();
 
-        //Setup notification button
-        setupNotificationButton();
-
-        // Initialize tab navigation helper
+        // 3. Setup các thành phần chung
         initTabNavigation();
-
-        // Load quiz content
-        loadQuizContent();
-
-        // Setup bottom navigation
         setupBottomNavigation();
 
-        // Handle back press
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+        // 4. Load dữ liệu
+        loadQuizContent();
+    }
+
+    private void loadLayoutForQuizType() {
+        if ("Listening".equals(quizType)) {
+            setContentView(R.layout.quiz_listening);
+        } else {
+            setContentView(R.layout.activity_quiz_layout);
+            initVocabularyViews();
+        }
+    }
+
+    private void initVocabularyViews() {
+        tvQuestionNumber = findViewById(R.id.tv_question_number);
+        ivQuizImage = findViewById(R.id.iv_quiz_image); // Đảm bảo ID này có trong XML
+        btnQuestion = findViewById(R.id.btn_question);
+
+        btnAnswerA = findViewById(R.id.btn_answer_a);
+        btnAnswerB = findViewById(R.id.btn_answer_b);
+        btnAnswerC = findViewById(R.id.btn_answer_c);
+        btnAnswerD = findViewById(R.id.btn_answer_d);
+
+        btnCheck = findViewById(R.id.btn_check);
+        btnNext = findViewById(R.id.btn_next);
+
+        answerButtons = new Button[]{btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD};
+    }
+
+    private void loadQuizContent() {
+        if ("Vocabulary".equals(quizType)) {
+            loadVocabularyQuizFromFirebase();
+        } else if ("Listening".equals(quizType)) {
+            loadListeningQuiz();
+        }
+    }
+
+    // ==========================================
+    // LOGIC VOCABULARY QUIZ (SỬA LỖI TẠO OBJECT)
+    // ==========================================
+
+    private void loadVocabularyQuizFromFirebase() {
+        Toast.makeText(this, "Loading questions...", Toast.LENGTH_SHORT).show();
+
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("quizzes").child("vocabulary_quiz");
+
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void handleOnBackPressed() {
-                navigateToHome();
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                questionList = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    try {
+                        String id = snapshot.getKey();
+                        String questionText = snapshot.child("question").getValue(String.class);
+                        String imgUrl = snapshot.child("image_url").getValue(String.class);
+
+                        int correctIndex = 0;
+                        if (snapshot.child("correct_index").exists()) {
+                            correctIndex = snapshot.child("correct_index").getValue(Integer.class);
+                        }
+
+                        GenericTypeIndicator<List<String>> t = new GenericTypeIndicator<List<String>>() {};
+                        List<String> options = snapshot.child("options").getValue(t);
+
+                        if (questionText != null && options != null && options.size() >= 2) {
+                            // --- SỬA CHÍNH: Gọi Constructor khớp với QuizQuestion.java ---
+                            QuizQuestion q = new QuizQuestion(id, questionText, options, correctIndex);
+                            q.setImageUrl(imgUrl); // Set ảnh riêng
+                            questionList.add(q);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing question: " + e.getMessage());
+                    }
+                }
+
+                if (!questionList.isEmpty()) {
+                    currentQuestionIndex = 0;
+                    score = 0;
+                    displayQuestion(currentQuestionIndex);
+                } else {
+                    Toast.makeText(QuizActivity.this, "No data found!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(QuizActivity.this, "Failed to load: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    /**
-     * Setup notification button - lấy logic từ HomeActivity
-     */
-    private void setupNotificationButton() {
-        try {
-            btnNotification = findViewById(R.id.btn_notification);
-            if (btnNotification != null) {
-                btnNotification.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showNotificationFragment();
-                    }
-                });
-                Log.d(TAG, "Notification button setup successfully");
+    private void displayQuestion(int index) {
+        if (questionList == null || index >= questionList.size()) {
+            finishQuiz();
+            return;
+        }
+
+        QuizQuestion currentQ = questionList.get(index);
+
+        // Reset UI
+        selectedAnswerIndex = -1;
+        btnCheck.setEnabled(false);
+        btnCheck.setBackgroundTintList(ContextCompat.getColorStateList(this, android.R.color.darker_gray));
+        btnNext.setEnabled(false);
+        btnNext.setVisibility(View.INVISIBLE);
+        btnCheck.setVisibility(View.VISIBLE);
+
+        tvQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
+        btnQuestion.setText(currentQ.getQuestion());
+
+        // Load ảnh với Glide
+        if (currentQ.getImageUrl() != null && !currentQ.getImageUrl().isEmpty()) {
+            ivQuizImage.setVisibility(View.VISIBLE);
+            Glide.with(this)
+                    .load(currentQ.getImageUrl())
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.background)
+                    .into(ivQuizImage);
+        } else {
+            ivQuizImage.setVisibility(View.GONE);
+        }
+
+        // Hiển thị đáp án
+        List<String> options = currentQ.getOptions();
+        for (int i = 0; i < answerButtons.length; i++) {
+            if (i < options.size()) {
+                answerButtons[i].setVisibility(View.VISIBLE);
+                answerButtons[i].setText(options.get(i));
+                answerButtons[i].setEnabled(true);
+
+                // Reset màu
+                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA"));
+                answerButtons[i].setTextColor(Color.WHITE);
+
+                int finalI = i;
+                answerButtons[i].setOnClickListener(v -> onAnswerSelected(finalI));
             } else {
-                Log.w(TAG, "Notification button not found in layout");
+                answerButtons[i].setVisibility(View.GONE);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up notification button", e);
         }
+
+        btnCheck.setOnClickListener(v -> checkAnswer());
+
+        btnNext.setOnClickListener(v -> {
+            currentQuestionIndex++;
+            displayQuestion(currentQuestionIndex);
+        });
     }
 
-    /**
-     * Show notification dialog - lấy từ HomeActivity
-     */
-    private void showNotificationFragment() {
-        try {
-            NotificationFragment fragment = new NotificationFragment();
-            fragment.show(getSupportFragmentManager(), "notification_dialog");
-            Log.d(TAG, "Notification fragment shown");
-        } catch (Exception e) {
-            Log.e(TAG, "Error showing notification", e);
-            Toast.makeText(this, "Failed to show notifications", Toast.LENGTH_SHORT).show();
-        }
-    }
+    private void onAnswerSelected(int index) {
+        selectedAnswerIndex = index;
 
-    /**
-     * Load layout tương ứng với quiz type
-     */
-    private void loadLayoutForQuizType() {
-        switch (quizType) {
-            case "Vocabulary":
-                setContentView(R.layout.activity_quiz_layout);
-                break;
-            case "Listening":
-                setContentView(R.layout.quiz_listening);
-                break;
-            default:
-                setContentView(R.layout.activity_quiz_layout);
-                break;
-        }
-    }
-
-    /**
-     * Initialize tab navigation using TopTabNavigationHelper
-     */
-    private void initTabNavigation() {
-        try {
-            // Create helper with constructor cho QuizActivity (không cần FragmentManager)
-            tabHelper = new TopTabNavigationHelper(
-                    findViewById(android.R.id.content),
-                    this
-            );
-
-            // Setup cho quiz mode - chỉ update text, KHÔNG highlight tab
-            tabHelper.setupForQuizMode(quizType);
-
-            // Handle tab clicks (Vocabulary, Listening, Speaking)
-            tabHelper.setOnTabSelectedListener(tabType -> {
-                switch (tabType) {
-                    case VOCABULARY:
-                        // Navigate về HomeActivity với tab Vocabulary
-                        navigateToHomeWithTab("VOCABULARY");
-                        break;
-                    case LISTENING:
-                        // Navigate về HomeActivity với tab Listening
-                        navigateToHomeWithTab("LISTENING");
-                        break;
-                    case SPEAKING:
-                        // Navigate về HomeActivity với tab Speaking
-                        navigateToHomeWithTab("SPEAKING");
-                        break;
+        for (int i = 0; i < answerButtons.length; i++) {
+            if (answerButtons[i].getVisibility() == View.VISIBLE) {
+                if (i == index) {
+                    answerButtons[i].setBackgroundColor(Color.parseColor("#FFEB3B"));
+                    answerButtons[i].setTextColor(Color.BLACK);
+                } else {
+                    answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA"));
+                    answerButtons[i].setTextColor(Color.WHITE);
                 }
-            });
-
-            // Handle quiz type selection from popup menu
-            tabHelper.setOnQuizTypeSelectedListener(selectedQuizType -> {
-                if (!selectedQuizType.equals(quizType)) {
-                    // Reload quiz với type mới
-                    switchQuizType(selectedQuizType);
-                }
-            });
-
-            Log.d(TAG, "Tab navigation initialized successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Error initializing tab navigation", e);
+            }
         }
+
+        btnCheck.setEnabled(true);
+        btnCheck.setBackgroundColor(Color.parseColor("#8BC34A"));
     }
 
-    /**
-     * Navigate về HomeActivity với tab được chọn
-     */
-    private void navigateToHomeWithTab(String tabName) {
-        try {
-            Log.d(TAG, "Navigating to Home with tab: " + tabName);
+    private void checkAnswer() {
+        if (selectedAnswerIndex == -1) return;
 
-            Intent intent = new Intent(QuizActivity.this, HomeActivity.class);
-            intent.putExtra("SELECTED_TAB", tabName);
+        QuizQuestion currentQ = questionList.get(currentQuestionIndex);
+        currentQ.setUserSelectedIndex(selectedAnswerIndex);
 
-            // Clear task để tránh back stack issues
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        boolean isCorrect = (selectedAnswerIndex == currentQ.getCorrectIndex());
+        if (isCorrect) {
+            score++;
+//            Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show();
+            answerButtons[selectedAnswerIndex].setBackgroundColor(Color.GREEN);
+        } else {
+//            Toast.makeText(this, "Wrong!", Toast.LENGTH_SHORT).show();
+            answerButtons[selectedAnswerIndex].setBackgroundColor(Color.RED);
 
-            startActivity(intent);
-            finish(); // Close QuizActivity
-        } catch (Exception e) {
-            Log.e(TAG, "Error navigating to home", e);
-            Toast.makeText(this, "Navigation failed", Toast.LENGTH_SHORT).show();
+            if (currentQ.getCorrectIndex() < answerButtons.length) {
+                answerButtons[currentQ.getCorrectIndex()].setBackgroundColor(Color.GREEN);
+            }
         }
+
+        for (Button btn : answerButtons) btn.setEnabled(false);
+
+        btnCheck.setVisibility(View.GONE);
+        btnNext.setVisibility(View.VISIBLE);
+        btnNext.setEnabled(true);
     }
 
-    /**
-     * Switch quiz type và reload layout
-     */
-    private void switchQuizType(String newQuizType) {
-        try {
-            Log.d(TAG, "Switching quiz type from " + quizType + " to " + newQuizType);
+    //chuyen sang man hinh ket qua
+    private void finishQuiz() {
+        // Tạo Intent chuyển sang màn hình kết quả
+        Intent intent = new Intent(QuizActivity.this, QuizResultActivity.class);
 
-            quizType = newQuizType;
+        // Truyền điểm số và tổng số câu
+        intent.putExtra("SCORE", score);
+        intent.putExtra("TOTAL", questionList.size());
 
-            // Reload everything
-            loadLayoutForQuizType();
-            setupNotificationButton(); // Setup lại notification button
-            initTabNavigation();
-            loadQuizContent();
-            setupBottomNavigation();
-        } catch (Exception e) {
-            Log.e(TAG, "Error switching quiz type", e);
-            Toast.makeText(this, "Failed to switch quiz type", Toast.LENGTH_SHORT).show();
-        }
+        // Truyền danh sách câu hỏi (đã kèm đáp án user chọn) để hiển thị lại
+        // Ép kiểu về Serializable vì ArrayList mặc định đã hỗ trợ
+        intent.putExtra("RESULT_LIST", (java.io.Serializable) questionList);
+
+        // Bắt đầu Activity mới và đóng QuizActivity hiện tại
+        startActivity(intent);
+        finish();
     }
 
-    /**
-     * Load quiz content dựa trên type
-     */
-    private void loadQuizContent() {
-        switch (quizType) {
-            case "Vocabulary":
-                loadVocabularyQuiz();
-                break;
-            case "Listening":
-                loadListeningQuiz();
-                break;
-        }
-    }
-
-    /**
-     * Load Vocabulary Quiz
-     */
-    private void loadVocabularyQuiz() {
-        Toast.makeText(this, "Loading Vocabulary Quiz...", Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Load Listening Quiz
-     */
     private void loadListeningQuiz() {
-        Toast.makeText(this, "Loading Listening Quiz...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Listening Quiz coming soon!", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Setup bottom navigation với logic điều hướng - lấy từ HomeActivity
-     */
-    private void setupBottomNavigation() {
-        try {
-            bottomNavigationView = findViewById(R.id.bottom_navigation);
-            if (bottomNavigationView == null) {
-                Log.w(TAG, "Bottom navigation view not found in layout");
-                return;
+    private void setupNotificationButton() {
+        // Code cũ giữ nguyên hoặc thêm nếu cần
+    }
+
+    private void initTabNavigation() {
+        tabHelper = new TopTabNavigationHelper(findViewById(android.R.id.content), this);
+        tabHelper.setupForQuizMode(quizType);
+
+        tabHelper.setOnTabSelectedListener(tabType -> {
+            switch (tabType) {
+                case VOCABULARY: navigateToHomeWithTab("VOCABULARY"); break;
+                case LISTENING: navigateToHomeWithTab("LISTENING"); break;
+                case SPEAKING: navigateToHomeWithTab("SPEAKING"); break;
             }
+        });
 
-            // Không select item nào vì đang ở Quiz mode
-            bottomNavigationView.setSelectedItemId(0);
-
-            bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    try {
-                        int itemId = item.getItemId();
-
-                        if (itemId == R.id.nav_home) {
-                            // Navigate về Home
-                            navigateToHome();
-                        } else if (itemId == R.id.nav_lesson) {
-                            // Navigate về Lesson (Vocabulary)
-                            navigateToHomeWithTab("VOCABULARY");
-                        } else if (itemId == R.id.nav_statistics) {
-                            // Navigate về Statistics
-                            navigateToHomeWithTab("STATISTICS");
-                        } else if (itemId == R.id.nav_profile) {
-                            // Navigate về Profile
-                            navigateToHomeWithTab("PROFILE");
-                        }
-
-                        return true;
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error handling bottom navigation", e);
-                        Toast.makeText(QuizActivity.this, "Navigation failed", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                }
-            });
-
-            Log.d(TAG, "Bottom navigation setup successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up bottom navigation", e);
-        }
+        tabHelper.setOnQuizTypeSelectedListener(type -> {
+            if (!type.equals(quizType)) {
+                Intent intent = new Intent(this, QuizActivity.class);
+                intent.putExtra("QUIZ_TYPE", type);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
-    /**
-     * Navigate về Home (không chọn tab cụ thể)
-     */
+    private void setupBottomNavigation() {
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView == null) return;
+
+        bottomNavigationView.setSelectedItemId(0);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) navigateToHome();
+            else if (id == R.id.nav_lesson) navigateToHomeWithTab("VOCABULARY");
+            else if (id == R.id.nav_statistics) navigateToHomeWithTab("STATISTICS");
+            else if (id == R.id.nav_profile) navigateToHomeWithTab("PROFILE");
+            return true;
+        });
+    }
+
     private void navigateToHome() {
-        try {
-            Intent intent = new Intent(QuizActivity.this, HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-        } catch (Exception e) {
-            Log.e(TAG, "Error navigating to home", e);
-            Toast.makeText(this, "Failed to navigate", Toast.LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
+    }
+
+    private void navigateToHomeWithTab(String tabName) {
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.putExtra("SELECTED_TAB", tabName);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Cleanup
-        if (tabHelper != null) {
-            tabHelper.cleanup();
-        }
+        if (tabHelper != null) tabHelper.cleanup();
     }
 }

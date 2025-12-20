@@ -21,9 +21,11 @@ import com.example.englishapp.Fragment.LessonFragment;
 import com.example.englishapp.Fragment.NotificationFragment;
 import com.example.englishapp.Fragment.ProfileFragment;
 import com.example.englishapp.Fragment.StatisticsFragment;
-import com.example.englishapp.ListeningActivity;
 import com.example.englishapp.R;
-import com.example.englishapp.SpeakingActivity;
+import com.example.englishapp.debug.FirebaseDebugHelper;
+import com.example.englishapp.test.FirebaseConnectionTest;
+import com.example.englishapp.ui.listening.ListeningActivity;
+import com.example.englishapp.ui.speaking.SpeakingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -47,6 +49,9 @@ public class HomeActivity extends AppCompatActivity {
 
             // Hàm thiết lập xử lý nút back mới
             setupOnBackPressed();
+            
+            // Test Firebase connection khi app khởi động
+            testFirebaseConnection();
 
             handleIncomingIntent();
 
@@ -515,5 +520,22 @@ public class HomeActivity extends AppCompatActivity {
 
         // Đăng ký callback với dispatcher của Activity
         getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+    
+    /**
+     * Test Firebase connection và log kết quả
+     */
+    private void testFirebaseConnection() {
+        Log.d(TAG, "Testing Firebase connection from HomeActivity...");
+        
+        // Test basic connection
+        FirebaseDebugHelper.testFirebaseConnection();
+        
+        // Test specific topics
+        FirebaseDebugHelper.testTopicData("lt_daily");
+        FirebaseDebugHelper.testTopicData("lt_technology");
+        
+        // Run comprehensive test
+        FirebaseConnectionTest.testBasicConnection();
     }
 }
