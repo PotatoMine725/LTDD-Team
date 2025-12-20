@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@android:color/white"
-    tools:context=".ui.listening.ListeningTopicActivity">
+    tools:context=".ui.listening.ListeningLessonsFragment">
 
     <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -32,47 +32,37 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Listening"
+                android:text="Lessons"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_gravity="center"/>
 
-            <ImageView
-                android:id="@+id/refresh_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_refresh"
-                android:layout_gravity="end"
-                android:padding="8dp"
-                android:layout_marginEnd="16dp"/>
-
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Topics Header -->
+    <!-- Topic Title -->
     <TextView
-        android:id="@+id/topics_header_text"
+        android:id="@+id/topic_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Topics"
+        android:text="Topic Name"
         android:textColor="@android:color/black"
-        android:textSize="32sp"
+        android:textSize="28sp"
         android:textStyle="bold"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"/>
 
-    <!-- Topics RecyclerView -->
+    <!-- Lessons RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/topics_recycler_view"
+        android:id="@+id/lessons_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:layout_marginTop="16dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="2"
-        tools:listitem="@layout/list_item_topic" />
+        tools:listitem="@layout/list_item_lesson" />
 
 </LinearLayout>
+
