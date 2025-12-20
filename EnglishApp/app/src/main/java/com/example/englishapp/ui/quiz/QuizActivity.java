@@ -20,8 +20,6 @@ import com.bumptech.glide.Glide;
 import com.example.englishapp.model.QuizQuestion;
 // Lưu ý: Nếu QuizResultActivity nằm ở package khác, hãy import đúng, ví dụ:
 // import com.example.englishapp.ui.quiz.QuizResultActivity;
-// Nếu chưa có file đó ở package ui.quiz thì tạm thời comment dòng Intent hoặc sửa đường dẫn
-
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
