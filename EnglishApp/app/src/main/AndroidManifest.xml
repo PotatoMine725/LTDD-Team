@@ -18,7 +18,6 @@
             android:name=".ui.chat.ChatActivity"
             android:exported="false" />
         <activity
-            android:name=".GetStartedActivity"
             android:name=".ui.auth.GetStartedActivity"
             android:exported="true">
             <intent-filter>

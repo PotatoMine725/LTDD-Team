@@ -3,8 +3,6 @@ package com.example.englishapp.data.api;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.database.BuildConfig;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +38,7 @@ public class OpenAIService {
             body.put("messages", messages);
             // tạo request
             Request request = new Request.Builder().url(API_URL)
-                    .addHeader("Authorization", "Bearer" + OPENAI_API_KEY)
+                    .addHeader("Authorization", "Bearer " + OPENAI_API_KEY)
                     .post(RequestBody.create(body.toString(), JSON)).build();
             // gửi request
             client.newCall(request).enqueue(new Callback() {

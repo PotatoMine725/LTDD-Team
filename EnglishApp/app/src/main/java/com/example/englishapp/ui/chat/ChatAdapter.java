@@ -3,6 +3,8 @@ package com.example.englishapp.ui.chat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,6 +14,7 @@ import com.example.englishapp.data.model.ChatMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,16 +47,44 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     R.layout.item_message_ai, parent, false);
             return new AiViewHolder(view);
         }
-
     }
-
+// cần xem lại đoạn này
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-
+        ChatMessage msg = messages.get(position);
+        String time = dateFormat.format(new Date(msg.timestamp));
+        if (holder instanceof UserViewHolder) {
+            ((UserViewHolder) holder).tvMessage.setText(msg.message);
+            ((UserViewHolder) holder).tvTime.setText(time);
+        }else if (holder instanceof AiViewHolder) {
+            ((AiViewHolder) holder).tvMessage.setText(msg.message);
+            ((AiViewHolder) holder).tvTime.setText(time);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return messages.size();
+    }
+// view holder
+    static class UserViewHolder extends RecyclerView.ViewHolder {
+        TextView tvMessage, tvTime;
+
+        UserViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvMessage = itemView.findViewById(R.id.tvMessage);
+            tvTime = itemView.findViewById(R.id.tvTime);
+        }
+    }
+    static class AiViewHolder extends RecyclerView.ViewHolder {
+        TextView tvMessage, tvTime;
+        ImageView ivAiAvatar;
+
+        AiViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvMessage = itemView.findViewById(R.id.tvMessage);
+            tvTime = itemView.findViewById(R.id.tvTime);
+            ivAiAvatar = itemView.findViewById(R.id.ivAiAvatar);
+        }
     }
 }

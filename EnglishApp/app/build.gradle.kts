@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -13,14 +15,18 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // map api key từ local peroperies vào buildconfig
-        buildConfigField(
-            "String",
-            "OPENAI_API_KEY",
-            "\"${project.findProperty("OPENAI_API_KEY") ?: ""}\""
-        )
+        val localProps = Properties()
+        val localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) {
+            localPropsFile.inputStream().use { localProps.load(it) }
+        }
+        val openAiKey = (localProps.getProperty("OPENAI_API_KEY") ?: "").trim()
+        buildConfigField("String", "OPENAI_API_KEY", "\"$openAiKey\"")
+
+        val geminiApiKey = (localProps.getProperty("GEMINI_API_KEY") ?: "").trim()
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
 
     }
 
@@ -74,7 +80,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
-
+// gemini ai
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     // dùng để gửi request từ phía client
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
     // dependency để kết nối fire store

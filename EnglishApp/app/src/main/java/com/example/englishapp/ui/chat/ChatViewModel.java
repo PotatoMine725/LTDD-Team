@@ -12,7 +12,7 @@ import java.util.List;
 public class ChatViewModel extends ViewModel {
     private final ChatRepository repository = new ChatRepository();
     private final MutableLiveData<List<ChatMessage>> messages = new MutableLiveData<>();
-    public void ChatViewModel(){
+    public ChatViewModel(){
         repository.loadHistory(messages);
     }
     public LiveData<List<ChatMessage>> getMessages(){

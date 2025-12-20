@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.englishapp.ui.home.HomeActivity;
-import com.example.englishapp.QuizActivity; // Import class Quiz cũ
 import com.example.englishapp.R;
 import com.example.englishapp.adapter.QuizResultAdapter;
 import com.example.englishapp.model.QuizQuestion;

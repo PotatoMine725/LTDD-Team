@@ -2,6 +2,7 @@ package com.example.englishapp.data.repository;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.englishapp.data.api.GeminiService;
 import com.example.englishapp.data.api.OpenAICallBack;
 import com.example.englishapp.data.api.OpenAIService;
 import com.example.englishapp.data.model.ChatMessage;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatRepository {
-    private final OpenAIService openAIService = new OpenAIService();
+    private final GeminiService geminiService = new GeminiService();
     private final FirebaseAuth ath = FirebaseAuth.getInstance(); // xác thực tài khoản
 //     kết nối real time database
     private final DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
@@ -33,7 +34,7 @@ public class ChatRepository {
         DatabaseReference chatRef = rootRef
                 .child("users")
                 .child(user.getUid())
-                .child("cháts");
+                .child("chats");
         chatRef.orderByChild("timestamp")
                 .addListenerForSingleValueEvent(new ValueEventListener(){// lắng nghe sự kiện lấy dữ liêu 1 lần
                     // firebase sẽ tự đi tìm dữ liệu và sắp xêp
@@ -44,7 +45,7 @@ public class ChatRepository {
                     public void onDataChange(DataSnapshot snapshot) {
                         List<ChatMessage> chatMessages = new ArrayList<>();
                         for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                            ChatMessage msg = snapshot.getValue(ChatMessage.class); // tự động convert từ json sang message
+                            ChatMessage msg = dataSnapshot.getValue(ChatMessage.class); // tự động convert từ json sang message
                             chatMessages.add(msg);
                         }
                         liveData.setValue(chatMessages);
@@ -67,20 +68,22 @@ public class ChatRepository {
 
 
         // gọi AI để laasy respone
-        openAIService.sendMessage(message, new OpenAICallBack() {
+        geminiService.sendMessage(message, new OpenAICallBack() {
             @Override
             public void onSuccess(String reply) {
                 ChatMessage aiMs = new ChatMessage(reply, "ai", System.currentTimeMillis());
                 // lưu câu trả lời của ai lên realtime
                 pushMessage(user.getUid(), aiMs);
+                addToLiveData(liveData, aiMs);
             }
 
             @Override
             public void onError(String error) {
                 ChatMessage aiMs = new ChatMessage(error, "ai", System.currentTimeMillis());
                 pushMessage(user.getUid(), aiMs);
+                addToLiveData(liveData, aiMs);
             }
-        }
+        });
     }
 //    hàm lưu tin nhắn ở local vào firebase
     public void pushMessage(String userId, ChatMessage message){
