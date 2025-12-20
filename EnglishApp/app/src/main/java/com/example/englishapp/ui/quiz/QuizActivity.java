@@ -18,11 +18,8 @@ import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.englishapp.model.QuizQuestion;
-// Lưu ý: Nếu QuizResultActivity nằm ở package khác, hãy import đúng, ví dụ:
-// import com.example.englishapp.ui.quiz.QuizResultActivity;
-// Nếu chưa có file đó ở package ui.quiz thì tạm thời comment dòng Intent hoặc sửa đường dẫn
-
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
+import com.example.englishapp.ui.common.tabnavigation.TabType;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -108,10 +105,6 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    // ==========================================
-    // LOGIC VOCABULARY QUIZ (SỬA LỖI TẠO OBJECT)
-    // ==========================================
-
     private void loadVocabularyQuizFromFirebase() {
         Toast.makeText(this, "Loading questions...", Toast.LENGTH_SHORT).show();
 
@@ -136,9 +129,8 @@ public class QuizActivity extends AppCompatActivity {
                         List<String> options = snapshot.child("options").getValue(t);
 
                         if (questionText != null && options != null && options.size() >= 2) {
-                            // --- SỬA CHÍNH: Gọi Constructor khớp với QuizQuestion.java ---
                             QuizQuestion q = new QuizQuestion(id, questionText, options, correctIndex);
-                            q.setImageUrl(imgUrl); // Set ảnh riêng
+                            q.setImageUrl(imgUrl);
                             questionList.add(q);
                         }
                     } catch (Exception e) {
@@ -298,9 +290,18 @@ public class QuizActivity extends AppCompatActivity {
 
         tabHelper.setOnTabSelectedListener(tabType -> {
             switch (tabType) {
-                case VOCABULARY: navigateToHomeWithTab("VOCABULARY"); break;
-                case LISTENING: navigateToHomeWithTab("LISTENING"); break;
-                case SPEAKING: navigateToHomeWithTab("SPEAKING"); break;
+                case VOCABULARY:
+                    navigateToHomeWithTab("VOCABULARY");
+                    break;
+                case LISTENING:
+                    navigateToHomeWithTab("LISTENING");
+                    break;
+                case SPEAKING:
+                    navigateToHomeWithTab("SPEAKING");
+                    break;
+                case QUIZ:
+                    // Quiz tab không cần navigate
+                    break;
             }
         });
 

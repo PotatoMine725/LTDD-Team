@@ -19,12 +19,12 @@ import com.example.englishapp.R;
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
 
 /**
- * SpeakingActivity - Main speaking screen
+ * SpeakingFragment - Main speaking screen
  * Shows welcome screen with "Start Learning" button
  */
-public class SpeakingActivity extends Fragment {
+public class SpeakingFragment extends Fragment {
 
-    private static final String TAG = "SpeakingActivity";
+    private static final String TAG = "SpeakingFragment";
     private TopTabNavigationHelper tabNavigationHelper;
 
     @Nullable
@@ -55,7 +55,7 @@ public class SpeakingActivity extends Fragment {
             setupAvatarClick(view);
             setupStartLearningButton(view);
 
-            Log.d(TAG, "SpeakingActivity initialized successfully");
+            Log.d(TAG, "SpeakingFragment initialized successfully");
         } catch (Exception e) {
             Log.e(TAG, "Error in onViewCreated", e);
             showMessage("Failed to initialize speaking screen");
@@ -118,7 +118,7 @@ public class SpeakingActivity extends Fragment {
                 return;
             }
 
-            SpeakingTopicsActivity topicsFragment = new SpeakingTopicsActivity();
+            SpeakingTopicsFragment topicsFragment = new SpeakingTopicsFragment();
 
             // Use Activity's FragmentManager for navigation
             getActivity().getSupportFragmentManager()
@@ -129,7 +129,7 @@ public class SpeakingActivity extends Fragment {
                             R.anim.slide_in_left,   // popEnter
                             R.anim.slide_out_right  // popExit
                     )
-                    .replace(R.id.container, topicsFragment, "SpeakingTopicsActivity")
+                    .replace(R.id.container, topicsFragment, "SpeakingTopicsFragment")
                     .addToBackStack("SpeakingToTopics")
                     .commit();
 
@@ -167,7 +167,8 @@ public class SpeakingActivity extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "SpeakingActivity destroyed");
+        Log.d(TAG, "SpeakingFragment destroyed");
         tabNavigationHelper = null;
     }
 }
+
