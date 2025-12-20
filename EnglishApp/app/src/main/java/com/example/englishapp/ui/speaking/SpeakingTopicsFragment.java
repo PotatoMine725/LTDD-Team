@@ -1,5 +1,6 @@
 package com.example.englishapp.ui.speaking;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.example.englishapp.ui.chat.ChatActivity;
 import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
 
@@ -33,6 +35,7 @@ public class SpeakingTopicsFragment extends Fragment {
     private Button btnStartChat;
     private EditText etMessageInput;
     private ImageButton btnSendMessage;
+    private Button btnChatbox;
     private ImageButton btnNotification;
     private ImageButton btnBack;
 
@@ -237,23 +240,8 @@ public class SpeakingTopicsFragment extends Fragment {
      * Sử dụng machine learning để phân tích và trả lời câu hỏi
      */
     private void onStartChatClicked() {
-        try {
-            Log.d(TAG, "Start Chat button clicked");
-
-            String message = "";
-            if (etMessageInput != null) {
-                message = etMessageInput.getText().toString().trim();
-            }
-
-            if (message.isEmpty()) {
-                message = "Hi";
-            }
-
-            showMessage("Starting chat with: " + message);
-        } catch (Exception e) {
-            Log.e(TAG, "Error handling start chat click", e);
-            showError("Failed to start chat");
-        }
+        Intent intent = new Intent(getActivity(), ChatActivity.class);
+        startActivity(intent);
     }
 
     /**
