@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.englishapp.R;
-import com.example.englishapp.utils.TopTabNavigationHelper;
+import com.example.englishapp.ui.common.TopTabNavigationHelper;
 
 public class LessonFragment extends Fragment {
 
