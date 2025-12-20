@@ -334,7 +334,7 @@
             "questions": []
           }
         }
-      },
+      }
     },
     "speaking": {
       "st_01": {
@@ -476,6 +476,28 @@
           "message": "Welcome to EnglishApp. Start learning now!",
           "is_read": false,
           "timestamp": 1715420000000
+        }
+      },
+      "chats": {
+        "chat_001": {
+          "sender": "user",
+          "message": "i very like learn english",
+          "timestamp": 1715423600000
+        },
+        "chat_002": {
+          "sender": "ai",
+          "message": "You should say: 'I really like learning English.'",
+          "timestamp": 1715423605000
+        },
+        "chat_003": {
+          "sender": "user",
+          "message": "Can you explain why?",
+          "timestamp": 1715423610000
+        },
+        "chat_004": {
+          "sender": "ai",
+          "message": "Because after 'like' we usually use a verb ending in -ing.",
+          "timestamp": 1715423615000
         }
       }
     }
