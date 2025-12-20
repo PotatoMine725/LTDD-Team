@@ -17,10 +17,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // map api key từ local peroperies vào buildconfig
         buildConfigField(
-                "String",
-                "OPENAI_API_KEY",
-                "\"${project.properties["OPENAI_API_KEY"]}\""
-            )
+            "String",
+            "OPENAI_API_KEY",
+            "\"${project.findProperty("OPENAI_API_KEY") ?: ""}\""
+        )
+
     }
 
     buildTypes {
@@ -67,4 +68,6 @@ dependencies {
 
     // dùng để gửi request từ phía client
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+    // dependency để kết nối fire store
+    implementation ("com.google.firebase:firebase-firestore")
 }
