@@ -81,22 +81,6 @@ public class QuizResultAdapter extends RecyclerView.Adapter<QuizResultAdapter.Vi
                 if (correctIndex >= 0 && correctIndex < options.size()) {
                     holder.tvCorrectAnswer.setText("Correct answer: " + options.get(correctIndex));
                 }
-        // 2. Xử lý hiển thị đáp án
-        if (userIndex != -1 && userIndex < options.size()) {
-            String userAnsText = options.get(userIndex);
-            holder.tvYourAnswer.setText("Your answer: " + userAnsText);
-
-            if (userIndex == correctIndex) {
-                holder.tvYourAnswer.setTextColor(Color.parseColor("#4CAF50"));
-                holder.tvCorrectAnswer.setVisibility(View.GONE);
-                holder.ivStatus.setImageResource(R.drawable.ic_check_circle);
-                holder.ivStatus.setColorFilter(Color.parseColor("#4CAF50"));
-            } else {
-                holder.tvYourAnswer.setTextColor(Color.RED);
-                holder.tvCorrectAnswer.setVisibility(View.VISIBLE);
-                holder.tvCorrectAnswer.setText("Correct answer: " + options.get(correctIndex));
-                holder.ivStatus.setImageResource(R.drawable.ic_exit);
-                holder.ivStatus.setColorFilter(Color.RED);
             }
         }
     }
