@@ -32,7 +32,8 @@ public class GeminiService {
 
     private final OkHttpClient client = new OkHttpClient();
     private static final AtomicInteger index = new AtomicInteger(0);
-
+// giống nhuw i++. lấy giá trị dungtruowcscs sau đó mới tang i
+    // dùng trong đa luồng chạy song song
     public void sendMessage(String message, OpenAICallBack callback) {
         tryModel(message, callback, 0);
     }
@@ -44,7 +45,7 @@ public class GeminiService {
         if (attempt >= MODELS.length) {
             callback.onError("All Gemini models are busy. Please try again later.");
             return;
-        }
+        }// nếu thử các model trên nếu số laafn thử nhiều hơn các model thì request bị chặn -> lỗi
 
         String model = MODELS[index.getAndIncrement() % MODELS.length];
         String url = String.format(BASE_URL, model, GEMINI_API_KEY);
@@ -57,9 +58,29 @@ public class GeminiService {
             content.put("role", "user");
 
             JSONArray parts = new JSONArray();
+            String prompt =
+                    "You are a friendly English learning assistant.\n\n" +
+
+                            "Your role:\n" +
+                            "- Chat naturally like a real person\n" +
+                            "- Help users learn English through conversation\n" +
+                            "- Correct English mistakes gently when needed\n" +
+                            "- Explain in simple terms\n" +
+                            "- Give advice related to studying, daily life, or communication\n\n" +
+
+                            "Language rules:\n" +
+                            "- If the user writes in Vietnamese, reply in Vietnamese\n" +
+                            "- If the user writes in English, reply in English\n" +
+                            "- If the user mixes both, respond bilingually when helpful\n\n" +
+
+                            "Style:\n" +
+                            "- Be friendly, supportive, and interactive\n\n" +
+
+                            "User message:\n" +
+                            message;
+
             parts.put(new JSONObject().put(
-                    "text",
-                    "Correct this English sentence and explain simply:\n" + message
+                    "text", prompt
             ));
 
             content.put("parts", parts);
@@ -83,7 +104,7 @@ public class GeminiService {
 
                     if (!response.isSuccessful()) {
                         if (response.code() == 429 || response.code() == 404) {
-                            tryModel(message, callback, attempt + 1);
+                            tryModel(message, callback, attempt + 1);// gọi đệ qui nếu quá tại request
                         } else {
                             callback.onError("Error " + response.code());
                         }
