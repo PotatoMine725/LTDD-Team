@@ -3,7 +3,6 @@ package com.example.englishapp.ui.auth;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -12,13 +11,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.englishapp.ui.home.HomeActivity; // SỬA: Import đúng đường dẫn HomeActivity
 import com.example.englishapp.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.example.englishapp.ui.home.HomeActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -33,44 +35,30 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lyt_login);
 
+        // luôn yêu cầu login mỗi lần mở app
         mAuth = FirebaseAuth.getInstance();
-        mAuth.signOut();
 
-        // --- BẮT ĐẦU SỬA ---
-        // 1. Ánh xạ View (Kiểm tra kỹ ID trong lyt_login.xml)
-        edtEmail = findViewById(R.id.edt_username);       // Sửa ID cho đúng chuẩn (thường là edt_email)
+        edtEmail = findViewById(R.id.edt_username);
         edtPassword = findViewById(R.id.edt_password);
         btnLogin = findViewById(R.id.btn_login);
-
-        // QUAN TRỌNG: Phải ánh xạ tvRegister trước khi sử dụng
         tvRegister = findViewById(R.id.tv_sign_up);
-        // --- KẾT THÚC SỬA ---
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginUser();
-            }
-        });
+        btnLogin.setOnClickListener(v -> loginUser());
 
-        // Xử lý chuyển sang màn hình Đăng ký
         if (tvRegister != null) {
-            tvRegister.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                    startActivity(intent);
-                }
-            });
+            tvRegister.setOnClickListener(v ->
+                    startActivity(new Intent(this, RegisterActivity.class))
+            );
         }
     }
 
-    private void loginUser() {
-        if (!btnLogin.isEnabled()) return;
+    // ================= LOGIN =================
 
+    private void loginUser() {
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
+        // ===== VALIDATE INPUT =====
         if (TextUtils.isEmpty(email)) {
             edtEmail.setError("Vui lòng nhập Email");
             return;
@@ -81,29 +69,108 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Disable button tránh spam
         btnLogin.setEnabled(false);
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
+
+                    // Bật lại nút login
                     btnLogin.setEnabled(true);
 
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this,
-                                "Đăng nhập thành công!",
-                                Toast.LENGTH_SHORT).show();
-                        navigateToHome();
-                    } else {
-                        Toast.makeText(this,
-                                task.getException().getMessage(),
+                    // đăng nhập thất bại
+                    if (!task.isSuccessful()) {
+
+                        String errorMessage = "Đăng nhập thất bại";
+
+                        if (task.getException() != null) {
+                            errorMessage = task.getException().getMessage();
+                        }
+
+                        Toast.makeText(
+                                LoginActivity.this,
+                                errorMessage,
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        return;
+                    }
+
+                    //  đang nhập thành công
+                    Toast.makeText(
+                            LoginActivity.this,
+                            "Đăng nhập thành công",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    String uid = mAuth.getCurrentUser().getUid();
+
+                    checkOrCreateProfile(uid);
+                });
+    }
+
+
+    // ================= CHECK PROFILE =================
+
+    private void checkOrCreateProfile(String uid) {
+        FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(uid)
+                .child("profile")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            navigateToHome();
+                        } else {
+                            createDefaultProfile(uid);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(LoginActivity.this,
+                                error.getMessage(),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+    // ================= CREATE PROFILE =================
+
+    private void createDefaultProfile(String uid) {
+
+        String email = mAuth.getCurrentUser().getEmail();
+        String displayName = email != null ? email.split("@")[0] : "User";
+
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("uid", uid);
+        profile.put("email", mAuth.getCurrentUser().getEmail());
+        profile.put("display_name", displayName);
+        profile.put("avatar_url", "default");
+        profile.put("created_at", System.currentTimeMillis());
+
+        FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(uid)
+                .child("profile")
+                .setValue(profile)
+                .addOnSuccessListener(unused -> navigateToHome())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this,
+                                e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    // ================= NAVIGATION =================
+
     private void navigateToHome() {
-        // Đảm bảo HomeActivity đã được import đúng ở trên cùng
-        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
         startActivity(intent);
         finish();
     }

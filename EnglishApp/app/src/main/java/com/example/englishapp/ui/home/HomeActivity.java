@@ -19,7 +19,10 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.englishapp.Fragment.LessonFragment;
 import com.example.englishapp.Fragment.NotificationFragment;
-import com.example.englishapp.Fragment.ProfileFragment;
+//import com.example.englishapp.Fragment.ProfileFragment;
+import com.example.englishapp.ui.auth.LoginActivity;
+import com.example.englishapp.ui.profile.ProfileFragment;
+
 import com.example.englishapp.Fragment.StatisticsFragment;
 import com.example.englishapp.R;
 import com.example.englishapp.debug.FirebaseDebugHelper;
@@ -28,6 +31,7 @@ import com.example.englishapp.ui.listening.ListeningActivity;
 import com.example.englishapp.ui.speaking.SpeakingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -40,6 +44,13 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.home);
 
         try {
