@@ -17,9 +17,9 @@ import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
 
-public class ListeningActivity extends Fragment {
+public class ListeningFragment extends Fragment {
 
-    private static final String TAG = "ListeningActivity";
+    private static final String TAG = "ListeningFragment";
     private TopTabNavigationHelper tabNavigationHelper;
 
     @Nullable
@@ -66,7 +66,7 @@ public class ListeningActivity extends Fragment {
         TextView allTopicsLink = view.findViewById(R.id.all_topics_link);
         if (allTopicsLink != null) {
             allTopicsLink.setOnClickListener(v -> {
-                Log.d(TAG, "All topics clicked - navigating to ListeningTopicActivity");
+                Log.d(TAG, "All topics clicked - navigating to ListeningTopicFragment");
                 navigateToListeningTopic();
             });
         } else {
@@ -81,7 +81,7 @@ public class ListeningActivity extends Fragment {
         TextView allRecordsLink = view.findViewById(R.id.all_records_link);
         if (allRecordsLink != null) {
             allRecordsLink.setOnClickListener(v -> {
-                Log.d(TAG, "All records clicked - navigating to ListeningTopicActivity");
+                Log.d(TAG, "All records clicked - navigating to ListeningTopicFragment");
                 navigateToListeningTopic();
             });
         } else {
@@ -90,7 +90,7 @@ public class ListeningActivity extends Fragment {
     }
 
     /**
-     * Navigate to ListeningTopicActivity
+     * Navigate to ListeningTopicFragment
      */
     private void navigateToListeningTopic() {
         if (getActivity() == null) {
@@ -99,7 +99,7 @@ public class ListeningActivity extends Fragment {
         }
 
         try {
-            ListeningTopicActivity listeningTopicFragment = new ListeningTopicActivity();
+            ListeningTopicFragment listeningTopicFragment = new ListeningTopicFragment();
 
             // Sử dụng getSupportFragmentManager() của Activity
             getActivity().getSupportFragmentManager()
@@ -110,13 +110,13 @@ public class ListeningActivity extends Fragment {
                             R.anim.slide_in_left,   // popEnter
                             R.anim.slide_out_right  // popExit
                     )
-                    .replace(R.id.container, listeningTopicFragment, "ListeningTopicActivity")
+                    .replace(R.id.container, listeningTopicFragment, "ListeningTopicFragment")
                     .addToBackStack("ListeningToTopic")
                     .commit();
 
-            Log.d(TAG, "Fragment transaction to ListeningTopicActivity committed successfully");
+            Log.d(TAG, "Fragment transaction to ListeningTopicFragment committed successfully");
         } catch (Exception e) {
-            Log.e(TAG, "Error navigating to ListeningTopicActivity", e);
+            Log.e(TAG, "Error navigating to ListeningTopicFragment", e);
             e.printStackTrace();
         }
     }
@@ -130,3 +130,4 @@ public class ListeningActivity extends Fragment {
         fragment.show(fragmentManager, "notification_dialog");
     }
 }
+
