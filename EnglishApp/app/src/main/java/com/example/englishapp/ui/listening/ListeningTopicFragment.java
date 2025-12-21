@@ -148,29 +148,75 @@ public class ListeningTopicFragment extends Fragment {
             Log.d(TAG, "Loading topics from Firebase...");
             
             FirebaseService firebaseService = FirebaseService.getInstance();
+            
+            // Debug: Kiểm tra Firebase reference
+            Log.d(TAG, "Firebase reference: " + firebaseService.getListeningTopicsRef().toString());
+            
             firebaseService.getListeningTopicsRef().addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Log.d(TAG, "Firebase onDataChange called. Snapshot exists: " + snapshot.exists());
+                    Log.d(TAG, "Snapshot children count: " + snapshot.getChildrenCount());
+                    
                     List<ListeningTopic> topics = new ArrayList<>();
                     
                     if (snapshot.exists()) {
                         for (DataSnapshot topicSnapshot : snapshot.getChildren()) {
                             try {
                                 String topicId = topicSnapshot.getKey();
+                                
+                                // Debug: In ra tất cả các field có trong topic
+                                Log.d(TAG, "=== Topic Debug: " + topicId + " ===");
+                                for (DataSnapshot child : topicSnapshot.getChildren()) {
+                                    Log.d(TAG, "Field: " + child.getKey() + " = " + child.getValue());
+                                }
+                                Log.d(TAG, "=== End Topic Debug ===");
+                                
                                 String topicName = topicSnapshot.child("name").getValue(String.class);
+                                
+                                // Thử nhiều tên field khác nhau cho image URL
                                 String imageUrl = topicSnapshot.child("image_url").getValue(String.class);
+                                if (imageUrl == null) {
+                                    imageUrl = topicSnapshot.child("imageUrl").getValue(String.class);
+                                }
+                                if (imageUrl == null) {
+                                    imageUrl = topicSnapshot.child("imageURL").getValue(String.class);
+                                }
+                                if (imageUrl == null) {
+                                    imageUrl = topicSnapshot.child("image").getValue(String.class);
+                                }
+                                
                                 Integer totalLessons = topicSnapshot.child("total_lessons").getValue(Integer.class);
                                 
+                                Log.d(TAG, "Processing topic: " + topicId + ", name: " + topicName + ", imageUrl: '" + imageUrl + "'");
+                                Log.d(TAG, "ImageUrl is null: " + (imageUrl == null));
+                                Log.d(TAG, "ImageUrl is empty: " + (imageUrl != null && imageUrl.trim().isEmpty()));
+                                
                                 if (topicId != null && topicName != null) {
+                                    // Đảm bảo imageUrl không null và không rỗng
+                                    String finalImageUrl = (imageUrl != null && !imageUrl.trim().isEmpty()) ? imageUrl.trim() : "";
+                                    
+                                    // TEMPORARY FIX: Hardcode URL cho lt_technology vì Firebase thiếu field
+                                    if ("lt_technology".equals(topicId) && finalImageUrl.isEmpty()) {
+                                        Log.w(TAG, "TEMP FIX: Adding hardcoded image_url for lt_technology");
+                                        finalImageUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af2176";
+                                    }
+                                    
+                                    // Nếu không có imageUrl từ Firebase, sử dụng URL mặc định dựa trên topicId
+                                    if (finalImageUrl.isEmpty()) {
+                                        Log.w(TAG, "No image_url found for topic: " + topicId + ", using default URL");
+                                        finalImageUrl = getDefaultImageUrl(topicId);
+                                    }
+                                    
                                     ListeningTopic topic = new ListeningTopic(
                                         topicId,
                                         topicName,
-                                        imageUrl != null ? imageUrl : "",
+                                        finalImageUrl,
                                         0, // currentProgress
                                         totalLessons != null ? totalLessons : 0
                                     );
                                     topics.add(topic);
-                                    Log.d(TAG, "Loaded topic: " + topicName + " with image: " + imageUrl);
+                                    Log.d(TAG, "Added topic: " + topicName + " with final image: " + finalImageUrl);
                                 }
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing topic data", e);
@@ -194,6 +240,9 @@ public class ListeningTopicFragment extends Fragment {
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
                     Log.e(TAG, "Firebase Error loading topics: " + error.getMessage());
+                    Log.e(TAG, "Firebase Error details: " + error.getDetails());
+                    Log.e(TAG, "Firebase Error code: " + error.getCode());
+                    
                     // Fallback to sample data
                     List<ListeningTopic> topics = getSampleTopics();
                     if (topicAdapter != null) {
@@ -207,6 +256,20 @@ public class ListeningTopicFragment extends Fragment {
         } catch (Exception e) {
             Log.e(TAG, "Error loading topics data", e);
             showError("Failed to load topics");
+        }
+    }
+
+    /**
+     * Get default image URL based on topic ID
+     */
+    private String getDefaultImageUrl(String topicId) {
+        switch (topicId) {
+            case "lt_daily":
+                return "https://images.unsplash.com/photo-1506784983877-45594efa4cbe";
+            case "lt_technology":
+                return "https://images.unsplash.com/photo-1518709268805-4e9042af2176";
+            default:
+                return "https://images.unsplash.com/photo-1506784983877-45594efa4cbe";
         }
     }
 

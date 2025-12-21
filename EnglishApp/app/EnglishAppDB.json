@@ -244,7 +244,7 @@
           "ls_tech_02": {
             "id": "ls_tech_02",
             "title": "Online Learning",
-            "image_url": "https://images.unsplash.com/photo-1584697964192-5f3d5c1a6d6b",
+            "image_url": "https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/12/location-la-gi.jpg",
             "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
             "duration": 205,
             "transcript": "You will hear a discussion about online learning. Question 1. What type of learning is discussed? Question 2. What is an advantage? Question 3. What is a disadvantage? Question 4. Who benefits the most? Question 5. What is the future of online learning?",
@@ -498,6 +498,90 @@
           "sender": "ai",
           "message": "Because after 'like' we usually use a verb ending in -ing.",
           "timestamp": 1715423615000
+        }
+      },
+      "lt_technology": {
+        "id": "lt_technology",
+        "name": "Technology",
+        "image_res_name": "topic_technology",
+        "image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af2176",
+        "total_lessons": 5,
+        "description": "Listening practice about modern technology",
+        "lessons": {
+          "ls_tech_01": {
+            "id": "ls_tech_01",
+            "title": "Using Smartphones",
+            "image_url": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9",
+            "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+            "duration": 220,
+            "transcript": "You will hear a talk about smartphone usage. Question 1. What device is discussed? Question 2. What is it mainly used for? Question 3. How often does the speaker use it? Question 4. What problem is mentioned? Question 5. What advice is given?",
+            "questions": [
+              {
+                "order": 1,
+                "question_text": "What device is discussed?",
+                "options": [
+                  "Laptop",
+                  "Tablet",
+                  "Smartphone",
+                  "Smartwatch"
+                ],
+                "correct_index": 2
+              },
+              {
+                "order": 2,
+                "question_text": "What is it mainly used for?",
+                "options": [
+                  "Gaming",
+                  "Communication",
+                  "Studying",
+                  "Work only"
+                ],
+                "correct_index": 1
+              },
+              {
+                "order": 3,
+                "question_text": "How often does the speaker use it?",
+                "options": [
+                  "Rarely",
+                  "Sometimes",
+                  "Often",
+                  "Never"
+                ],
+                "correct_index": 2
+              },
+              {
+                "order": 4,
+                "question_text": "What problem is mentioned?",
+                "options": [
+                  "Battery life",
+                  "Screen size",
+                  "High cost",
+                  "Slow speed"
+                ],
+                "correct_index": 0
+              },
+              {
+                "order": 5,
+                "question_text": "What advice is given?",
+                "options": [
+                  "Use it more",
+                  "Turn it off at night",
+                  "Buy a new one",
+                  "Ignore problems"
+                ],
+                "correct_index": 1
+              }
+            ]
+          },
+          "ls_tech_02": {
+            "id": "ls_tech_02",
+            "title": "Online Learning",
+            "image_url": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+            "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+            "duration": 205,
+            "transcript": "You will hear a discussion about online learning.",
+            "questions": []
+          }
         }
       }
     }
