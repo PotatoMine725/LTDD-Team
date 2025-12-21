@@ -472,10 +472,16 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void finishQuiz() {
-        releaseMediaPlayer();
+        releaseMediaPlayer(); // Dừng nhạc nếu có
+
         Intent intent = new Intent(QuizActivity.this, QuizResultActivity.class);
         intent.putExtra("SCORE", score);
         intent.putExtra("TOTAL", questionList.size());
+
+        // --- QUAN TRỌNG: Gửi loại Quiz sang màn hình kết quả ---
+        intent.putExtra("QUIZ_TYPE", quizType);
+        // ------------------------------------------------------
+
         intent.putExtra("RESULT_LIST", (java.io.Serializable) questionList);
         startActivity(intent);
         finish();
