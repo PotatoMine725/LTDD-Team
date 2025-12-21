@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText edtEmail, edtPassword, edtConfirmPassword;
+    private EditText edtName, edtEmail, edtPassword, edtConfirmPassword;
     private CheckBox cbTerms;
     private Button btnRegister;
 
@@ -32,6 +32,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
+        // Bind view
+        edtName = findViewById(R.id.edt_name);
         edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
         edtConfirmPassword = findViewById(R.id.edt_confirm_password);
@@ -41,16 +43,34 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(v -> register());
     }
 
+    // ================= REGISTER =================
+
     private void register() {
+
+        String name = edtName.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
         String confirmPassword = edtConfirmPassword.getText().toString().trim();
 
-        // Validate
-        if (TextUtils.isEmpty(email) ||
-                TextUtils.isEmpty(password) ||
-                TextUtils.isEmpty(confirmPassword)) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+        // ===== VALIDATE =====
+
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(this, "Vui lòng nhập họ tên", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(this, "Vui lòng nhập email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Vui lòng nhập mật khẩu", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(confirmPassword)) {
+            Toast.makeText(this, "Vui lòng xác nhận mật khẩu", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -64,22 +84,31 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        // ===== FIREBASE AUTH =====
+
+        btnRegister.setEnabled(false);
+
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     String uid = authResult.getUser().getUid();
-                    saveProfile(uid, email);
+                    saveProfile(uid, email, name); // ✅ TRUYỀN ĐỦ 3 THAM SỐ
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                .addOnFailureListener(e -> {
+                    btnRegister.setEnabled(true);
+                    Toast.makeText(this,
+                            e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 
-    private void saveProfile(String uid, String email) {
+    // ================= SAVE PROFILE =================
+
+    private void saveProfile(String uid, String email, String name) {
 
         Map<String, Object> profile = new HashMap<>();
         profile.put("uid", uid);
         profile.put("email", email);
-        profile.put("display_name", email); // KHÔNG có field name → dùng email
+        profile.put("display_name", name);   // ✅ LƯU TÊN NGƯỜI DÙNG
         profile.put("avatar_url", "default");
         profile.put("created_at", System.currentTimeMillis());
 
@@ -89,14 +118,23 @@ public class RegisterActivity extends AppCompatActivity {
                 .child("profile")
                 .setValue(profile)
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Đăng ký thành công. Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show();
 
-                    auth.signOut(); // ÉP logout
-                    startActivity(new Intent(this, LoginActivity.class));
+                    Toast.makeText(this,
+                            "Đăng ký thành công. Vui lòng đăng nhập!",
+                            Toast.LENGTH_SHORT).show();
+
+                    auth.signOut(); // ÉP logout sau khi đăng ký
+
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
                     finish();
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                .addOnFailureListener(e -> {
+                    btnRegister.setEnabled(true);
+                    Toast.makeText(this,
+                            e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 }
