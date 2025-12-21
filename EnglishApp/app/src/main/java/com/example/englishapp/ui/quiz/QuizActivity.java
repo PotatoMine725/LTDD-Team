@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -59,26 +58,25 @@ public class QuizActivity extends AppCompatActivity {
     private int currentQuestionIndex = 0;
     private int score = 0;
 
-    // --- UI: VOCABULARY ---
-    private TextView tvVocabQuestionNumber;
-    private ImageView ivQuizImage;
-    private Button btnVocabQuestion;
+    // --- UI COMMON (Dùng chung cho cả Vocab và Listening) ---
+    private TextView tvQuestionNumber;
+    private Button btnQuestionText; // Tiêu đề câu hỏi (Vocab dùng Button, Listening dùng TextView trong layout cũ nhưng giờ ánh xạ chung cũng được)
+    private TextView tvListeningQuestionText; // Dành riêng cho Listening text
     private Button btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD;
     private Button[] answerButtons;
     private int selectedAnswerIndex = -1;
+    private Button btnCheck, btnNext;
 
-    // --- UI: LISTENING ---
-    private TextView tvListenQuestionNumber, tvListenQuestionText;
+    // --- UI: VOCABULARY ONLY ---
+    private ImageView ivQuizImage;
+
+    // --- UI: LISTENING ONLY ---
     private ImageButton btnPlayPause;
     private SeekBar seekBar;
     private TextView tvCurrentTime, tvTotalTime;
-    private EditText etAnswerInput;
     private MediaPlayer mediaPlayer;
     private Handler audioHandler = new Handler();
-    private boolean isAudioPrepared = false; // Biến cờ kiểm tra audio đã tải xong chưa
-
-    // --- UI: NAVIGATION ---
-    private Button btnCheck, btnNext;
+    private boolean isAudioPrepared = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,9 +113,9 @@ public class QuizActivity extends AppCompatActivity {
     // ==========================================
 
     private void initVocabularyViews() {
-        tvVocabQuestionNumber = findViewById(R.id.tv_question_number);
+        tvQuestionNumber = findViewById(R.id.tv_question_number);
         ivQuizImage = findViewById(R.id.iv_quiz_image);
-        btnVocabQuestion = findViewById(R.id.btn_question);
+        btnQuestionText = findViewById(R.id.btn_question); // Button làm text câu hỏi
 
         btnAnswerA = findViewById(R.id.btn_answer_a);
         btnAnswerB = findViewById(R.id.btn_answer_b);
@@ -128,31 +126,31 @@ public class QuizActivity extends AppCompatActivity {
         btnCheck = findViewById(R.id.btn_check);
         btnNext = findViewById(R.id.btn_next);
 
-        for (int i = 0; i < answerButtons.length; i++) {
-            int finalI = i;
-            answerButtons[i].setOnClickListener(v -> onVocabAnswerSelected(finalI));
-        }
-        btnCheck.setOnClickListener(v -> checkVocabAnswer());
+        setupAnswerButtons();
+        btnCheck.setOnClickListener(v -> checkAnswer());
         btnNext.setOnClickListener(v -> nextQuestion());
     }
 
     private void initListeningViews() {
-        tvListenQuestionNumber = findViewById(R.id.tv_question_number);
-        tvListenQuestionText = findViewById(R.id.tv_question_text);
+        tvQuestionNumber = findViewById(R.id.tv_question_number);
+        tvListeningQuestionText = findViewById(R.id.tv_question_text); // Listening dùng TextView
 
         btnPlayPause = findViewById(R.id.imgBtn_play_pause);
         seekBar = findViewById(R.id.seekBar);
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTime = findViewById(R.id.tv_total_time);
 
-        // Đảm bảo ID này khớp với file XML (tôi đã sửa ID trong XML thành et_answer_input)
-        etAnswerInput = findViewById(R.id.et_answer_input);
-        // Fallback phòng khi XML chưa cập nhật ID
-        //if (etAnswerInput == null) etAnswerInput = findViewById(R.id.et_answer_input);
+        // Ánh xạ 4 nút đáp án (Giờ Listening cũng có 4 nút này)
+        btnAnswerA = findViewById(R.id.btn_answer_a);
+        btnAnswerB = findViewById(R.id.btn_answer_b);
+        btnAnswerC = findViewById(R.id.btn_answer_c);
+        btnAnswerD = findViewById(R.id.btn_answer_d);
+        answerButtons = new Button[]{btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD};
 
         btnCheck = findViewById(R.id.btn_check);
         btnNext = findViewById(R.id.btn_next);
 
+        // Setup Audio Player
         btnPlayPause.setOnClickListener(v -> toggleAudio());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -163,8 +161,17 @@ public class QuizActivity extends AppCompatActivity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        btnCheck.setOnClickListener(v -> checkListeningAnswer());
+        setupAnswerButtons();
+        btnCheck.setOnClickListener(v -> checkAnswer()); // Dùng chung hàm checkAnswer
         btnNext.setOnClickListener(v -> nextQuestion());
+    }
+
+    // Thiết lập sự kiện click cho các nút đáp án (Dùng chung)
+    private void setupAnswerButtons() {
+        for (int i = 0; i < answerButtons.length; i++) {
+            int finalI = i;
+            answerButtons[i].setOnClickListener(v -> onAnswerSelected(finalI));
+        }
     }
 
     // ==========================================
@@ -231,8 +238,8 @@ public class QuizActivity extends AppCompatActivity {
         QuizQuestion currentQ = questionList.get(index);
 
         resetCommonUI();
-        tvVocabQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
-        btnVocabQuestion.setText(currentQ.getQuestion());
+        tvQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
+        btnQuestionText.setText(currentQ.getQuestion());
 
         if (currentQ.getImageUrl() != null && !currentQ.getImageUrl().isEmpty()) {
             ivQuizImage.setVisibility(View.VISIBLE);
@@ -241,17 +248,7 @@ public class QuizActivity extends AppCompatActivity {
             ivQuizImage.setVisibility(View.GONE);
         }
 
-        for (int i = 0; i < answerButtons.length; i++) {
-            if (i < currentQ.getOptions().size()) {
-                answerButtons[i].setVisibility(View.VISIBLE);
-                answerButtons[i].setText(currentQ.getOptions().get(i));
-                answerButtons[i].setEnabled(true);
-                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA"));
-                answerButtons[i].setTextColor(Color.WHITE);
-            } else {
-                answerButtons[i].setVisibility(View.GONE);
-            }
-        }
+        bindOptionsToButtons(currentQ.getOptions());
     }
 
     private void displayListeningQuestion(int index) {
@@ -259,33 +256,41 @@ public class QuizActivity extends AppCompatActivity {
         QuizQuestion currentQ = questionList.get(index);
 
         resetCommonUI();
-        tvListenQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
-        tvListenQuestionText.setText(currentQ.getQuestion());
+        tvQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
+        tvListeningQuestionText.setText(currentQ.getQuestion());
 
-        etAnswerInput.setText("");
-        etAnswerInput.setEnabled(true);
-        etAnswerInput.setTextColor(Color.BLACK);
-
-        // Gọi hàm chuẩn bị audio
+        // Chuẩn bị audio
         prepareAudio(currentQ.getAudioUrl());
 
-        btnCheck.setEnabled(true);
-        btnCheck.setBackgroundColor(Color.parseColor("#8BC34A"));
+        // Hiển thị 4 đáp án lên nút
+        bindOptionsToButtons(currentQ.getOptions());
+    }
+
+    private void bindOptionsToButtons(List<String> options) {
+        for (int i = 0; i < answerButtons.length; i++) {
+            if (i < options.size()) {
+                answerButtons[i].setVisibility(View.VISIBLE);
+                answerButtons[i].setText(options.get(i));
+                answerButtons[i].setEnabled(true);
+                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA")); // Xanh nhạt
+                answerButtons[i].setTextColor(Color.WHITE);
+            } else {
+                answerButtons[i].setVisibility(View.GONE);
+            }
+        }
     }
 
     private void resetCommonUI() {
         btnCheck.setVisibility(View.VISIBLE);
         btnNext.setVisibility(View.INVISIBLE);
         btnNext.setEnabled(false);
-        if ("Vocabulary".equals(quizType)) {
-            selectedAnswerIndex = -1;
-            btnCheck.setEnabled(false);
-            btnCheck.setBackgroundColor(Color.GRAY);
-        }
+        selectedAnswerIndex = -1;
+        btnCheck.setEnabled(false);
+        btnCheck.setBackgroundColor(Color.GRAY);
     }
 
     // ==========================================
-    // TRÌNH PHÁT NHẠC: DOWNLOAD & PLAY
+    // TRÌNH PHÁT NHẠC (ROBUST VERSION)
     // ==========================================
 
     private void prepareAudio(String rawUrl) {
@@ -302,78 +307,51 @@ public class QuizActivity extends AppCompatActivity {
             return;
         }
 
-        // --- BƯỚC 1: LÀM SẠCH URL ---
-        // Loại bỏ dấu ngoặc kép thừa và khoảng trắng (Nguyên nhân chính gây lỗi 404)
         String finalUrl = rawUrl.replace("\"", "").trim();
-
-        Log.d(TAG, "Processing Audio URL: [" + finalUrl + "]");
+        Log.d(TAG, "Downloading audio: [" + finalUrl + "]");
         Toast.makeText(this, "Downloading audio...", Toast.LENGTH_SHORT).show();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
                 File cacheDir = getCacheDir();
-                // Tạo tên file từ hash của URL để tránh trùng và lỗi ký tự lạ
                 String fileName = "audio_" + finalUrl.hashCode() + ".mp3";
                 File tempFile = new File(cacheDir, fileName);
 
-                // Chỉ tải nếu file chưa có trong cache
                 if (!tempFile.exists()) {
-                    Log.d(TAG, "File not in cache. Downloading from: " + finalUrl);
                     downloadFile(finalUrl, tempFile);
-                } else {
-                    Log.d(TAG, "File found in cache: " + tempFile.getAbsolutePath());
                 }
-
-                // Tải xong -> Quay về luồng chính để phát
                 runOnUiThread(() -> playLocalAudio(tempFile.getAbsolutePath()));
 
             } catch (Exception e) {
-                Log.e(TAG, "Download/Play Error", e);
+                Log.e(TAG, "Download Error", e);
                 runOnUiThread(() -> {
-                    Toast.makeText(QuizActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(QuizActivity.this, "Error loading audio", Toast.LENGTH_SHORT).show();
                     btnPlayPause.setEnabled(true);
                 });
             }
         });
     }
-    // --- HÀM TẢI FILE HỖ TRỢ REDIRECT & USER-AGENT ---
+
     private void downloadFile(String stringUrl, File outputFile) throws IOException {
         URL url = new URL(stringUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        // Giả lập trình duyệt để tránh bị server chặn (403/404 giả)
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Android)");
         connection.setConnectTimeout(15000);
         connection.setReadTimeout(15000);
-
-        // Tắt tự động redirect của Android để tự xử lý (tránh lỗi chuyển protocol http->https)
         connection.setInstanceFollowRedirects(false);
-
         connection.connect();
 
         int responseCode = connection.getResponseCode();
-        Log.d(TAG, "Server Response Code: " + responseCode);
-
-        // Xử lý chuyển hướng (301, 302, 307, 308)
-        if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
-                responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
-                responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
-                responseCode == 307 || responseCode == 308) {
-
+        if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == 307 || responseCode == 308) {
             String newUrl = connection.getHeaderField("Location");
-            Log.d(TAG, "Redirecting to: " + newUrl);
-
-            // Đệ quy: Tải lại với URL mới
             downloadFile(newUrl, outputFile);
             return;
         }
-
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new IOException("Server returned code: " + responseCode + " for URL: " + stringUrl);
+            throw new IOException("Server returned code: " + responseCode);
         }
 
-        // Ghi dữ liệu ra file
         InputStream inputStream = connection.getInputStream();
         FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
         byte[] buffer = new byte[4096];
@@ -383,34 +361,22 @@ public class QuizActivity extends AppCompatActivity {
         }
         fileOutputStream.close();
         inputStream.close();
-        Log.d(TAG, "Download finished. Size: " + outputFile.length());
     }
 
     private void playLocalAudio(String path) {
         try {
             mediaPlayer = new MediaPlayer();
-
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+            mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build();
-            mediaPlayer.setAudioAttributes(audioAttributes);
-
-            mediaPlayer.setDataSource(path); // Phát từ file nội bộ (ổn định 100%)
+                    .build());
+            mediaPlayer.setDataSource(path);
             mediaPlayer.setOnPreparedListener(mp -> {
                 isAudioPrepared = true;
                 tvTotalTime.setText(formatTime(mp.getDuration()));
                 seekBar.setMax(mp.getDuration());
-                btnPlayPause.setEnabled(true); // Mở khóa nút Play
-                Log.d(TAG, "Audio Ready: " + path);
+                btnPlayPause.setEnabled(true);
             });
-
-            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                Log.e(TAG, "Local Play Error: " + what);
-                releaseMediaPlayer();
-                return true;
-            });
-
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             Log.e(TAG, "Local Play Exception", e);
@@ -419,7 +385,6 @@ public class QuizActivity extends AppCompatActivity {
 
     private void toggleAudio() {
         if (mediaPlayer == null || !isAudioPrepared) return;
-
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             btnPlayPause.setImageResource(android.R.drawable.ic_media_play);
@@ -460,14 +425,14 @@ public class QuizActivity extends AppCompatActivity {
     // CHECK KẾT QUẢ & NAVIGATION
     // ==========================================
 
-    private void onVocabAnswerSelected(int index) {
+    private void onAnswerSelected(int index) {
         selectedAnswerIndex = index;
         for (int i = 0; i < answerButtons.length; i++) {
             if (i == index) {
-                answerButtons[i].setBackgroundColor(Color.parseColor("#FFEB3B"));
+                answerButtons[i].setBackgroundColor(Color.parseColor("#FFEB3B")); // Vàng khi chọn
                 answerButtons[i].setTextColor(Color.BLACK);
             } else {
-                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA"));
+                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA")); // Reset màu
                 answerButtons[i].setTextColor(Color.WHITE);
             }
         }
@@ -475,48 +440,26 @@ public class QuizActivity extends AppCompatActivity {
         btnCheck.setBackgroundColor(Color.parseColor("#8BC34A"));
     }
 
-    private void checkVocabAnswer() {
+    private void checkAnswer() {
         if (selectedAnswerIndex == -1) return;
+
         QuizQuestion currentQ = questionList.get(currentQuestionIndex);
         currentQ.setUserSelectedIndex(selectedAnswerIndex);
 
-        if (selectedAnswerIndex == currentQ.getCorrectIndex()) {
+        boolean isCorrect = (selectedAnswerIndex == currentQ.getCorrectIndex());
+        if (isCorrect) {
             score++;
             answerButtons[selectedAnswerIndex].setBackgroundColor(Color.GREEN);
         } else {
             answerButtons[selectedAnswerIndex].setBackgroundColor(Color.RED);
-            if (currentQ.getCorrectIndex() < answerButtons.length)
+            if (currentQ.getCorrectIndex() < answerButtons.length) {
                 answerButtons[currentQ.getCorrectIndex()].setBackgroundColor(Color.GREEN);
-        }
-        disableUIAndShowNext();
-    }
-
-    private void checkListeningAnswer() {
-        String userAnswer = etAnswerInput.getText().toString().trim();
-        QuizQuestion currentQ = questionList.get(currentQuestionIndex);
-        currentQ.setUserAnswerText(userAnswer);
-
-        String correctAnswer = "";
-        if (currentQ.getOptions() != null && currentQ.getCorrectIndex() < currentQ.getOptions().size()) {
-            correctAnswer = currentQ.getOptions().get(currentQ.getCorrectIndex());
+            }
         }
 
-        if (userAnswer.equalsIgnoreCase(correctAnswer)) {
-            score++;
-            etAnswerInput.setTextColor(Color.GREEN);
-        } else {
-            etAnswerInput.setTextColor(Color.RED);
-            etAnswerInput.setText(userAnswer + " (Correct: " + correctAnswer + ")");
-        }
-        disableUIAndShowNext();
-    }
+        // Disable buttons
+        for (Button btn : answerButtons) btn.setEnabled(false);
 
-    private void disableUIAndShowNext() {
-        if ("Vocabulary".equals(quizType)) {
-            for (Button btn : answerButtons) btn.setEnabled(false);
-        } else {
-            etAnswerInput.setEnabled(false);
-        }
         btnCheck.setVisibility(View.GONE);
         btnNext.setVisibility(View.VISIBLE);
         btnNext.setEnabled(true);
@@ -537,6 +480,10 @@ public class QuizActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    // ==========================================
+    // NAVIGATION & LIFECYCLE (Giữ nguyên)
+    // ==========================================
 
     private void setupNotificationButton() {
         btnNotification = findViewById(R.id.btn_notification);

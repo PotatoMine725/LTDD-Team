@@ -8,44 +8,44 @@
     android:orientation="vertical"
     android:background="@android:color/white">
 
-    <RelativeLayout
-        android:id="@+id/top_bar"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="#E0F2F7"
-        android:padding="15dp">
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/top_bar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="80dp"-->
+<!--        android:background="#E0F2F7"-->
+<!--        android:padding="15dp">-->
 
-        <ImageView
-            android:id="@+id/avatar_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/circle_bg_header"
-            android:padding="2dp"
-            app:srcCompat="@drawable/profile_img" />
+<!--        <ImageView-->
+<!--            android:id="@+id/avatar_image"-->
+<!--            android:layout_width="40dp"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:layout_alignParentStart="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:background="@drawable/circle_bg_header"-->
+<!--            android:padding="2dp"-->
+<!--            app:srcCompat="@drawable/profile_img" />-->
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="0dp"
-            android:layout_height="8dp"
-            android:layout_toEndOf="@id/avatar_image"
-            android:layout_toStartOf="@id/btn_notification"
-            android:layout_centerVertical="true"
-            android:layout_marginHorizontal="16dp"
-            android:progress="50"
-            android:progressDrawable="@drawable/progress_bar_background" />
+<!--        <ProgressBar-->
+<!--            android:id="@+id/progress_bar"-->
+<!--            style="?android:attr/progressBarStyleHorizontal"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="8dp"-->
+<!--            android:layout_toEndOf="@id/avatar_image"-->
+<!--            android:layout_toStartOf="@id/btn_notification"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_marginHorizontal="16dp"-->
+<!--            android:progress="50"-->
+<!--            android:progressDrawable="@drawable/progress_bar_background" />-->
 
-        <ImageView
-            android:id="@+id/btn_notification"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            app:srcCompat="@drawable/ic_notification"
-            app:tint="#0083EF"/>
-    </RelativeLayout>
+<!--        <ImageView-->
+<!--            android:id="@+id/btn_notification"-->
+<!--            android:layout_width="30dp"-->
+<!--            android:layout_height="30dp"-->
+<!--            android:layout_alignParentEnd="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            app:srcCompat="@drawable/ic_notification"-->
+<!--            app:tint="#0083EF"/>-->
+<!--    </RelativeLayout>-->
 
     <ScrollView
         android:layout_width="match_parent"
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:text="What number did you hear?"
+                android:text="Listen and choose the correct answer"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -84,7 +84,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:background="@drawable/bg_card_white"
@@ -134,16 +134,56 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/et_answer_input"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="40dp"
-                android:background="@drawable/edit_text_background"
-                android:hint="Type what you hear..."
-                android:paddingHorizontal="16dp"
-                android:textSize="16sp"
-                android:inputType="text" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="30dp">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_answer_a"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/button_background"
+                    android:text="Option A"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_answer_b"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/button_background"
+                    android:text="Option B"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_answer_c"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/button_background"
+                    android:text="Option C"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_answer_d"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/button_background"
+                    android:text="Option D"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
