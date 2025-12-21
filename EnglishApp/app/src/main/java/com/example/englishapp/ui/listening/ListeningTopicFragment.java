@@ -27,9 +27,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListeningTopicActivity extends Fragment {
+public class ListeningTopicFragment extends Fragment {
 
-    private static final String TAG = "ListeningTopicActivity";
+    private static final String TAG = "ListeningTopicFragment";
     private RecyclerView topicsRecyclerView;
     private ListeningTopicAdapter topicAdapter;
     private BottomNavigationView bottomNavigationView;
@@ -64,7 +64,7 @@ public class ListeningTopicActivity extends Fragment {
     }
 
     /**
-     * Setup back button để quay về ListeningActivity
+     * Setup back button để quay về ListeningFragment
      */
     private void setupBackButton(View view) {
         try {
@@ -274,7 +274,7 @@ public class ListeningTopicActivity extends Fragment {
     }
 
     /**
-     * Navigate back to ListeningActivity
+     * Navigate back to ListeningFragment
      */
     private void navigateBack() {
         try {
@@ -282,7 +282,7 @@ public class ListeningTopicActivity extends Fragment {
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 0) {
                     fragmentManager.popBackStack();
-                    Log.d(TAG, "Navigated back to ListeningActivity");
+                    Log.d(TAG, "Navigated back to ListeningFragment");
                 } else {
                     Log.w(TAG, "No back stack entries to pop");
                 }
@@ -429,9 +429,9 @@ public class ListeningTopicActivity extends Fragment {
             String topicId = topic.getTopicId();
             String firstLessonId = getFirstLessonId(topicId);
 
-            // Tạo ListeningExerciseActivity fragment với topic ID thực
-            ListeningExerciseActivity exerciseFragment =
-                    ListeningExerciseActivity.newInstance(topicId, firstLessonId);
+            // Tạo ListeningExerciseFragment fragment với topic ID thực
+            ListeningExerciseFragment exerciseFragment =
+                    ListeningExerciseFragment.newInstance(topicId, firstLessonId);
 
             // Navigate với animation
             getActivity().getSupportFragmentManager()
@@ -442,11 +442,11 @@ public class ListeningTopicActivity extends Fragment {
                             R.anim.slide_in_left,   // popEnter
                             R.anim.slide_out_right  // popExit
                     )
-                    .replace(R.id.container, exerciseFragment, "ListeningExerciseActivity")
+                    .replace(R.id.container, exerciseFragment, "ListeningExerciseFragment")
                     .addToBackStack("TopicToExercise")
                     .commit();
 
-            Log.d(TAG, "Fragment transaction to ListeningExerciseActivity committed successfully");
+            Log.d(TAG, "Fragment transaction to ListeningExerciseFragment committed successfully");
         } catch (Exception e) {
             Log.e(TAG, "Error navigating to exercise", e);
             showError("Failed to open exercise");
@@ -485,3 +485,4 @@ public class ListeningTopicActivity extends Fragment {
         }
     }
 }
+
