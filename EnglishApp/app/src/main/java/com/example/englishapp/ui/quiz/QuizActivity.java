@@ -1,14 +1,17 @@
 package com.example.englishapp.ui.quiz;
-import com.example.englishapp.ui.home.HomeActivity;
-import com.example.englishapp.R;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,10 +20,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.example.englishapp.R;
 import com.example.englishapp.model.QuizQuestion;
-// Lưu ý: Nếu QuizResultActivity nằm ở package khác, hãy import đúng, ví dụ:
-// import com.example.englishapp.ui.quiz.QuizResultActivity;
+import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
+import com.example.englishapp.ui.home.HomeActivity; // Import đúng vị trí HomeActivity mới
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,8 +33,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -38,82 +44,136 @@ public class QuizActivity extends AppCompatActivity {
     private String quizType;
     private TopTabNavigationHelper tabHelper;
     private BottomNavigationView bottomNavigationView;
+    private ImageView btnNotification;
 
-    // --- BIẾN CHO VOCABULARY QUIZ ---
+    // --- DỮ LIỆU CHUNG ---
     private List<QuizQuestion> questionList;
     private int currentQuestionIndex = 0;
     private int score = 0;
+
+    // --- UI: VOCABULARY (Layout: activity_quiz_layout.xml) ---
+    private TextView tvVocabQuestionNumber;
+    private ImageView ivQuizImage;
+    private Button btnVocabQuestion;
+    private Button btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD;
+    private Button[] answerButtons;
     private int selectedAnswerIndex = -1;
 
-    // UI Elements
-    private TextView tvQuestionNumber;
-    private ImageView ivQuizImage;
-    private Button btnQuestion;
-    private Button btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD;
-    private Button btnCheck, btnNext;
+    // --- UI: LISTENING (Layout: quiz_listening.xml) ---
+    private TextView tvListenQuestionNumber, tvListenQuestionText;
+    private ImageButton btnPlayPause;
+    private SeekBar seekBar;
+    private TextView tvCurrentTime, tvTotalTime;
+    private EditText etAnswerInput;
+    private MediaPlayer mediaPlayer;
+    private Handler audioHandler = new Handler();
+    private boolean isAudioPrepared = false;
 
-    private Button[] answerButtons;
+    // --- UI: NÚT ĐIỀU HƯỚNG CHUNG (Check/Next) ---
+    private Button btnCheck, btnNext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1. Lấy loại Quiz
+        // 1. Lấy loại Quiz từ Intent
         quizType = getIntent().getStringExtra("QUIZ_TYPE");
-        if (quizType == null) quizType = "Vocabulary";
+        if (quizType == null) quizType = "Vocabulary"; // Mặc định
 
-        // 2. Load Layout
-        loadLayoutForQuizType();
-
-        // 3. Setup các thành phần chung
-        initTabNavigation();
-        setupBottomNavigation();
-
-        // 4. Load dữ liệu
-        loadQuizContent();
-    }
-
-    private void loadLayoutForQuizType() {
+        // 2. Load Layout & Init View theo loại
         if ("Listening".equals(quizType)) {
             setContentView(R.layout.quiz_listening);
+            initListeningViews();
         } else {
             setContentView(R.layout.activity_quiz_layout);
             initVocabularyViews();
         }
+
+        // 3. Setup các thành phần chung (Header, Footer)
+        setupNotificationButton();
+        initTabNavigation();
+        setupBottomNavigation();
+
+        // 4. Load dữ liệu từ Firebase
+        if ("Listening".equals(quizType)) {
+            loadListeningQuizFromFirebase();
+        } else {
+            loadVocabularyQuizFromFirebase();
+        }
     }
 
+    // ==========================================
+    // KHỞI TẠO VIEW (ÁNH XẠ ID)
+    // ==========================================
+
     private void initVocabularyViews() {
-        tvQuestionNumber = findViewById(R.id.tv_question_number);
-        ivQuizImage = findViewById(R.id.iv_quiz_image); // Đảm bảo ID này có trong XML
-        btnQuestion = findViewById(R.id.btn_question);
+        tvVocabQuestionNumber = findViewById(R.id.tv_question_number);
+        ivQuizImage = findViewById(R.id.iv_quiz_image); // Đảm bảo layout có ID này
+        btnVocabQuestion = findViewById(R.id.btn_question);
 
         btnAnswerA = findViewById(R.id.btn_answer_a);
         btnAnswerB = findViewById(R.id.btn_answer_b);
         btnAnswerC = findViewById(R.id.btn_answer_c);
         btnAnswerD = findViewById(R.id.btn_answer_d);
+        answerButtons = new Button[]{btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD};
 
         btnCheck = findViewById(R.id.btn_check);
         btnNext = findViewById(R.id.btn_next);
 
-        answerButtons = new Button[]{btnAnswerA, btnAnswerB, btnAnswerC, btnAnswerD};
+        // Sự kiện click chọn đáp án
+        for (int i = 0; i < answerButtons.length; i++) {
+            int finalI = i;
+            answerButtons[i].setOnClickListener(v -> onVocabAnswerSelected(finalI));
+        }
+
+        btnCheck.setOnClickListener(v -> checkVocabAnswer());
+        btnNext.setOnClickListener(v -> nextQuestion());
     }
 
-    private void loadQuizContent() {
-        if ("Vocabulary".equals(quizType)) {
-            loadVocabularyQuizFromFirebase();
-        } else if ("Listening".equals(quizType)) {
-            loadListeningQuiz();
-        }
+    private void initListeningViews() {
+        tvListenQuestionNumber = findViewById(R.id.tv_question_number); // ID trong quiz_listening.xml
+        tvListenQuestionText = findViewById(R.id.tv_question_text);     // ID hiển thị câu hỏi
+
+        btnPlayPause = findViewById(R.id.imgBtn_play_pause);
+        seekBar = findViewById(R.id.seekBar);
+        tvCurrentTime = findViewById(R.id.tv_current_time);
+        tvTotalTime = findViewById(R.id.tv_total_time);
+
+        etAnswerInput = findViewById(R.id.et_answer_input); // Ô nhập liệu
+
+        btnCheck = findViewById(R.id.btn_check);
+        btnNext = findViewById(R.id.btn_next);
+
+        // Sự kiện Audio
+        btnPlayPause.setOnClickListener(v -> toggleAudio());
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && mediaPlayer != null) mediaPlayer.seekTo(progress);
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        btnCheck.setOnClickListener(v -> checkListeningAnswer());
+        btnNext.setOnClickListener(v -> nextQuestion());
     }
 
     // ==========================================
-    // LOGIC VOCABULARY QUIZ (SỬA LỖI TẠO OBJECT)
+    // LOGIC LOAD DỮ LIỆU FIREBASE
     // ==========================================
 
     private void loadVocabularyQuizFromFirebase() {
-        Toast.makeText(this, "Loading questions...", Toast.LENGTH_SHORT).show();
+        loadDataFromPath("vocabulary_quiz");
+    }
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("quizzes").child("vocabulary_quiz");
+    private void loadListeningQuizFromFirebase() {
+        loadDataFromPath("listening_quiz");
+    }
+
+    private void loadDataFromPath(String path) {
+        Toast.makeText(this, "Loading data...", Toast.LENGTH_SHORT).show();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("quizzes").child(path);
 
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -124,19 +184,19 @@ public class QuizActivity extends AppCompatActivity {
                         String id = snapshot.getKey();
                         String questionText = snapshot.child("question").getValue(String.class);
                         String imgUrl = snapshot.child("image_url").getValue(String.class);
+                        String audioUrl = snapshot.child("audio_url").getValue(String.class);
 
                         int correctIndex = 0;
-                        if (snapshot.child("correct_index").exists()) {
+                        if (snapshot.child("correct_index").exists())
                             correctIndex = snapshot.child("correct_index").getValue(Integer.class);
-                        }
 
                         GenericTypeIndicator<List<String>> t = new GenericTypeIndicator<List<String>>() {};
                         List<String> options = snapshot.child("options").getValue(t);
 
-                        if (questionText != null && options != null && options.size() >= 2) {
-                            // --- SỬA CHÍNH: Gọi Constructor khớp với QuizQuestion.java ---
+                        if (questionText != null && options != null) {
                             QuizQuestion q = new QuizQuestion(id, questionText, options, correctIndex);
-                            q.setImageUrl(imgUrl); // Set ảnh riêng
+                            q.setImageUrl(imgUrl);
+                            q.setAudioUrl(audioUrl);
                             questionList.add(q);
                         }
                     } catch (Exception e) {
@@ -147,7 +207,8 @@ public class QuizActivity extends AppCompatActivity {
                 if (!questionList.isEmpty()) {
                     currentQuestionIndex = 0;
                     score = 0;
-                    displayQuestion(currentQuestionIndex);
+                    if ("Listening".equals(quizType)) displayListeningQuestion(0);
+                    else displayVocabQuestion(0);
                 } else {
                     Toast.makeText(QuizActivity.this, "No data found!", Toast.LENGTH_SHORT).show();
                 }
@@ -155,139 +216,244 @@ public class QuizActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(QuizActivity.this, "Failed to load: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(QuizActivity.this, "Load failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void displayQuestion(int index) {
-        if (questionList == null || index >= questionList.size()) {
-            finishQuiz();
-            return;
-        }
+    // ==========================================
+    // LOGIC HIỂN THỊ CÂU HỎI
+    // ==========================================
 
+    private void displayVocabQuestion(int index) {
+        if (index >= questionList.size()) { finishQuiz(); return; }
         QuizQuestion currentQ = questionList.get(index);
 
-        // Reset UI
-        selectedAnswerIndex = -1;
-        btnCheck.setEnabled(false);
-        btnCheck.setBackgroundTintList(ContextCompat.getColorStateList(this, android.R.color.darker_gray));
-        btnNext.setEnabled(false);
-        btnNext.setVisibility(View.INVISIBLE);
-        btnCheck.setVisibility(View.VISIBLE);
+        resetCommonUI();
+        tvVocabQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
+        btnVocabQuestion.setText(currentQ.getQuestion());
 
-        tvQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
-        btnQuestion.setText(currentQ.getQuestion());
-
-        // Load ảnh với Glide
         if (currentQ.getImageUrl() != null && !currentQ.getImageUrl().isEmpty()) {
             ivQuizImage.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                    .load(currentQ.getImageUrl())
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .error(R.drawable.background)
-                    .into(ivQuizImage);
+            Glide.with(this).load(currentQ.getImageUrl()).into(ivQuizImage);
         } else {
             ivQuizImage.setVisibility(View.GONE);
         }
 
-        // Hiển thị đáp án
-        List<String> options = currentQ.getOptions();
+        // Reset màu nút
         for (int i = 0; i < answerButtons.length; i++) {
-            if (i < options.size()) {
+            if (i < currentQ.getOptions().size()) {
                 answerButtons[i].setVisibility(View.VISIBLE);
-                answerButtons[i].setText(options.get(i));
+                answerButtons[i].setText(currentQ.getOptions().get(i));
                 answerButtons[i].setEnabled(true);
-
-                // Reset màu
-                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA"));
+                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA")); // Màu xanh nhạt mặc định
                 answerButtons[i].setTextColor(Color.WHITE);
-
-                int finalI = i;
-                answerButtons[i].setOnClickListener(v -> onAnswerSelected(finalI));
             } else {
                 answerButtons[i].setVisibility(View.GONE);
             }
         }
-
-        btnCheck.setOnClickListener(v -> checkAnswer());
-
-        btnNext.setOnClickListener(v -> {
-            currentQuestionIndex++;
-            displayQuestion(currentQuestionIndex);
-        });
     }
 
-    private void onAnswerSelected(int index) {
-        selectedAnswerIndex = index;
+    private void displayListeningQuestion(int index) {
+        if (index >= questionList.size()) { finishQuiz(); return; }
+        QuizQuestion currentQ = questionList.get(index);
 
-        for (int i = 0; i < answerButtons.length; i++) {
-            if (answerButtons[i].getVisibility() == View.VISIBLE) {
-                if (i == index) {
-                    answerButtons[i].setBackgroundColor(Color.parseColor("#FFEB3B"));
-                    answerButtons[i].setTextColor(Color.BLACK);
-                } else {
-                    answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA"));
-                    answerButtons[i].setTextColor(Color.WHITE);
-                }
-            }
-        }
+        resetCommonUI();
+        tvListenQuestionNumber.setText("Question " + (index + 1) + "/" + questionList.size());
+        tvListenQuestionText.setText(currentQ.getQuestion());
 
+        etAnswerInput.setText("");
+        etAnswerInput.setEnabled(true);
+        etAnswerInput.setTextColor(Color.BLACK);
+
+        prepareAudio(currentQ.getAudioUrl());
+
+        // Với bài Listening dạng nhập, nút Check luôn active để người dùng bấm
         btnCheck.setEnabled(true);
         btnCheck.setBackgroundColor(Color.parseColor("#8BC34A"));
     }
 
-    private void checkAnswer() {
-        if (selectedAnswerIndex == -1) return;
+    private void resetCommonUI() {
+        btnCheck.setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.INVISIBLE);
+        btnNext.setEnabled(false);
 
+        if ("Vocabulary".equals(quizType)) {
+            selectedAnswerIndex = -1;
+            btnCheck.setEnabled(false);
+            btnCheck.setBackgroundColor(Color.GRAY);
+        }
+    }
+
+    // ==========================================
+    // LOGIC AUDIO PLAYER
+    // ==========================================
+
+    private void prepareAudio(String url) {
+        releaseMediaPlayer();
+        isAudioPrepared = false;
+        btnPlayPause.setImageResource(android.R.drawable.ic_media_play); // Hoặc R.drawable.ic_play_arrow
+        seekBar.setProgress(0);
+        tvCurrentTime.setText("00:00");
+        tvTotalTime.setText("00:00");
+
+        if (url == null || url.isEmpty()) return;
+
+        try {
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(mp -> {
+                isAudioPrepared = true;
+                tvTotalTime.setText(formatTime(mp.getDuration()));
+                seekBar.setMax(mp.getDuration());
+            });
+            mediaPlayer.setOnCompletionListener(mp -> {
+                btnPlayPause.setImageResource(android.R.drawable.ic_media_play);
+                audioHandler.removeCallbacks(updateSeekBar);
+            });
+        } catch (IOException e) {
+            Log.e(TAG, "Audio error", e);
+        }
+    }
+
+    private void toggleAudio() {
+        if (mediaPlayer == null || !isAudioPrepared) return;
+
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            btnPlayPause.setImageResource(android.R.drawable.ic_media_play);
+            audioHandler.removeCallbacks(updateSeekBar);
+        } else {
+            mediaPlayer.start();
+            btnPlayPause.setImageResource(android.R.drawable.ic_media_pause); // Hoặc R.drawable.ic_pause
+            audioHandler.post(updateSeekBar);
+        }
+    }
+
+    private Runnable updateSeekBar = new Runnable() {
+        @Override
+        public void run() {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                int currentPos = mediaPlayer.getCurrentPosition();
+                seekBar.setProgress(currentPos);
+                tvCurrentTime.setText(formatTime(currentPos));
+                audioHandler.postDelayed(this, 1000);
+            }
+        }
+    };
+
+    private String formatTime(int millis) {
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(minutes);
+        return String.format("%02d:%02d", minutes, seconds);
+    }
+
+    private void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            audioHandler.removeCallbacks(updateSeekBar);
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    // ==========================================
+    // CHECK KẾT QUẢ
+    // ==========================================
+
+    private void onVocabAnswerSelected(int index) {
+        selectedAnswerIndex = index;
+        for (int i = 0; i < answerButtons.length; i++) {
+            if (i == index) {
+                answerButtons[i].setBackgroundColor(Color.parseColor("#FFEB3B")); // Vàng
+                answerButtons[i].setTextColor(Color.BLACK);
+            } else {
+                answerButtons[i].setBackgroundColor(Color.parseColor("#81D4FA"));
+                answerButtons[i].setTextColor(Color.WHITE);
+            }
+        }
+        btnCheck.setEnabled(true);
+        btnCheck.setBackgroundColor(Color.parseColor("#8BC34A"));
+    }
+
+    private void checkVocabAnswer() {
+        if (selectedAnswerIndex == -1) return;
         QuizQuestion currentQ = questionList.get(currentQuestionIndex);
         currentQ.setUserSelectedIndex(selectedAnswerIndex);
 
-        boolean isCorrect = (selectedAnswerIndex == currentQ.getCorrectIndex());
-        if (isCorrect) {
+        if (selectedAnswerIndex == currentQ.getCorrectIndex()) {
             score++;
-//            Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show();
             answerButtons[selectedAnswerIndex].setBackgroundColor(Color.GREEN);
         } else {
-//            Toast.makeText(this, "Wrong!", Toast.LENGTH_SHORT).show();
             answerButtons[selectedAnswerIndex].setBackgroundColor(Color.RED);
-
-            if (currentQ.getCorrectIndex() < answerButtons.length) {
+            if (currentQ.getCorrectIndex() < answerButtons.length)
                 answerButtons[currentQ.getCorrectIndex()].setBackgroundColor(Color.GREEN);
-            }
+        }
+        disableUIAndShowNext();
+    }
+
+    private void checkListeningAnswer() {
+        String userAnswer = etAnswerInput.getText().toString().trim();
+        QuizQuestion currentQ = questionList.get(currentQuestionIndex);
+        currentQ.setUserAnswerText(userAnswer);
+
+        // Lấy đáp án đúng text từ mảng options
+        String correctAnswer = "";
+        if (currentQ.getOptions() != null && currentQ.getCorrectIndex() < currentQ.getOptions().size()) {
+            correctAnswer = currentQ.getOptions().get(currentQ.getCorrectIndex());
         }
 
-        for (Button btn : answerButtons) btn.setEnabled(false);
+        if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+            score++;
+            etAnswerInput.setTextColor(Color.GREEN);
+        } else {
+            etAnswerInput.setTextColor(Color.RED);
+            // Hiển thị đáp án đúng (Gắn thêm vào text hoặc hiện Toast)
+            etAnswerInput.setText(userAnswer + " (Correct: " + correctAnswer + ")");
+        }
+        disableUIAndShowNext();
+    }
 
+    private void disableUIAndShowNext() {
+        if ("Vocabulary".equals(quizType)) {
+            for (Button btn : answerButtons) btn.setEnabled(false);
+        } else {
+            etAnswerInput.setEnabled(false);
+        }
         btnCheck.setVisibility(View.GONE);
         btnNext.setVisibility(View.VISIBLE);
         btnNext.setEnabled(true);
     }
 
-    //chuyen sang man hinh ket qua
-    private void finishQuiz() {
-        // Tạo Intent chuyển sang màn hình kết quả
-        Intent intent = new Intent(QuizActivity.this, QuizResultActivity.class);
+    private void nextQuestion() {
+        currentQuestionIndex++;
+        if ("Listening".equals(quizType)) displayListeningQuestion(currentQuestionIndex);
+        else displayVocabQuestion(currentQuestionIndex);
+    }
 
-        // Truyền điểm số và tổng số câu
+    private void finishQuiz() {
+        releaseMediaPlayer();
+
+        Intent intent = new Intent(QuizActivity.this, QuizResultActivity.class);
         intent.putExtra("SCORE", score);
         intent.putExtra("TOTAL", questionList.size());
-
-        // Truyền danh sách câu hỏi (đã kèm đáp án user chọn) để hiển thị lại
-        // Ép kiểu về Serializable vì ArrayList mặc định đã hỗ trợ
         intent.putExtra("RESULT_LIST", (java.io.Serializable) questionList);
-
-        // Bắt đầu Activity mới và đóng QuizActivity hiện tại
         startActivity(intent);
         finish();
     }
 
-    private void loadListeningQuiz() {
-        Toast.makeText(this, "Listening Quiz coming soon!", Toast.LENGTH_SHORT).show();
-    }
+    // ==========================================
+    // NAVIGATION & LIFECYCLE
+    // ==========================================
 
     private void setupNotificationButton() {
-        // Code cũ giữ nguyên hoặc thêm nếu cần
+        btnNotification = findViewById(R.id.btn_notification);
+        if (btnNotification != null) {
+            btnNotification.setOnClickListener(v -> {
+                NotificationFragment fragment = new NotificationFragment();
+                fragment.show(getSupportFragmentManager(), "notification_dialog");
+            });
+        }
     }
 
     private void initTabNavigation() {
@@ -295,15 +461,16 @@ public class QuizActivity extends AppCompatActivity {
         tabHelper.setupForQuizMode(quizType);
 
         tabHelper.setOnTabSelectedListener(tabType -> {
-            switch (tabType) {
-                case VOCABULARY: navigateToHomeWithTab("VOCABULARY"); break;
-                case LISTENING: navigateToHomeWithTab("LISTENING"); break;
-                case SPEAKING: navigateToHomeWithTab("SPEAKING"); break;
-            }
+            releaseMediaPlayer();
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.putExtra("SELECTED_TAB", tabType.toString());
+            startActivity(intent);
+            finish();
         });
 
         tabHelper.setOnQuizTypeSelectedListener(type -> {
             if (!type.equals(quizType)) {
+                releaseMediaPlayer();
                 Intent intent = new Intent(this, QuizActivity.class);
                 intent.putExtra("QUIZ_TYPE", type);
                 startActivity(intent);
@@ -315,9 +482,9 @@ public class QuizActivity extends AppCompatActivity {
     private void setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         if (bottomNavigationView == null) return;
-
         bottomNavigationView.setSelectedItemId(0);
         bottomNavigationView.setOnItemSelectedListener(item -> {
+            releaseMediaPlayer();
             int id = item.getItemId();
             if (id == R.id.nav_home) navigateToHome();
             else if (id == R.id.nav_lesson) navigateToHomeWithTab("VOCABULARY");
@@ -343,8 +510,18 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            btnPlayPause.setImageResource(android.R.drawable.ic_media_play);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        releaseMediaPlayer();
         if (tabHelper != null) tabHelper.cleanup();
     }
 }
