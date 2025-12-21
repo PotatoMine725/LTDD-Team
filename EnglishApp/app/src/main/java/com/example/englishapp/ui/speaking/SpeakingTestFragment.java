@@ -16,9 +16,9 @@ import androidx.fragment.app.Fragment;
 import com.example.englishapp.R;
 
 /**
- * SpeakingTestActivity - Màn hình test speaking với navigation
+ * SpeakingTestFragment - Màn hình test speaking với navigation
  */
-public class SpeakingTestActivity extends Fragment {
+public class SpeakingTestFragment extends Fragment {
 
     private static final String TAG = "SpeakingTestFragment";
     private static final String ARG_TOPIC = "topic_name";
@@ -41,8 +41,8 @@ public class SpeakingTestActivity extends Fragment {
     /**
      * Factory method để tạo instance với topic name
      */
-    public static SpeakingTestActivity newInstance(String topicName) {
-        SpeakingTestActivity fragment = new SpeakingTestActivity();
+    public static SpeakingTestFragment newInstance(String topicName) {
+        SpeakingTestFragment fragment = new SpeakingTestFragment();
         Bundle args = new Bundle();
         args.putString(ARG_TOPIC, topicName);
         fragment.setArguments(args);
@@ -55,7 +55,7 @@ public class SpeakingTestActivity extends Fragment {
         if (getArguments() != null) {
             topicName = getArguments().getString(ARG_TOPIC, "Business English");
         }
-        Log.d(TAG, "SpeakingTestActivity created for topic: " + topicName);
+        Log.d(TAG, "SpeakingTestFragment created for topic: " + topicName);
     }
 
     @Nullable
@@ -244,7 +244,7 @@ public class SpeakingTestActivity extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "SpeakingTestActivity destroyed");
+        Log.d(TAG, "SpeakingTestFragment destroyed");
 
         // Clean up references
         tvPageNumber = null;

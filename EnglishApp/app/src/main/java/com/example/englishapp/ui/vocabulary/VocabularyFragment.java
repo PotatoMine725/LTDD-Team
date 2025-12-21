@@ -14,7 +14,7 @@ import androidx.fragment.app.FragmentManager;
 import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
 
-public class VocabularyActivity extends Fragment {
+public class VocabularyFragment extends Fragment {
 
     @Nullable
     @Override
@@ -38,7 +38,7 @@ public class VocabularyActivity extends Fragment {
             btnNotification.setOnClickListener(v -> showNotificationFragment());
         } else {
             // Log lỗi nếu không tìm thấy button
-            android.util.Log.e("VocabularyActivity", "btn_notification not found in layout");
+            android.util.Log.e("VocabularyFragment", "btn_notification not found in layout");
         }
     }
 
@@ -53,3 +53,4 @@ public class VocabularyActivity extends Fragment {
         fragment.show(fragmentManager, "notification_dialog");
     }
 }
+

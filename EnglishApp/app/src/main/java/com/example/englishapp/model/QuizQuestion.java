@@ -15,7 +15,9 @@ public class QuizQuestion implements Serializable {
     private int userSelectedIndex = -1;
     private String userAnswerText = ""; // Lưu câu trả lời nhập tay cho bài nghe
 
-    // 1. Constructor rỗng (Bắt buộc cho Firebase)
+    /**
+     * Constructor rỗng bắt buộc cho Firebase
+     */
     public QuizQuestion() {
     }
 
