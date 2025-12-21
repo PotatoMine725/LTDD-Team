@@ -102,6 +102,6 @@ public class ListeningTopic {
     }
     
     public boolean hasImageUrl() {
-        return imageUrl != null && !imageUrl.isEmpty();
+        return imageUrl != null && !imageUrl.trim().isEmpty() && !imageUrl.equals("");
     }
 }

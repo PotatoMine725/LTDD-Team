@@ -57,6 +57,72 @@ public class ListeningFragment extends Fragment {
 
         // Setup click listener cho "All records" link
         setupAllRecordsLink(view);
+        
+        // Setup click listeners cho topic cards
+        setupTopicCards(view);
+    }
+
+    /**
+     * Setup click listeners cho topic cards
+     */
+    private void setupTopicCards(View view) {
+        // Daily Life topic card
+        View dailyLifeCard = view.findViewById(R.id.daily_life_topic_card);
+        if (dailyLifeCard != null) {
+            dailyLifeCard.setOnClickListener(v -> {
+                Log.d(TAG, "Daily Life topic clicked - navigating to lessons");
+                navigateToTopicLessons("lt_daily", "Daily Life");
+            });
+        } else {
+            Log.e(TAG, "daily_life_topic_card not found in layout");
+        }
+
+        // Technology topic card
+        View technologyCard = view.findViewById(R.id.technology_topic_card);
+        if (technologyCard != null) {
+            technologyCard.setOnClickListener(v -> {
+                Log.d(TAG, "Technology topic clicked - navigating to lessons");
+                navigateToTopicLessons("lt_technology", "Technology");
+            });
+        } else {
+            Log.e(TAG, "technology_topic_card not found in layout");
+        }
+    }
+
+    /**
+     * Navigate to topic lessons
+     */
+    private void navigateToTopicLessons(String topicId, String topicName) {
+        if (getActivity() == null) {
+            Log.e(TAG, "Activity is null, cannot navigate");
+            return;
+        }
+
+        try {
+            Log.d(TAG, "Navigating to lessons for topic: " + topicName + " (ID: " + topicId + ")");
+            
+            // Tạo ListeningLessonsFragment
+            ListeningLessonsFragment lessonsFragment = 
+                    ListeningLessonsFragment.newInstance(topicId, topicName);
+
+            // Navigate với animation
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_in_right,  // enter
+                            R.anim.slide_out_left,  // exit
+                            R.anim.slide_in_left,   // popEnter
+                            R.anim.slide_out_right  // popExit
+                    )
+                    .replace(R.id.container, lessonsFragment, "ListeningLessonsFragment")
+                    .addToBackStack("ListeningToLessons")
+                    .commit();
+
+            Log.d(TAG, "Fragment transaction to ListeningLessonsFragment committed successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to topic lessons", e);
+            e.printStackTrace();
+        }
     }
 
     /**
