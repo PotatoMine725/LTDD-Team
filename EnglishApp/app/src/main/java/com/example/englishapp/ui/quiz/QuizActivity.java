@@ -289,71 +289,101 @@ public class QuizActivity extends AppCompatActivity {
     // ==========================================
 
     private void prepareAudio(String rawUrl) {
-        // Reset player cũ
         releaseMediaPlayer();
         isAudioPrepared = false;
         btnPlayPause.setImageResource(android.R.drawable.ic_media_play);
         seekBar.setProgress(0);
         tvCurrentTime.setText("00:00");
         tvTotalTime.setText("00:00");
-        btnPlayPause.setEnabled(false); // Khóa nút play khi đang tải
+        btnPlayPause.setEnabled(false);
 
         if (rawUrl == null || rawUrl.isEmpty()) {
             Toast.makeText(this, "Audio URL is empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Cắt khoảng trắng (nguyên nhân hay gây lỗi)
-        String finalUrl = rawUrl.trim();
-        Log.d(TAG, "Downloading audio: [" + finalUrl + "]");
+        // --- BƯỚC 1: LÀM SẠCH URL ---
+        // Loại bỏ dấu ngoặc kép thừa và khoảng trắng (Nguyên nhân chính gây lỗi 404)
+        String finalUrl = rawUrl.replace("\"", "").trim();
 
+        Log.d(TAG, "Processing Audio URL: [" + finalUrl + "]");
         Toast.makeText(this, "Downloading audio...", Toast.LENGTH_SHORT).show();
 
-        // Tải file trong luồng background
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                // Tạo file tạm trong cache
                 File cacheDir = getCacheDir();
+                // Tạo tên file từ hash của URL để tránh trùng và lỗi ký tự lạ
                 String fileName = "audio_" + finalUrl.hashCode() + ".mp3";
                 File tempFile = new File(cacheDir, fileName);
 
-                // Nếu chưa có thì tải về
+                // Chỉ tải nếu file chưa có trong cache
                 if (!tempFile.exists()) {
-                    URL audioUrl = new URL(finalUrl);
-                    HttpURLConnection connection = (HttpURLConnection) audioUrl.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(15000); // Tăng timeout lên 15s
-                    connection.setReadTimeout(15000);
-                    connection.setInstanceFollowRedirects(true); // Cho phép chuyển hướng (redirect)
-                    connection.connect();
-
-                    if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                        throw new IOException("Server returned code: " + connection.getResponseCode());
-                    }
-
-                    InputStream inputStream = connection.getInputStream();
-                    FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-                    byte[] buffer = new byte[1024];
-                    int len;
-                    while ((len = inputStream.read(buffer)) != -1) {
-                        fileOutputStream.write(buffer, 0, len);
-                    }
-                    fileOutputStream.close();
-                    inputStream.close();
+                    Log.d(TAG, "File not in cache. Downloading from: " + finalUrl);
+                    downloadFile(finalUrl, tempFile);
+                } else {
+                    Log.d(TAG, "File found in cache: " + tempFile.getAbsolutePath());
                 }
 
                 // Tải xong -> Quay về luồng chính để phát
                 runOnUiThread(() -> playLocalAudio(tempFile.getAbsolutePath()));
 
             } catch (Exception e) {
-                Log.e(TAG, "Download Error: " + e.getMessage());
+                Log.e(TAG, "Download/Play Error", e);
                 runOnUiThread(() -> {
-                    Toast.makeText(QuizActivity.this, "Error loading audio", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(QuizActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     btnPlayPause.setEnabled(true);
                 });
             }
         });
+    }
+    // --- HÀM TẢI FILE HỖ TRỢ REDIRECT & USER-AGENT ---
+    private void downloadFile(String stringUrl, File outputFile) throws IOException {
+        URL url = new URL(stringUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        // Giả lập trình duyệt để tránh bị server chặn (403/404 giả)
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(15000);
+
+        // Tắt tự động redirect của Android để tự xử lý (tránh lỗi chuyển protocol http->https)
+        connection.setInstanceFollowRedirects(false);
+
+        connection.connect();
+
+        int responseCode = connection.getResponseCode();
+        Log.d(TAG, "Server Response Code: " + responseCode);
+
+        // Xử lý chuyển hướng (301, 302, 307, 308)
+        if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+                responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
+                responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
+                responseCode == 307 || responseCode == 308) {
+
+            String newUrl = connection.getHeaderField("Location");
+            Log.d(TAG, "Redirecting to: " + newUrl);
+
+            // Đệ quy: Tải lại với URL mới
+            downloadFile(newUrl, outputFile);
+            return;
+        }
+
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Server returned code: " + responseCode + " for URL: " + stringUrl);
+        }
+
+        // Ghi dữ liệu ra file
+        InputStream inputStream = connection.getInputStream();
+        FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            fileOutputStream.write(buffer, 0, len);
+        }
+        fileOutputStream.close();
+        inputStream.close();
+        Log.d(TAG, "Download finished. Size: " + outputFile.length());
     }
 
     private void playLocalAudio(String path) {
