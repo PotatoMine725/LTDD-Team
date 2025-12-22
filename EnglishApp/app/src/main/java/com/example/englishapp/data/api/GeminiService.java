@@ -37,6 +37,9 @@ public class GeminiService {
     public void sendMessage(String message, OpenAICallBack callback) {
         tryModel(message, callback, 0);
     }
+    public void evaluateSpeaking(String question, String answer, OpenAICallBack callback) {
+        tryModelSpeaking(question, answer, callback, 0);
+    }
     private  void tryModelSpeaking(String question, String answer, OpenAICallBack callback, int attempt) {
         if(attempt >= MODELS.length) {
             callback.onError("All Gemini models are busy. Please try again later.");
@@ -51,16 +54,18 @@ public class GeminiService {
             JSONObject content = new JSONObject();
             content.put("role", "user");
             JSONArray parts = new JSONArray();
-            String prompt = "You are an English speaking tutor.\n\n" +
+            String prompt = "You are an English pronunciation evaluator.\n\n" +
                     "Question: " + question + "\n" +
-                    "User answer: " + answer + "\n\n" +
+                    "User answer (transcribed speech): " + answer + "\n\n" +
+                    "Focus ONLY on pronunciation accuracy and whether the answer matches the question.\n" +
+                    "Do NOT score grammar or fluency.\n\n" +
                     "Please return JSON with:\n" +
-                    "- score (0-10)\n" +
-                    "- grammar, fluency, pronunciation, content scores\n" +
-                    "- strengths (array)\n" +
-                    "- mistakes (array)\n" +
+                    "- score (0-10) based on pronunciation\n" +
+                    "- pronunciation (0-10)\n" +
+                    "- matches_question (true/false)\n" +
+                    "- pronunciation_issues (array)\n" +
                     "- pronunciation_tips (array)\n" +
-                    "- suggested_answer\n";
+                    "- short_feedback (string)\n";
             parts.put(new JSONObject().put(
                     "text", prompt
             ));

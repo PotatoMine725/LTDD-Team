@@ -394,18 +394,23 @@
         "total_questions": 5,
         "questions": {
           "sq_01": {
+            "order": 1,
             "text": "Tell me about yourself."
           },
           "sq_02": {
+            "order": 2,
             "text": "How old are you?"
           },
           "sq_03": {
+            "order": 3,
             "text": "Where are you from?"
           },
           "sq_04": {
+            "order": 4,
             "text": "What do you do?"
           },
           "sq_05": {
+            "order": 5,
             "text": "What do you like to do in your free time?"
           }
         }
@@ -417,18 +422,23 @@
         "total_questions": 5,
         "questions": {
           "sq_01": {
+            "order": 1,
             "text": "What time do you wake up?"
           },
           "sq_02": {
+            "order": 2,
             "text": "What do you do in the morning?"
           },
           "sq_03": {
+            "order": 3,
             "text": "Do you work or study?"
           },
           "sq_04": {
+            "order": 4,
             "text": "What do you do in the evening?"
           },
           "sq_05": {
+            "order": 5,
             "text": "How is your daily routine?"
           }
         }
@@ -440,18 +450,23 @@
         "total_questions": 5,
         "questions": {
           "sq_01": {
+            "order": 1,
             "text": "What are your hobbies?"
           },
           "sq_02": {
+            "order": 2,
             "text": "When do you do your hobbies?"
           },
           "sq_03": {
+            "order": 3,
             "text": "Why do you like them?"
           },
           "sq_04": {
+            "order": 4,
             "text": "Do you do them alone or with others?"
           },
           "sq_05": {
+            "order": 5,
             "text": "Do you want to learn a new hobby?"
           }
         }
@@ -463,18 +478,23 @@
         "total_questions": 5,
         "questions": {
           "sq_01": {
+            "order": 1,
             "text": "What do you do?"
           },
           "sq_02": {
+            "order": 2,
             "text": "Where do you work or study?"
           },
           "sq_03": {
+            "order": 3,
             "text": "What do you like about it?"
           },
           "sq_04": {
+            "order": 4,
             "text": "What is difficult about it?"
           },
           "sq_05": {
+            "order": 5,
             "text": "What are your future plans?"
           }
         }
@@ -486,18 +506,23 @@
         "total_questions": 5,
         "questions": {
           "sq_01": {
+            "order": 1,
             "text": "Do you like traveling?"
           },
           "sq_02": {
+            "order": 2,
             "text": "Where did you go last time?"
           },
           "sq_03": {
+            "order": 3,
             "text": "Who did you go with?"
           },
           "sq_04": {
+            "order": 4,
             "text": "What did you like there?"
           },
           "sq_05": {
+            "order": 5,
             "text": "Where do you want to go next?"
           }
         }
@@ -557,11 +582,17 @@
         }
       },
       "speaking_state": {
-        "topic_id": "st_01",
-        "topic_name": "Self Introduction",
-        "total_questions": 5,
-        "current_order": 1,
-        "answers": {}
+        "current_topic": "st_02",
+        "topics_progress": {
+          "st_01": {
+            "current_order": 3,
+            "answers": {}
+          },
+          "st_02": {
+            "current_order": 1,
+            "answers": {}
+          }
+        }
       }
     },
     "p2iZh1OBHRXjRRaE0YYHYbTutj22": {
