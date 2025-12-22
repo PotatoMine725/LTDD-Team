@@ -150,6 +150,7 @@
                         app:cardCornerRadius="16dp">
 
                         <ImageView
+                            android:id="@+id/daily_life_image"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:src="@drawable/topic_placeholder"
@@ -179,6 +180,7 @@
                         app:cardCornerRadius="16dp">
 
                         <ImageView
+                            android:id="@+id/technology_image"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:src="@drawable/topic_technology"

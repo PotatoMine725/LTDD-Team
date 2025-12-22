@@ -13,9 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.bumptech.glide.Glide;
 import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
 import com.example.englishapp.ui.common.TopTabNavigationHelper;
+import com.example.englishapp.service.FirebaseService;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 public class ListeningFragment extends Fragment {
 
@@ -60,6 +65,120 @@ public class ListeningFragment extends Fragment {
         
         // Setup click listeners cho topic cards
         setupTopicCards(view);
+        
+        // Load images from Firebase
+        loadTopicImages(view);
+    }
+
+    /**
+     * Load topic images from Firebase
+     */
+    private void loadTopicImages(View view) {
+        FirebaseService firebaseService = FirebaseService.getInstance();
+        
+        // Load Daily Life image
+        firebaseService.getListeningTopicsRef().child("lt_daily").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String imageUrl = snapshot.child("image_url").getValue(String.class);
+                Log.d(TAG, "Daily Life image URL from Firebase: " + imageUrl);
+                
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    // Find Daily Life ImageView
+                    View dailyLifeCard = view.findViewById(R.id.daily_life_topic_card);
+                    if (dailyLifeCard != null) {
+                        ImageView dailyLifeImage = dailyLifeCard.findViewById(R.id.daily_life_image);
+                        if (dailyLifeImage != null) {
+                            Glide.with(requireContext())
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.topic_placeholder)
+                                    .error(R.drawable.topic_placeholder)
+                                    .centerCrop()
+                                    .into(dailyLifeImage);
+                            Log.d(TAG, "Successfully loaded Daily Life image from Firebase");
+                        } else {
+                            Log.e(TAG, "Daily Life ImageView not found");
+                        }
+                    } else {
+                        Log.e(TAG, "Daily Life CardView not found");
+                    }
+                } else {
+                    Log.w(TAG, "No image URL found for Daily Life topic");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error loading Daily Life image: " + error.getMessage());
+            }
+        });
+        
+        // Load Technology image
+        firebaseService.getListeningTopicsRef().child("lt_technology").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String imageUrl = snapshot.child("image_url").getValue(String.class);
+                Log.d(TAG, "Technology image URL from Firebase: " + imageUrl);
+                
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    // Find Technology ImageView
+                    View technologyCard = view.findViewById(R.id.technology_topic_card);
+                    if (technologyCard != null) {
+                        ImageView technologyImage = technologyCard.findViewById(R.id.technology_image);
+                        if (technologyImage != null) {
+                            Glide.with(requireContext())
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.topic_technology)
+                                    .error(R.drawable.topic_technology)
+                                    .centerCrop()
+                                    .into(technologyImage);
+                            Log.d(TAG, "Successfully loaded Technology image from Firebase");
+                        } else {
+                            Log.e(TAG, "Technology ImageView not found");
+                        }
+                    } else {
+                        Log.e(TAG, "Technology CardView not found");
+                    }
+                } else {
+                    Log.w(TAG, "No image URL found for Technology topic, using default");
+                    // Fallback to default image URL
+                    String defaultUrl = "https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg";
+                    View technologyCard = view.findViewById(R.id.technology_topic_card);
+                    if (technologyCard != null) {
+                        ImageView technologyImage = technologyCard.findViewById(R.id.technology_image);
+                        if (technologyImage != null) {
+                            Glide.with(requireContext())
+                                    .load(defaultUrl)
+                                    .placeholder(R.drawable.topic_technology)
+                                    .error(R.drawable.topic_technology)
+                                    .centerCrop()
+                                    .into(technologyImage);
+                            Log.d(TAG, "Loaded Technology image using default URL");
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error loading Technology image: " + error.getMessage());
+                // Fallback to default image URL on error
+                String defaultUrl = "https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg";
+                View technologyCard = view.findViewById(R.id.technology_topic_card);
+                if (technologyCard != null) {
+                    ImageView technologyImage = technologyCard.findViewById(R.id.technology_image);
+                    if (technologyImage != null) {
+                        Glide.with(requireContext())
+                                .load(defaultUrl)
+                                .placeholder(R.drawable.topic_technology)
+                                .error(R.drawable.topic_technology)
+                                .centerCrop()
+                                .into(technologyImage);
+                        Log.d(TAG, "Loaded Technology image using default URL after Firebase error");
+                    }
+                }
+            }
+        });
     }
 
     /**
