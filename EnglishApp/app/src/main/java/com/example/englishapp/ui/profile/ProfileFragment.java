@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.englishapp.R;
+import com.example.englishapp.ui.auth.GetStartedActivity;
 import com.example.englishapp.ui.auth.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -124,11 +125,15 @@ public class ProfileFragment extends Fragment {
     private void logout() {
         auth.signOut();
 
-        Intent intent = new Intent(requireActivity(), LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent intent = new Intent(requireActivity(), GetStartedActivity.class);
+        intent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
         startActivity(intent);
         requireActivity().finish();
     }
+
 
     // ================= CLEAN LISTENER =================
 
