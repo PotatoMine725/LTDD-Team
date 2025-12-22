@@ -17,7 +17,7 @@ import androidx.core.os.TraceCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.englishapp.Fragment.LessonFragment;
+import com.example.englishapp.ui.vocabulary.LessonFragment;
 import com.example.englishapp.Fragment.NotificationFragment;
 //import com.example.englishapp.Fragment.ProfileFragment;
 import com.example.englishapp.ui.auth.LoginActivity;
