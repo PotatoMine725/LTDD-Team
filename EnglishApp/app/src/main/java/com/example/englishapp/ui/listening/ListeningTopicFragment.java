@@ -196,12 +196,6 @@ public class ListeningTopicFragment extends Fragment {
                                     // Đảm bảo imageUrl không null và không rỗng
                                     String finalImageUrl = (imageUrl != null && !imageUrl.trim().isEmpty()) ? imageUrl.trim() : "";
                                     
-                                    // TEMPORARY FIX: Hardcode URL cho lt_technology vì Firebase thiếu field
-                                    if ("lt_technology".equals(topicId) && finalImageUrl.isEmpty()) {
-                                        Log.w(TAG, "TEMP FIX: Adding hardcoded image_url for lt_technology");
-                                        finalImageUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af2176";
-                                    }
-                                    
                                     // Nếu không có imageUrl từ Firebase, sử dụng URL mặc định dựa trên topicId
                                     if (finalImageUrl.isEmpty()) {
                                         Log.w(TAG, "No image_url found for topic: " + topicId + ", using default URL");
@@ -267,7 +261,8 @@ public class ListeningTopicFragment extends Fragment {
             case "lt_daily":
                 return "https://images.unsplash.com/photo-1506784983877-45594efa4cbe";
             case "lt_technology":
-                return "https://images.unsplash.com/photo-1518709268805-4e9042af2176";
+                // Sử dụng URL ảnh technology đáng tin cậy
+                return "https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg";
             default:
                 return "https://images.unsplash.com/photo-1506784983877-45594efa4cbe";
         }
