@@ -13,42 +13,81 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.englishapp.ui.chat.ChatActivity;
 import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.R;
 
-/**
- * SpeakingTopicsFragment - Displays speaking topics and AI chat
- * User can navigate back to Speaking screen or forward to SpeakingTest
- */
+
 public class SpeakingTopicsFragment extends Fragment {
 
     private static final String TAG = "SpeakingTopicsFragment";
 
     // UI Components
-    private CardView cardBusiness;
-    private CardView cardTravel;
-    private CardView cardStudy;
     private Button btnStartChat;
     private EditText etMessageInput;
     private ImageButton btnSendMessage;
-    private Button btnChatbox;
     private ImageButton btnNotification;
     private ImageButton btnBack;
+    private RecyclerView rvTopics;
+    private SpeakingViewModel viewModel;
+    private SpeakingTopicAdapter adapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.speaking_topics, container, false);
+        return inflater.inflate(
+                R.layout.speaking_topics,
+                container,
+                false
+        );
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(SpeakingViewModel.class);
+        rvTopics = view.findViewById(R.id.rvSpeakingTopics);
 
+        rvTopics.setLayoutManager(
+                new LinearLayoutManager(
+                        getContext(),
+                        LinearLayoutManager.HORIZONTAL,
+                        false
+                )
+        );
+
+        viewModel.getTopics().observe(getViewLifecycleOwner(), topicList -> {
+            adapter = new SpeakingTopicAdapter(topicList, topic -> {
+                SpeakingTestFragment speakingTestFragment =
+                        SpeakingTestFragment.newInstance(topic.id);
+
+                requireActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(
+                                R.anim.slide_in_right,   // enter
+                                R.anim.slide_out_left,   // exit
+                                R.anim.slide_in_left,    // popEnter
+                                R.anim.slide_out_right   // popExit
+                        )
+                        .replace(
+                                R.id.container,
+                                speakingTestFragment,
+                                "SpeakingTestFragment"
+                        )
+                        .addToBackStack("SpeakingTest")
+                        .commit();
+            });
+
+            rvTopics.setAdapter(adapter);
+        });
+
+        viewModel.loadSpeakingTopics();
         try {
             initViews(view);
             setupBackButton(view);
@@ -124,11 +163,6 @@ public class SpeakingTopicsFragment extends Fragment {
      */
     private void initViews(View view) {
         try {
-            // Topic cards
-            cardBusiness = view.findViewById(R.id.cardBusiness);
-            cardTravel = view.findViewById(R.id.cardTravel);
-            cardStudy = view.findViewById(R.id.cardStudy);
-
             // Chat section - các component để tương tác với AI chat
             btnStartChat = view.findViewById(R.id.btnStartChat);
             etMessageInput = view.findViewById(R.id.etMessageInput);
@@ -152,19 +186,6 @@ public class SpeakingTopicsFragment extends Fragment {
                 Log.d(TAG, "Notification button setup successfully");
             } else {
                 Log.w(TAG, "Notification button not found");
-            }
-
-            // Topic cards click listeners
-            if (cardBusiness != null) {
-                cardBusiness.setOnClickListener(v -> onTopicCardClicked("Business English"));
-            }
-
-            if (cardTravel != null) {
-                cardTravel.setOnClickListener(v -> onTopicCardClicked("Travel"));
-            }
-
-            if (cardStudy != null) {
-                cardStudy.setOnClickListener(v -> onTopicCardClicked("Study Abroad"));
             }
 
             // Start Chat button - khởi động cuộc trò chuyện với AI
@@ -194,43 +215,6 @@ public class SpeakingTopicsFragment extends Fragment {
         } catch (Exception e) {
             Log.e(TAG, "Error showing notification", e);
             showError("Failed to show notifications");
-        }
-    }
-
-    /**
-     * Handle topic card click - Navigate to SpeakingTest
-     */
-    private void onTopicCardClicked(String topicName) {
-        try {
-            Log.d(TAG, "Topic card clicked: " + topicName);
-
-            if (getActivity() == null) {
-                Log.e(TAG, "Activity is null, cannot navigate");
-                showError("Cannot start " + topicName);
-                return;
-            }
-
-            // Navigate to SpeakingTestFragment
-            SpeakingTestFragment speakingTestFragment = SpeakingTestFragment.newInstance(topicName);
-
-            getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(
-                            R.anim.slide_in_right,  // enter
-                            R.anim.slide_out_left,  // exit
-                            R.anim.slide_in_left,   // popEnter
-                            R.anim.slide_out_right  // popExit
-                    )
-                    .replace(R.id.container, speakingTestFragment, "SpeakingTestFragment")
-                    .addToBackStack("SpeakingTest")
-                    .commit();
-
-            Log.d(TAG, "Navigated to SpeakingTest for: " + topicName);
-            showMessage("Starting " + topicName + " test...");
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error handling topic card click", e);
-            showError("Failed to start " + topicName);
         }
     }
 
@@ -296,9 +280,6 @@ public class SpeakingTopicsFragment extends Fragment {
         Log.d(TAG, "SpeakingTopicsFragment destroyed");
 
         // Clean up references
-        cardBusiness = null;
-        cardTravel = null;
-        cardStudy = null;
         btnStartChat = null;
         etMessageInput = null;
         btnSendMessage = null;
@@ -306,4 +287,3 @@ public class SpeakingTopicsFragment extends Fragment {
         btnBack = null;
     }
 }
-

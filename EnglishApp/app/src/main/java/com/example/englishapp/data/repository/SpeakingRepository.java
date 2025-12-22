@@ -1,9 +1,20 @@
 package com.example.englishapp.data.repository;
 
+import androidx.annotation.NonNull;
+
 import com.example.englishapp.data.api.GeminiService;
+import com.example.englishapp.data.api.OpenAICallBack;
+import com.example.englishapp.data.model.SpeakingTopic;
 import com.example.englishapp.service.FirebaseService;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class SpeakingRepository {
     private  final GeminiService geminiService = new GeminiService();
@@ -46,10 +57,40 @@ public class SpeakingRepository {
                 .child("current_order")
                 .setValue(nextOrder);
     }
+    // load topic từ firebase
+    public DatabaseReference topics = rootRef.child("topics").child("speaking");
+    public interface Callback{
+        void onSuccess(List<SpeakingTopic> topics);
+        void onError(String message);
+    }// tạo interface để xử lý bất đồng bộ
+    public void loadTopics(Callback callback){
+        topics.addListenerForSingleValueEvent(new ValueEventListener(){
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<SpeakingTopic> list = new ArrayList<>();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    SpeakingTopic topic = dataSnapshot.getValue(SpeakingTopic.class);
+                    if(topic != null){
+                        topic.id = dataSnapshot.getKey(); // firebase khoong tự động map cái id tự sinh vào được (st_01)
+                        list.add(topic);
+                    }
+                    }
+                callback.onSuccess(list);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onError(error.getMessage());
+            }
+
+        });
+    }
+    public void evaluateSpeaking(String question, String answer, OpenAICallBack callback) {
+        geminiService.evaluateSpeaking(question, answer, callback);
+    }
+
+
 }
-
-
-
 
 
 

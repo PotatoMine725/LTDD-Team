@@ -1,5 +1,6 @@
 package com.example.englishapp.ui.speaking;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -7,7 +8,15 @@ import androidx.lifecycle.ViewModel;
 import com.example.englishapp.data.model.SpeakingQuestion;
 import com.example.englishapp.data.model.SpeakingTopic;
 import com.example.englishapp.data.repository.SpeakingRepository;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 // cần đọc lại file này :>>>>>
 public class SpeakingViewModel extends ViewModel {
@@ -20,7 +29,18 @@ public class SpeakingViewModel extends ViewModel {
 
     private final MutableLiveData<String> progressText = new MutableLiveData<>();
     private final MutableLiveData<String> spokenText = new MutableLiveData<>();
+    private final MutableLiveData<List<SpeakingTopic>> topics = new MutableLiveData<>();
+    public final MutableLiveData<List<SpeakingQuestion>> questions = new MutableLiveData<>();
+    private final MutableLiveData<Integer> currentIndex =
+            new MutableLiveData<>(0);
 
+    public LiveData<List<SpeakingQuestion>> getQuestions() {
+        return questions;
+    }
+
+    public LiveData<Integer> getCurrentIndex() {
+        return currentIndex;
+    }
     public LiveData<SpeakingQuestion> getCurrentQuestion() {
         return currentQuestion;
     }
@@ -32,7 +52,9 @@ public class SpeakingViewModel extends ViewModel {
     public LiveData<String> getSpokenText() {
         return spokenText;
     }
-
+    public LiveData<List<SpeakingTopic>> getTopics() {
+        return topics;
+    }
     // khi user chọn topic
     public void startTopic(
             String uid,
@@ -89,8 +111,57 @@ public class SpeakingViewModel extends ViewModel {
         }
         return false; // đã hết câu
     }
-}
+    // load speaking topic
+    public void loadSpeakingTopics(){
+        speakingRepository.loadTopics(new SpeakingRepository.Callback() {
+            @Override
+            public void onSuccess(List<SpeakingTopic> list) {
+                topics.postValue(list);
+            }
 
+            @Override
+            public void onError(String message) {
+                // xử lý lỗi
+            }
+        });
+    }
+    public void loadQuestions(String topicId) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("topics")
+                .child("speaking")
+                .child(topicId)
+                .child("questions");
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<SpeakingQuestion> list = new ArrayList<>();
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    SpeakingQuestion q = snap.getValue(SpeakingQuestion.class);
+                    if (q != null) {
+                        q.id = snap.getKey();
+                        list.add(q);
+                    }
+                }
+                list.sort(Comparator.comparingInt(a -> a.order));
+                questions.setValue(list);
+            }
+
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+    public void next() {
+        if (questions.getValue() == null) return;
+        int i = currentIndex.getValue();
+        if (i < questions.getValue().size() - 1)
+            currentIndex.setValue(i + 1);
+    }
+
+    public void prev() {
+        int i = currentIndex.getValue();
+        if (i > 0) currentIndex.setValue(i - 1);
+    }
+}
 
 
 
