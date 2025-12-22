@@ -672,23 +672,92 @@ public class ListeningExerciseFragment extends Fragment {
         int index4 = radioGroup4.indexOfChild(rb4);
         int index5 = radioGroup5.indexOfChild(rb5);
 
+        // Calculate score and create results
         int correctCount = 0;
-        if (index1 == correctAnswers.get(0)) correctCount++;
-        if (index2 == correctAnswers.get(1)) correctCount++;
-        if (index3 == correctAnswers.get(2)) correctCount++;
-        if (index4 == correctAnswers.get(3)) correctCount++;
-        if (index5 == correctAnswers.get(4)) correctCount++;
-
-        String message = "Bạn trả lời đúng " + correctCount + "/5 câu!";
-        if (correctCount == 5) {
-            message += " Xuất sắc!";
-        } else if (correctCount >= 3) {
-            message += " Khá tốt!";
-        } else {
-            message += " Hãy nghe lại và thử lần nữa!";
+        ArrayList<com.example.englishapp.model.QuestionResult> questionResults = new ArrayList<>();
+        
+        // Get question texts and options
+        String[] questionTexts = {
+            tvQuestion1.getText().toString(),
+            tvQuestion2.getText().toString(),
+            tvQuestion3.getText().toString(),
+            tvQuestion4.getText().toString(),
+            tvQuestion5.getText().toString()
+        };
+        
+        int[] userAnswers = {index1, index2, index3, index4, index5};
+        RadioGroup[] radioGroups = {radioGroup1, radioGroup2, radioGroup3, radioGroup4, radioGroup5};
+        
+        Log.d(TAG, "Creating question results...");
+        for (int i = 0; i < 5; i++) {
+            boolean isCorrect = userAnswers[i] == correctAnswers.get(i);
+            if (isCorrect) correctCount++;
+            
+            // Get answer texts
+            String userAnswerText = getAnswerText(radioGroups[i], userAnswers[i]);
+            String correctAnswerText = getAnswerText(radioGroups[i], correctAnswers.get(i));
+            
+            Log.d(TAG, "Question " + (i+1) + ": " + questionTexts[i]);
+            Log.d(TAG, "User answer: " + userAnswerText + " (index: " + userAnswers[i] + ")");
+            Log.d(TAG, "Correct answer: " + correctAnswerText + " (index: " + correctAnswers.get(i) + ")");
+            Log.d(TAG, "Is correct: " + isCorrect);
+            
+            questionResults.add(new com.example.englishapp.model.QuestionResult(
+                i + 1,
+                questionTexts[i],
+                userAnswerText,
+                correctAnswerText,
+                isCorrect
+            ));
         }
         
-        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "Created " + questionResults.size() + " question results");
+        Log.d(TAG, "Final score: " + correctCount + "/5");
+
+        // Navigate to result screen
+        navigateToResult(correctCount, 5, questionResults);
+    }
+    
+    /**
+     * Get answer text from RadioGroup by index
+     */
+    private String getAnswerText(RadioGroup radioGroup, int index) {
+        if (index >= 0 && index < radioGroup.getChildCount()) {
+            RadioButton radioButton = (RadioButton) radioGroup.getChildAt(index);
+            return radioButton.getText().toString();
+        }
+        return "Unknown";
+    }
+    
+    /**
+     * Navigate to result screen
+     */
+    private void navigateToResult(int score, int total, ArrayList<com.example.englishapp.model.QuestionResult> results) {
+        if (getActivity() == null) return;
+
+        try {
+            ListeningResultFragment resultFragment = 
+                    ListeningResultFragment.newInstance(topicId, lessonId, score, total, results);
+
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left,
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_right
+                    )
+                    .replace(R.id.container, resultFragment, "ListeningResultFragment")
+                    .addToBackStack("ExerciseToResult")
+                    .commit();
+
+            Log.d(TAG, "Navigated to result screen with score: " + score + "/" + total);
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to result screen", e);
+            // Fallback to old toast message
+            String message = "Bạn trả lời đúng " + score + "/" + total + " câu!";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
