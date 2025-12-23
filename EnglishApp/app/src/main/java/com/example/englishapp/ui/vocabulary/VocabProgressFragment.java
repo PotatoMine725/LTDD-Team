@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,6 +48,14 @@ public class VocabProgressFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new ProgressAdapter(items);
         recyclerView.setAdapter(adapter);
+
+        View backBtn = view.findViewById(R.id.btn_back_progress);
+        if (backBtn != null) {
+            backBtn.setOnClickListener(v -> {
+                FragmentManager fm = requireActivity().getSupportFragmentManager();
+                fm.popBackStack();
+            });
+        }
 
         loadProgress();
     }

@@ -17,7 +17,6 @@ public class VocabProgressStore {
         SharedPreferences sp = ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return new HashSet<>(sp.getStringSet(topicId, new HashSet<>()));
     }
-
     public static void addWord(Context ctx, String topicId, String english) {
         if (english == null || english.isEmpty()) return;
         SharedPreferences sp = ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
