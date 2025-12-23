@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class NotificationFragment extends DialogFragment {
@@ -29,6 +31,19 @@ public class NotificationFragment extends DialogFragment {
     private static final String TAG = "NOTI";
 
     private FragmentNotificationBinding binding;
+    private DatabaseReference notiRef;
+
+    // ===== FILTER TYPE =====
+    private enum FilterType {
+        ALL,
+        UNREAD
+    }
+
+    private FilterType currentFilter = FilterType.ALL;
+
+    // ===== CACHE DATA =====
+    private final List<NotificationModel> allNotifications = new ArrayList<>();
+    private final List<String> allKeys = new ArrayList<>();
 
     // ===================== onCreateView =====================
     @Nullable
@@ -51,92 +66,72 @@ public class NotificationFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Back button
+        // ===== BACK BUTTON =====
         binding.backIcon.setOnClickListener(v -> dismiss());
 
-        // ===== LẤY UID USER =====
+        // ===== FILTER BUTTONS =====
+        setupFilterButtons();
+
+        // ===== GET USER UID =====
         String uid = Objects.requireNonNull(
                 FirebaseAuth.getInstance().getCurrentUser()
         ).getUid();
 
-        Log.e(TAG, "LOGIN UID = " + uid);
-
-        // ===== DATABASE PATH =====
-        DatabaseReference ref = FirebaseDatabase.getInstance()
+        // ===== DATABASE REF =====
+        notiRef = FirebaseDatabase.getInstance()
                 .getReference("users")
                 .child(uid)
                 .child("notifications");
 
-        Log.e(TAG, "REF PATH = users/" + uid + "/notifications");
+        // ===== LISTEN FIREBASE =====
+        listenNotifications();
+    }
 
-        LayoutInflater inflater = LayoutInflater.from(requireContext());
+    // ===================== FILTER BUTTONS =====================
+    private void setupFilterButtons() {
 
-        // ===== LISTENER =====
-        ref.addValueEventListener(new ValueEventListener() {
+        // Default = ALL
+        currentFilter = FilterType.ALL;
+        binding.btnAll.setAlpha(1f);
+        binding.tvUnread.setAlpha(0.5f);
+
+        binding.btnAll.setOnClickListener(v -> {
+            currentFilter = FilterType.ALL;
+            binding.btnAll.setAlpha(1f);
+            binding.tvUnread.setAlpha(0.5f);
+            renderNotifications();
+        });
+
+        binding.tvUnread.setOnClickListener(v -> {
+            currentFilter = FilterType.UNREAD;
+            binding.btnAll.setAlpha(0.5f);
+            binding.tvUnread.setAlpha(1f);
+            renderNotifications();
+        });
+    }
+
+    // ===================== FIREBASE LISTENER =====================
+    private void listenNotifications() {
+
+        notiRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                Log.e(TAG, "snapshot.exists = " + snapshot.exists());
-                Log.e(TAG, "children count = " + snapshot.getChildrenCount());
-
-                binding.containerNotifications.removeAllViews();
+                allNotifications.clear();
+                allKeys.clear();
 
                 for (DataSnapshot child : snapshot.getChildren()) {
-
-                    Log.e(TAG, "Raw child = " + child.getValue());
 
                     NotificationModel noti =
                             child.getValue(NotificationModel.class);
 
-                    if (noti == null) {
-                        Log.e(TAG, "NotificationModel = NULL");
-                        continue;
-                    }
+                    if (noti == null) continue;
 
-                    Log.e(TAG, "Parsed noti => title="
-                            + noti.title
-                            + " | message="
-                            + noti.message
-                            + " | is_read="
-                            + noti.is_read
-                            + " | timestamp="
-                            + noti.timestamp
-                    );
-
-                    boolean isRead = noti.is_read;
-
-                    int layoutId = isRead
-                            ? R.layout.item_notification_grey
-                            : R.layout.item_notification_default;
-
-                    View itemView = inflater.inflate(
-                            layoutId,
-                            binding.containerNotifications,
-                            false
-                    );
-
-                    TextView tvContent = itemView.findViewById(
-                            isRead
-                                    ? R.id.tv_notification_content_grey
-                                    : R.id.tv_notification_content
-                    );
-
-                    TextView tvTime = itemView.findViewById(
-                            isRead
-                                    ? R.id.tv_notification_time_grey
-                                    : R.id.tv_notification_time
-                    );
-
-                    if (tvContent == null || tvTime == null) {
-                        Log.e(TAG, "TextView NULL – CHECK LAYOUT ID");
-                        continue;
-                    }
-
-                    tvContent.setText(noti.message);
-                    tvTime.setText(noti.getTimeAgo());
-
-                    binding.containerNotifications.addView(itemView);
+                    allNotifications.add(noti);
+                    allKeys.add(child.getKey());
                 }
+
+                renderNotifications();
             }
 
             @Override
@@ -144,6 +139,69 @@ public class NotificationFragment extends DialogFragment {
                 Log.e(TAG, "Firebase error: " + error.getMessage());
             }
         });
+    }
+
+    // ===================== RENDER UI =====================
+    private void renderNotifications() {
+
+        if (binding == null) return;
+
+        binding.containerNotifications.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+
+        for (int i = 0; i < allNotifications.size(); i++) {
+
+            NotificationModel noti = allNotifications.get(i);
+            String key = allKeys.get(i);
+
+            // ===== FILTER LOGIC =====
+            if (currentFilter == FilterType.UNREAD && noti.is_read) {
+                continue;
+            }
+
+            boolean isRead = noti.is_read;
+
+            // ===== UI LOGIC (THEO YÊU CẦU) =====
+            // ĐÃ ĐỌC  -> TRẮNG
+            // CHƯA ĐỌC -> XÁM
+            int layoutId = isRead
+                    ? R.layout.item_notification_default   // trắng
+                    : R.layout.item_notification_grey;     // xám
+
+            View itemView = inflater.inflate(
+                    layoutId,
+                    binding.containerNotifications,
+                    false
+            );
+
+            TextView tvContent = itemView.findViewById(
+                    isRead
+                            ? R.id.tv_notification_content
+                            : R.id.tv_notification_content_grey
+            );
+
+            TextView tvTime = itemView.findViewById(
+                    isRead
+                            ? R.id.tv_notification_time
+                            : R.id.tv_notification_time_grey
+            );
+
+            if (tvContent == null || tvTime == null) continue;
+
+            tvContent.setText(noti.message);
+            tvTime.setText(noti.getTimeAgo());
+
+            // ===== CLICK → MARK AS READ =====
+            itemView.setOnClickListener(v -> {
+                if (noti.is_read) return;
+
+                notiRef.child(key)
+                        .child("is_read")
+                        .setValue(true);
+            });
+
+            binding.containerNotifications.addView(itemView);
+        }
     }
 
     // ===================== onStart =====================
