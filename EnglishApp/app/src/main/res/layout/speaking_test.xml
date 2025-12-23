@@ -97,66 +97,21 @@
                         android:scaleType="centerInside"
                         app:srcCompat="@drawable/ic_double_down" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="24dp"
-                        android:layout_marginTop="12dp"
-                        android:gravity="center_horizontal"
-                        android:orientation="horizontal"
-                        android:paddingVertical="12dp">
-
-                        <TextView
-                            android:id="@+id/tv15"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="I ha"
-                            android:textColor="#008FFF"
-                            android:textSize="18sp" />
-
-                        <TextView
-                            android:id="@+id/tv16"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ve"
-                            android:textColor="#FF0000"
-                            android:textSize="18sp" />
-
-                        <TextView
-                            android:id="@+id/tv17"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=" been work"
-                            android:textColor="#008FFF"
-                            android:textSize="18sp" />
-
-                        <TextView
-                            android:id="@+id/tv18"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ing"
-                            android:textColor="#FF0000"
-                            android:textSize="18sp" />
-
-                        <TextView
-                            android:id="@+id/tv19"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=" in UI field for about 3 years."
-                            android:textColor="#008FFF"
-                            android:textSize="18sp" />
-                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/textView16"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="16dp"
+                        android:padding="16dp"
                         android:background="@drawable/border_rec_blue"
-                        android:padding="12dp"
-                        android:text="Sound to improve: /ð/, /s/, /z/\nThe answer is a bit short and needs to be more detailed"
-                        android:textColor="#090909"
-                        android:textSize="16sp" />
+                        android:text="Practice pronouncing the words to test your speaking level."
+                        android:textColor="#2C3E50"
+                        android:textSize="15sp"
+                        android:lineSpacingExtra="4dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.01"
+                        android:gravity="center_vertical" />
                 </LinearLayout>
             </LinearLayout>
 
