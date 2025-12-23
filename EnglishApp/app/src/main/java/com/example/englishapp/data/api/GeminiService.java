@@ -37,7 +37,80 @@ public class GeminiService {
     public void sendMessage(String message, OpenAICallBack callback) {
         tryModel(message, callback, 0);
     }
+    public void evaluateSpeaking(String question, String answer, OpenAICallBack callback) {
+        tryModelSpeaking(question, answer, callback, 0);
+    }
+    private  void tryModelSpeaking(String question, String answer, OpenAICallBack callback, int attempt) {
+        if(attempt >= MODELS.length) {
+            callback.onError("All Gemini models are busy. Please try again later.");
+            return;
+        }
+        // nếu số lượt thứ mà gặp lỗi 403 vượt quá số lượng model -> báo lỗi
+        String model = MODELS[index.getAndIncrement() % MODELS.length]; // tính chỉ số model
+        String url = String.format(BASE_URL, model, GEMINI_API_KEY);
+        JSONObject body = new JSONObject(); // tạo body khi gửi request
+        try{
+            JSONArray contents = new JSONArray();
+            JSONObject content = new JSONObject();
+            content.put("role", "user");
+            JSONArray parts = new JSONArray();
+            String prompt = "You are an English pronunciation evaluator.\n\n" +
+                    "Question: " + question + "\n" +
+                    "User answer (transcribed speech): " + answer + "\n\n" +
+                    "Focus ONLY on pronunciation accuracy and whether the answer matches the question.\n" +
+                    "Do NOT score grammar or fluency.\n\n" +
+                    "Please return JSON with:\n" +
+                    "- score (0-10) based on pronunciation\n" +
+                    "- pronunciation (0-10)\n" +
+                    "- matches_question (true/false)\n" +
+                    "- pronunciation_issues (array)\n" +
+                    "- pronunciation_tips (array)\n" +
+                    "- short_feedback (string)\n";
+            parts.put(new JSONObject().put(
+                    "text", prompt
+            ));
+            content.put("parts", parts);
+            contents.put(content);
+            body.put("contents", contents);
+        } catch(JSONException e){
+            callback.onError(e.getMessage());
+        }
+        // tạo request
+        Request request = new Request.Builder().url(url)
+                .post(RequestBody.create(body.toString(), JSON)).build();
+        client.newCall(request).enqueue(new Callback(){
 
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(!response.isSuccessful()) {
+                    if (response.code() == 429 || response.code() == 404) {// lỗi tràn request
+                        tryModelSpeaking(question, answer, callback, attempt + 1);// gọi lại đệ qui để đổi sang model khác
+                    }else {
+                        callback.onError("Error " + response.code());
+                    }
+                return;
+                }
+                try {
+                    JSONObject json = new JSONObject(response.body().string());
+                    String repy = json.getJSONArray("candidates")
+                            .getJSONObject(0)
+                            .getJSONObject("content")
+                            .getJSONArray("parts")
+                            .getJSONObject(0)
+                            .getString("text");
+                    callback.onSuccess(repy);
+                }catch (JSONException e){
+                    callback.onError(e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onError(e.getMessage());
+            }
+        });
+
+    }
     private void tryModel(String message,
                           OpenAICallBack callback,
                           int attempt) {

@@ -20,6 +20,8 @@ import androidx.fragment.app.FragmentManager;
 import com.example.englishapp.Fragment.LessonFragment;
 import com.example.englishapp.ui.common.NotificationFragment;
 //import com.example.englishapp.Fragment.NotificationFragment;
+import com.example.englishapp.ui.vocabulary.LessonFragment;
+//import com.example.englishapp.Fragment.NotificationFragment;
 //import com.example.englishapp.Fragment.ProfileFragment;
 import com.example.englishapp.ui.auth.LoginActivity;
 import com.example.englishapp.ui.profile.ProfileFragment;

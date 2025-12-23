@@ -1,5 +1,8 @@
 package com.example.englishapp.ui.listening;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,14 +48,19 @@ public class ListeningExerciseFragment extends Fragment {
 
     private TextView tvQuestion1, tvQuestion2, tvQuestion3, tvQuestion4, tvQuestion5, tvTitle;
     private RadioGroup radioGroup1, radioGroup2, radioGroup3, radioGroup4, radioGroup5;
-    private Button submitButton, replayButton;
-    private ImageView ivTopic;
+    private Button submitButton;
+    private ImageView ivTopic, playPauseButton, stopButton;
+    private TextView tvCurrentTime, tvTotalTime; // Thêm TextView cho thời gian
     private RecyclerView lessonsHorizontalRecycler;
     private HorizontalLessonAdapter horizontalLessonAdapter;
     private List<Integer> correctAnswers = new ArrayList<>();
 
     private MediaPlayer mediaPlayer;
     private String audioUrlFromFirebase;
+    private boolean isPlaying = false;
+    private android.os.Handler timeHandler = new android.os.Handler(); // Handler để update thời gian
+    private Runnable timeUpdater; // Runnable để update thời gian
+    private int audioDurationFromFirebase = 0; // Thời gian từ Firebase (giây)
     
     // Danh sách lessons để chuyển đổi
     private List<LessonInfo> availableLessons = new ArrayList<>();
@@ -130,14 +138,21 @@ public class ListeningExerciseFragment extends Fragment {
         radioGroup4 = view.findViewById(R.id.radio_group_4);
         radioGroup5 = view.findViewById(R.id.radio_group_5);
         submitButton = view.findViewById(R.id.submit_button);
-        replayButton = view.findViewById(R.id.replay_button);
         ivTopic = view.findViewById(R.id.now_playing_image); // Ánh xạ ImageView ảnh bài học
         tvTitle = view.findViewById(R.id.textView2);  // Ánh xạ tiêu đề bài học
         lessonsHorizontalRecycler = view.findViewById(R.id.lessons_horizontal_recycler);
 
         ImageView backIcon = view.findViewById(R.id.back_icon);
-        ImageView playPauseButton = view.findViewById(R.id.play_pause_button);
-        ImageView stopButton = view.findViewById(R.id.stop_button);
+        playPauseButton = view.findViewById(R.id.play_pause_button);
+        stopButton = view.findViewById(R.id.stop_button);
+        
+        // Sử dụng TextView thời gian có sẵn trong layout
+        TextView nowPlayingTime = view.findViewById(R.id.now_playing_time);
+        if (nowPlayingTime != null) {
+            // Tách thành current time và total time
+            tvCurrentTime = nowPlayingTime; // Sử dụng chung 1 TextView
+            tvTotalTime = nowPlayingTime;   // Sẽ hiển thị dạng "current / total"
+        }
 
         // Setup horizontal lessons RecyclerView
         setupHorizontalLessons();
@@ -163,17 +178,11 @@ public class ListeningExerciseFragment extends Fragment {
 
         // Gắn logic xử lý MediaPlayer vào các nút
         playPauseButton.setOnClickListener(v -> {
-            if (audioUrlFromFirebase != null) playAudio(audioUrlFromFirebase);
+            togglePlayPause();
         });
 
         stopButton.setOnClickListener(v -> {
-            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-        });
-
-        replayButton.setOnClickListener(v -> {
-            if (audioUrlFromFirebase != null) playAudio(audioUrlFromFirebase);
+            stopAudio();
         });
     }
 
@@ -413,15 +422,23 @@ public class ListeningExerciseFragment extends Fragment {
                 if (snapshot.exists()) {
                     Log.d(TAG, "Dữ liệu đã về! Topic: " + topicId + ", Lesson: " + lessonId);
                     
-                    // 1. Load tiêu đề và ảnh
+                    // 1. Load tiêu đề, ảnh và duration
                     String title = snapshot.child("title").getValue(String.class);
                     String imageUrl = snapshot.child("image_url").getValue(String.class);
                     audioUrlFromFirebase = snapshot.child("audio_url").getValue(String.class);
+                    Integer duration = snapshot.child("duration").getValue(Integer.class);
+                    
+                    // Lưu duration từ Firebase
+                    audioDurationFromFirebase = duration != null ? duration : 0;
+                    Log.d(TAG, "Audio duration from Firebase: " + audioDurationFromFirebase + " seconds");
 
                     if (tvTitle != null && title != null) {
                         tvTitle.setText(title);
                         Log.d(TAG, "Set title: " + title);
                     }
+                    
+                    // Hiển thị thời gian tổng từ Firebase
+                    updateTotalTime(audioDurationFromFirebase);
 
                     // Load ảnh bằng Glide với placeholder và error handling
                     if (isAdded() && ivTopic != null) {
@@ -441,13 +458,8 @@ public class ListeningExerciseFragment extends Fragment {
                     // 2. Load danh sách câu hỏi
                     loadQuestionsFromSnapshot(snapshot);
                     
-                    // Tự động phát nhạc nếu có link
-                    if (audioUrlFromFirebase != null && !audioUrlFromFirebase.isEmpty()) {
-                        Log.d(TAG, "Auto-playing audio: " + audioUrlFromFirebase);
-                        playAudio(audioUrlFromFirebase);
-                    } else {
-                        Log.w(TAG, "No audio URL found");
-                    }
+                    // Không tự động phát, chỉ chuẩn bị
+                    Log.d(TAG, "Audio ready to play: " + audioUrlFromFirebase);
                 } else {
                     Log.e(TAG, "Không tìm thấy dữ liệu tại path: topics/listening/" + topicId + "/lessons/" + lessonId);
                     Toast.makeText(getContext(), "Không tìm thấy dữ liệu bài học", Toast.LENGTH_SHORT).show();
@@ -629,21 +641,214 @@ public class ListeningExerciseFragment extends Fragment {
         }
     }
 
-    private void playAudio(String audioUrl) {
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
+    /**
+     * Toggle play/pause audio
+     */
+    private void togglePlayPause() {
+        if (mediaPlayer != null && isPlaying) {
+            pauseAudio();
+        } else {
+            if (audioUrlFromFirebase != null && !audioUrlFromFirebase.isEmpty()) {
+                playAudio(audioUrlFromFirebase);
+            }
         }
-        mediaPlayer = new MediaPlayer();
+    }
+    
+    /**
+     * Play audio with animation and time tracking
+     */
+    private void playAudio(String audioUrl) {
         try {
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
+            
+            mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(audioUrl);
             mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(mp -> mp.start());
+            
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                isPlaying = true;
+                
+                // Cập nhật icon thành pause
+                updatePlayPauseIcon(true);
+                
+                // Bắt đầu animation
+                startPlayingAnimation();
+                
+                // Bắt đầu update thời gian
+                startTimeUpdater();
+                
+                Log.d(TAG, "Audio started playing");
+            });
+            
+            mediaPlayer.setOnCompletionListener(mp -> {
+                isPlaying = false;
+                updatePlayPauseIcon(false);
+                stopPlayingAnimation();
+                stopTimeUpdater();
+                Log.d(TAG, "Audio playback completed");
+            });
+            
         } catch (IOException e) {
             Log.e(TAG, "Error playing audio", e);
+            Toast.makeText(getContext(), "Lỗi phát âm thanh", Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    /**
+     * Pause audio
+     */
+    private void pauseAudio() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            isPlaying = false;
+            updatePlayPauseIcon(false);
+            stopPlayingAnimation();
+            stopTimeUpdater();
+            Log.d(TAG, "Audio paused");
+        }
+    }
+    
+    /**
+     * Stop audio
+     */
+    private void stopAudio() {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            isPlaying = false;
+            updatePlayPauseIcon(false);
+            stopPlayingAnimation();
+            stopTimeUpdater();
+            updateCurrentTime(0);
+            Log.d(TAG, "Audio stopped");
+        }
+    }
+    
+    /**
+     * Replay audio from beginning
+     */
+    private void replayAudio() {
+        stopAudio();
+        if (audioUrlFromFirebase != null && !audioUrlFromFirebase.isEmpty()) {
+            playAudio(audioUrlFromFirebase);
+        }
+    }
+    
+    /**
+     * Update play/pause icon
+     */
+    private void updatePlayPauseIcon(boolean isPlaying) {
+        if (playPauseButton != null) {
+            if (isPlaying) {
+                playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+            } else {
+                playPauseButton.setImageResource(android.R.drawable.ic_media_play);
+            }
+        }
+    }
+    
+    /**
+     * Start playing animation (pulse effect)
+     */
+    private void startPlayingAnimation() {
+        if (playPauseButton != null) {
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(playPauseButton, "scaleX", 1f, 1.1f, 1f);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(playPauseButton, "scaleY", 1f, 1.1f, 1f);
+            
+            // Set repeat cho từng animator
+            scaleX.setDuration(1000);
+            scaleX.setRepeatCount(ValueAnimator.INFINITE);
+            scaleX.setRepeatMode(ValueAnimator.RESTART);
+            
+            scaleY.setDuration(1000);
+            scaleY.setRepeatCount(ValueAnimator.INFINITE);
+            scaleY.setRepeatMode(ValueAnimator.RESTART);
+            
+            AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.playTogether(scaleX, scaleY);
+            
+            playPauseButton.setTag(animatorSet); // Lưu animator để có thể stop sau
+            animatorSet.start();
+        }
+    }
+    
+    /**
+     * Stop playing animation
+     */
+    private void stopPlayingAnimation() {
+        if (playPauseButton != null) {
+            Object animator = playPauseButton.getTag();
+            if (animator instanceof AnimatorSet) {
+                ((AnimatorSet) animator).cancel();
+            }
+            playPauseButton.setScaleX(1f);
+            playPauseButton.setScaleY(1f);
+        }
+    }
+    
+    /**
+     * Start time updater
+     */
+    private void startTimeUpdater() {
+        timeUpdater = new Runnable() {
+            @Override
+            public void run() {
+                if (mediaPlayer != null && isPlaying) {
+                    int currentPosition = mediaPlayer.getCurrentPosition() / 1000; // Convert to seconds
+                    updateCurrentTime(currentPosition);
+                    timeHandler.postDelayed(this, 1000); // Update every second
+                }
+            }
+        };
+        timeHandler.post(timeUpdater);
+    }
+    
+    /**
+     * Stop time updater
+     */
+    private void stopTimeUpdater() {
+        if (timeUpdater != null) {
+            timeHandler.removeCallbacks(timeUpdater);
+        }
+    }
+    
+    /**
+     * Update current time display
+     */
+    private void updateCurrentTime(int seconds) {
+        if (tvCurrentTime != null) {
+            String timeText = formatTime(seconds) + " / " + formatTime(audioDurationFromFirebase);
+            tvCurrentTime.setText(timeText);
+        }
+    }
+    
+    /**
+     * Update total time display
+     */
+    private void updateTotalTime(int seconds) {
+        if (tvTotalTime != null) {
+            String timeText = "00:00 / " + formatTime(seconds);
+            tvTotalTime.setText(timeText);
+        }
+    }
+    
+    /**
+     * Format time in MM:SS format
+     */
+    private String formatTime(int seconds) {
+        int minutes = seconds / 60;
+        int remainingSeconds = seconds % 60;
+        return String.format("%02d:%02d", minutes, remainingSeconds);
     }
 
     private void checkAnswers() {
+        // Stop audio when submit is pressed
+        stopAudio();
+        
         if (correctAnswers.size() < 5) {
             Toast.makeText(getContext(), "Không đủ câu hỏi để kiểm tra!", Toast.LENGTH_SHORT).show();
             return;
@@ -672,31 +877,111 @@ public class ListeningExerciseFragment extends Fragment {
         int index4 = radioGroup4.indexOfChild(rb4);
         int index5 = radioGroup5.indexOfChild(rb5);
 
+        // Calculate score and create results
         int correctCount = 0;
-        if (index1 == correctAnswers.get(0)) correctCount++;
-        if (index2 == correctAnswers.get(1)) correctCount++;
-        if (index3 == correctAnswers.get(2)) correctCount++;
-        if (index4 == correctAnswers.get(3)) correctCount++;
-        if (index5 == correctAnswers.get(4)) correctCount++;
-
-        String message = "Bạn trả lời đúng " + correctCount + "/5 câu!";
-        if (correctCount == 5) {
-            message += " Xuất sắc!";
-        } else if (correctCount >= 3) {
-            message += " Khá tốt!";
-        } else {
-            message += " Hãy nghe lại và thử lần nữa!";
+        ArrayList<com.example.englishapp.model.QuestionResult> questionResults = new ArrayList<>();
+        
+        // Get question texts and options
+        String[] questionTexts = {
+            tvQuestion1.getText().toString(),
+            tvQuestion2.getText().toString(),
+            tvQuestion3.getText().toString(),
+            tvQuestion4.getText().toString(),
+            tvQuestion5.getText().toString()
+        };
+        
+        int[] userAnswers = {index1, index2, index3, index4, index5};
+        RadioGroup[] radioGroups = {radioGroup1, radioGroup2, radioGroup3, radioGroup4, radioGroup5};
+        
+        Log.d(TAG, "Creating question results...");
+        for (int i = 0; i < 5; i++) {
+            boolean isCorrect = userAnswers[i] == correctAnswers.get(i);
+            if (isCorrect) correctCount++;
+            
+            // Get answer texts
+            String userAnswerText = getAnswerText(radioGroups[i], userAnswers[i]);
+            String correctAnswerText = getAnswerText(radioGroups[i], correctAnswers.get(i));
+            
+            Log.d(TAG, "Question " + (i+1) + ": " + questionTexts[i]);
+            Log.d(TAG, "User answer: " + userAnswerText + " (index: " + userAnswers[i] + ")");
+            Log.d(TAG, "Correct answer: " + correctAnswerText + " (index: " + correctAnswers.get(i) + ")");
+            Log.d(TAG, "Is correct: " + isCorrect);
+            
+            questionResults.add(new com.example.englishapp.model.QuestionResult(
+                i + 1,
+                questionTexts[i],
+                userAnswerText,
+                correctAnswerText,
+                isCorrect
+            ));
         }
         
-        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "Created " + questionResults.size() + " question results");
+        Log.d(TAG, "Final score: " + correctCount + "/5");
+
+        // Navigate to result screen
+        navigateToResult(correctCount, 5, questionResults);
+    }
+    
+    /**
+     * Get answer text from RadioGroup by index
+     */
+    private String getAnswerText(RadioGroup radioGroup, int index) {
+        if (index >= 0 && index < radioGroup.getChildCount()) {
+            RadioButton radioButton = (RadioButton) radioGroup.getChildAt(index);
+            return radioButton.getText().toString();
+        }
+        return "Unknown";
+    }
+    
+    /**
+     * Navigate to result screen
+     */
+    private void navigateToResult(int score, int total, ArrayList<com.example.englishapp.model.QuestionResult> results) {
+        if (getActivity() == null) return;
+
+        try {
+            ListeningResultFragment resultFragment = 
+                    ListeningResultFragment.newInstance(topicId, lessonId, score, total, results);
+
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left,
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_right
+                    )
+                    .replace(R.id.container, resultFragment, "ListeningResultFragment")
+                    .addToBackStack("ExerciseToResult")
+                    .commit();
+
+            Log.d(TAG, "Navigated to result screen with score: " + score + "/" + total);
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to result screen", e);
+            // Fallback to old toast message
+            String message = "Bạn trả lời đúng " + score + "/" + total + " câu!";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        
+        // Cleanup MediaPlayer
         if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
             mediaPlayer.release();
             mediaPlayer = null;
         }
+        
+        // Cleanup animations and timers
+        stopPlayingAnimation();
+        stopTimeUpdater();
+        
+        Log.d(TAG, "ListeningExerciseFragment destroyed and cleaned up");
     }
 }
