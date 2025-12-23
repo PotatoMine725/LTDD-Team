@@ -91,25 +91,10 @@
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
+                    android:id="@+id/containerNotifications"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-
-                    <include
-                        android:id="@+id/notif1"
-                        layout="@layout/item_notification_default" />
-
-                    <include
-                        android:id="@+id/notif2"
-                        layout="@layout/item_notification_default" />
-
-                    <include
-                        android:id="@+id/notif3"
-                        layout="@layout/item_notification_default" />
-
-                    <include
-                        android:id="@+id/notif4"
-                        layout="@layout/item_notification_grey" />
 
                 </LinearLayout>
             </ScrollView>
