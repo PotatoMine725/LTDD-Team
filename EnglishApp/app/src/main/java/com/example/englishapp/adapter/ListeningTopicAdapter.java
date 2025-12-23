@@ -8,12 +8,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestListener;
 import com.example.englishapp.R;
 import com.example.englishapp.model.ListeningTopic;
 
@@ -70,32 +67,6 @@ public class ListeningTopicAdapter extends RecyclerView.Adapter<ListeningTopicAd
         notifyDataSetChanged();
     }
 
-    /**
-     * Kiểm tra URL ảnh có hợp lệ không
-     */
-    private boolean isValidImageUrl(String url) {
-        if (url == null || url.trim().isEmpty()) {
-            return false;
-        }
-        
-        // Kiểm tra URL có bắt đầu bằng http/https không
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            return false;
-        }
-        
-        // Cho phép tất cả domain để test
-        return true;
-        
-        // Kiểm tra domain có đáng tin cậy không (tạm comment để test)
-        /*
-        return url.contains("unsplash.com") || 
-               url.contains("images.unsplash.com") ||
-               url.contains("cloudinary.com") ||
-               url.contains("imgur.com") ||
-               url.contains("atlasoftware.vn");
-        */
-    }
-
     class TopicViewHolder extends RecyclerView.ViewHolder {
         private CardView cardView;
         private ImageView topicImage;
@@ -118,53 +89,8 @@ public class ListeningTopicAdapter extends RecyclerView.Adapter<ListeningTopicAd
                 // Set progress
                 topicProgressText.setText(topic.getProgressText());
 
-                // Log thông tin topic để debug
-                Log.d(TAG, "=== BINDING TOPIC AT POSITION " + position + " ===");
-                Log.d(TAG, "Topic ID: " + topic.getTopicId());
-                Log.d(TAG, "Topic Name: " + topic.getTopicName());
-                Log.d(TAG, "Has Image URL: " + topic.hasImageUrl());
-                Log.d(TAG, "Image URL: '" + topic.getImageUrl() + "'");
-                Log.d(TAG, "Image Resource ID: " + topic.getImageResourceId());
-
-                // Clear previous image first
-                topicImage.setImageDrawable(null);
-
-                // Set image từ URL hoặc fallback resource
-                if (topic.hasImageUrl()) {
-                    Log.d(TAG, "Loading image from URL: " + topic.getImageUrl());
-                    try {
-                        String imageUrl = topic.getImageUrl();
-                        Log.d(TAG, "Attempting to load image: " + imageUrl);
-                        
-                        Glide.with(itemView.getContext())
-                                .load(imageUrl)
-                                .placeholder(R.drawable.topic_technology)
-                                .error(R.drawable.topic_technology)
-                                .centerCrop()
-                                .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
-                                    @Override
-                                    public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
-                                        Log.e(TAG, "Glide FAILED to load image for position " + position + ": " + imageUrl, e);
-                                        return false; // Let Glide handle the error drawable
-                                    }
-
-                                    @Override
-                                    public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                                        Log.d(TAG, "Glide SUCCESS loaded image for position " + position + ": " + imageUrl);
-                                        return false; // Let Glide handle the resource
-                                    }
-                                })
-                                .into(topicImage);
-                    } catch (Exception glideException) {
-                        Log.e(TAG, "Glide error loading image: " + topic.getImageUrl(), glideException);
-                        topicImage.setImageResource(R.drawable.topic_technology);
-                    }
-                } else {
-                    // Fallback to resource ID nếu không có URL
-                    Log.d(TAG, "No image URL found for topic: " + topic.getTopicName() + ", using resource image");
-                    topicImage.setImageResource(topic.getImageResourceId() != 0 ? 
-                            topic.getImageResourceId() : R.drawable.topic_technology);
-                }
+                // Set image
+                topicImage.setImageResource(topic.getImageResourceId());
 
                 // Click listener cho toàn bộ card
                 cardView.setOnClickListener(v -> {
@@ -185,12 +111,9 @@ public class ListeningTopicAdapter extends RecyclerView.Adapter<ListeningTopicAd
                     }
                 });
 
-                Log.d(TAG, "Successfully bound topic: " + topic.getTopicName() + " at position " + position);
-                Log.d(TAG, "=== END BINDING ===");
+                Log.d(TAG, "Bound topic: " + topic.getTopicName() + " at position " + position);
             } catch (Exception e) {
                 Log.e(TAG, "Error binding topic at position " + position, e);
-                // Fallback: set default image nếu có lỗi
-                topicImage.setImageResource(R.drawable.topic_technology);
             }
         }
     }

@@ -142,7 +142,6 @@
                     android:layout_marginTop="12dp">
 
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/daily_life_topic_card"
                         android:layout_width="0dp"
                         android:layout_height="100dp"
                         android:layout_weight="1"
@@ -150,10 +149,9 @@
                         app:cardCornerRadius="16dp">
 
                         <ImageView
-                            android:id="@+id/daily_life_image"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:src="@drawable/topic_placeholder"
+                            android:src="@drawable/topic_electric_vehicles"
                             android:scaleType="centerCrop"/>
 
                         <View
@@ -164,7 +162,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Daily Life"
+                            android:text="Electric vehicles"
                             android:textColor="@android:color/white"
                             android:textStyle="bold"
                             android:layout_gravity="bottom"
@@ -172,7 +170,6 @@
                     </androidx.cardview.widget.CardView>
 
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/technology_topic_card"
                         android:layout_width="0dp"
                         android:layout_height="100dp"
                         android:layout_weight="1"
@@ -180,7 +177,6 @@
                         app:cardCornerRadius="16dp">
 
                         <ImageView
-                            android:id="@+id/technology_image"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:src="@drawable/topic_technology"

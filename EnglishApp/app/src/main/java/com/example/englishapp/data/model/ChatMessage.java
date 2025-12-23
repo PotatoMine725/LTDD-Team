@@ -1,19 +1,36 @@
-package com.example.englishapp.data.model;
 
 public class ChatMessage {
-    public String message;
-    public String sender;
-    public long timestamp;
 
-    public ChatMessage() {} // dành cho firebase
+    public static final int TYPE_USER = 0;
+    public static final int TYPE_AI = 1;
 
-    public ChatMessage(String message, String sender, long timestamp) {
+    private String message;
+    private String sender; // "user" | "ai"
+    private long timestamp;
+
+    // Firestore cần constructor rỗng
+    public ChatMessage() {
+    }
+
+    public ChatMessage(String message, String sender) {
         this.message = message;
         this.sender = sender;
-        this.timestamp = timestamp;
+        this.timestamp = System.currentTimeMillis();
     }
-    // xác đinh kiểu messgae, user hoặc ai
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
     public int getViewType() {
-        return sender != null && sender.equals("user") ? 0 : 1;
+        return sender.equals("user") ? TYPE_USER : TYPE_AI;
     }
 }

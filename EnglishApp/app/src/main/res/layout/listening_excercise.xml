@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#F5F5F5"
-    tools:context=".ui.listening.ListeningExerciseActivity">
+    tools:context=".ListeningExerciseActivity">
 
     <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -86,15 +86,27 @@
             </RelativeLayout>
 
             <!-- Horizontal Scroll of Tracks -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/lessons_horizontal_recycler"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:paddingTop="8dp"
-                android:scrollbars="none" />
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="8dp">
+
+                    <include layout="@layout/list_item_listening_track" />
+
+                    <include layout="@layout/list_item_listening_track" />
+
+                    <include layout="@layout/list_item_listening_track" />
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <!-- Now Playing Section -->
             <LinearLayout
@@ -118,38 +130,21 @@
                         android:src="@drawable/ic_idiom_animals" />
 
                     <TextView
-                        android:id="@+id/textView2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_toEndOf="@id/now_playing_image"
-                        android:text="Lesson Title"
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
                         android:id="@+id/now_playing_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/textView2"
                         android:layout_marginStart="12dp"
-                        android:layout_marginTop="4dp"
                         android:layout_marginEnd="8dp"
                         android:layout_toStartOf="@id/now_playing_time"
                         android:layout_toEndOf="@id/now_playing_image"
                         android:text="California Lawmaker Wants to Know What Makes People...."
-                        android:textColor="@android:color/black"
-                        android:textSize="14sp" />
+                        android:textColor="@android:color/black" />
 
                     <TextView
                         android:id="@+id/now_playing_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:layout_below="@id/textView2"
-                        android:layout_marginTop="4dp"
                         android:text="08:58 / 10:00"
                         android:textColor="@android:color/black" />
 
@@ -257,117 +252,6 @@
                         android:text="D. On the street" />
                 </RadioGroup>
 
-                <!-- Question 3 -->
-                <TextView
-                    android:id="@+id/question_3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Question 3:\nQuestion text will be loaded from Firebase"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="A. Option 1" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="B. Option 2" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="C. Option 3" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="D. Option 4" />
-                </RadioGroup>
-
-                <!-- Question 4 -->
-                <TextView
-                    android:id="@+id/question_4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Question 4:\nQuestion text will be loaded from Firebase"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_4"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="A. Option 1" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="B. Option 2" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="C. Option 3" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="D. Option 4" />
-                </RadioGroup>
-
-                <!-- Question 5 -->
-                <TextView
-                    android:id="@+id/question_5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Question 5:\nQuestion text will be loaded from Firebase"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_5"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="A. Option 1" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="B. Option 2" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="C. Option 3" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="D. Option 4" />
-                </RadioGroup>
-
                 <!-- Action Buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -376,9 +260,23 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/submit_button"
-                        android:layout_width="match_parent"
+                        android:id="@+id/replay_button"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#E0E0E0"
+                        android:text="Replay"
+                        android:textColor="@android:color/black"
+                        app:icon="@drawable/ic_replay"
+                        app:iconTint="@android:color/black" />
+
+                    <Button
+                        android:id="@+id/submit_button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
                         android:backgroundTint="#FF0000"
                         android:text="Submit" />
                 </LinearLayout>

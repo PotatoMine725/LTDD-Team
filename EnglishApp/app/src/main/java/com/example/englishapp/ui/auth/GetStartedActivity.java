@@ -7,30 +7,29 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.englishapp.R;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class GetStartedActivity extends AppCompatActivity {
 
-    private Button btnGetStarted;
-    private Button btnAlreadyAcc;
+    private Button btnGetStarted, btnAlreadyAcc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.lyt_getstarted);
 
         btnGetStarted = findViewById(R.id.btn_getstarted);
         btnAlreadyAcc = findViewById(R.id.btn_alreadyacc);
 
-        // Chuyển sang đăng ký
+        // Nút GET STARTED → mở trang đăng ký
         btnGetStarted.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
         });
 
-        // Chuyển sang đăng nhập
+        // Nút ALREADY HAVE AN ACCOUNT → mở trang đăng nhập
         btnAlreadyAcc.setOnClickListener(v -> {
-            startActivity(new Intent(this, LoginActivity.class));
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
         });
     }
 }

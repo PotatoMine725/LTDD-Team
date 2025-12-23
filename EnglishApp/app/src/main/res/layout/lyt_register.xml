@@ -61,27 +61,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_content_white"
                 android:orientation="vertical"
-                android:padding="10dp">
-                <!-- Name Field -->
-                <TextView
-                    android:id="@+id/tv_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Full Name"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
-
-                <EditText
-                    android:id="@+id/edt_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/edit_text_background"
-                    android:hint="Enter your full name"
-                    android:inputType="textPersonName"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp" />
+                android:padding="24dp">
 
                 <!-- Email Field -->
                 <TextView
@@ -97,7 +77,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="16dp"
                     android:background="@drawable/edit_text_background"
                     android:hint="Value"
                     android:inputType="textEmailAddress"
@@ -118,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="16dp"
                     android:background="@drawable/edit_text_background"
                     android:hint="Value"
                     android:inputType="textPassword"
@@ -139,7 +119,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="16dp"
                     android:background="@drawable/edit_text_background"
                     android:hint="Value"
                     android:inputType="textPassword"
@@ -153,7 +133,7 @@
                     android:id="@+id/cb_terms"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="24dp"
                     android:text="I agree with Terms &amp; Conditions"
                     android:textColor="#4A7CA4"
                     android:textStyle="bold" />

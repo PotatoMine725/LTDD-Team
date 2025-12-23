@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.englishapp.R;
 import com.example.englishapp.ui.common.NotificationFragment;
@@ -24,19 +23,16 @@ public class LessonFragment extends Fragment {
     private static final String TAG = "LessonFragment";
     private TopTabNavigationHelper tabNavigationHelper;
 
-    public LessonFragment() {
-        // Required empty public constructor
-    }
+    public LessonFragment() {}
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         try {
-            // Sử dụng layout vocabulary_layout.xml cho màn hình danh sách bài học
             return inflater.inflate(R.layout.vocabulary_layout, container, false);
         } catch (Exception e) {
-            Log.e(TAG, "Lỗi khi nạp layout", e);
-            showError("Không thể tải màn hình bài học");
+            Log.e(TAG, "Error inflating layout", e);
+            showError("Failed to load lesson screen");
             return null;
         }
     }
@@ -46,83 +42,206 @@ public class LessonFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         try {
-            // Thiết lập các tab điều hướng phía trên (Vocabulary, Listening, Speaking, etc.)
-            tabNavigationHelper = new TopTabNavigationHelper(view, requireContext(), getParentFragmentManager());
-            tabNavigationHelper.setCurrentTab(TopTabNavigationHelper.TabType.VOCABULARY);
-
-            // Thiết lập nút thông báo
-            ImageView ivNotification = view.findViewById(R.id.btn_notification);
-            if (ivNotification != null) {
-                ivNotification.setOnClickListener(v -> showNotificationFragment());
-            }
-
-            // --- XỬ LÝ SỰ KIỆN CLICK ĐỂ CHUYỂN SANG FLASHCARD ---
-            CardView cvVocabularyLesson = view.findViewById(R.id.cv_vocabulary_lesson);
-            if (cvVocabularyLesson != null) {
-                cvVocabularyLesson.setOnClickListener(v -> {
-                    // Khi click vào bài học, điều hướng sang FlashcardFragment với topic Animals (vt_01)
-                    navigateToFlashcard("vt_01");
-                });
-            }
-
+            setupTabNavigation(view);
+            setupNotificationButton(view);
+            setupCardViewListeners(view);
         } catch (Exception e) {
-            Log.e(TAG, "Lỗi khi khởi tạo giao diện", e);
+            Log.e(TAG, "Error in onViewCreated", e);
+            showError("Failed to initialize lesson screen");
         }
     }
 
     /**
-     * Phương thức thực hiện chuyển hướng Fragment sang FlashcardFragment.
-     * @param topicId ID của chủ đề từ vựng cần tải (ví dụ: vt_01)
+     * Setup tab navigation helper
      */
-    private void navigateToFlashcard(String topicId) {
+    private void setupTabNavigation(View view) {
         try {
-            FlashcardFragment flashcardFragment = new FlashcardFragment();
-
-            // Đóng gói dữ liệu topic_id để Fragment đích biết cần load từ vựng nào từ Firebase
-            Bundle args = new Bundle();
-            args.putString("topic_id", topicId);
-            flashcardFragment.setArguments(args);
-
-            // Sử dụng FragmentManager từ Activity để thay thế nội dung trong container chính
-            // LƯU Ý: R.id.main_container phải là ID của container chính trong Activity của bạn
-            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-            // Thiết lập hiệu ứng chuyển cảnh mượt mà
-            transaction.setCustomAnimations(
-                    R.anim.slide_in_right,  // enter
-                    R.anim.slide_out_left,   // exit
-                    R.anim.slide_in_left,   // popEnter
-                    R.anim.slide_out_right  // popExit
+            tabNavigationHelper = new TopTabNavigationHelper(
+                    view,
+                    requireContext(),
+                    getParentFragmentManager()
             );
 
-            // Thay thế bằng FlashcardFragment
-            transaction.replace(R.id.container, flashcardFragment, "FlashcardFragment");
+            //Reset quiz tab text về "Quiz/Test"
+            tabNavigationHelper.resetQuizTabText();
 
-            // Thêm vào BackStack để khi nhấn nút Back có thể quay lại danh sách bài học
-            transaction.addToBackStack("VocabularyToFlashcard");
+            // Set tab hiện tại là Vocabulary
+            if (tabNavigationHelper.getCurrentTab() == null) {
+                tabNavigationHelper.setCurrentTab(TopTabNavigationHelper.TabType.VOCABULARY);
+            }
 
-            transaction.commit();
+            // Lắng nghe sự kiện chọn tab
+            tabNavigationHelper.setOnTabSelectedListener(tabType -> {
+                Log.d(TAG, "Tab selected: " + tabType);
+            });
 
-            Log.d(TAG, "Đã chuyển sang FlashcardFragment với chủ đề: " + topicId);
+            Log.d(TAG, "Tab navigation setup successfully");
         } catch (Exception e) {
-            Log.e(TAG, "Lỗi điều hướng Fragment", e);
-            showError("Không thể mở Flashcard");
+            Log.e(TAG, "Error setting up tab navigation", e);
         }
     }
 
     /**
-     * Hiển thị Dialog thông báo.
+     * Setup notification button
+     */
+    private void setupNotificationButton(View view) {
+        try {
+            ImageView btnNotification = view.findViewById(R.id.btn_notification);
+            if (btnNotification != null) {
+                btnNotification.setOnClickListener(v -> showNotificationFragment());
+                Log.d(TAG, "Notification button setup successfully");
+            } else {
+                Log.w(TAG, "Notification button not found");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up notification button", e);
+        }
+    }
+
+    /**
+     * Setup CardView listeners for vocabulary topics
+     */
+    private void setupCardViewListeners(View view) {
+        try {
+            View scrollView = view.findViewById(R.id.scrollView2);
+            if (scrollView == null) {
+                Log.e(TAG, "ScrollView not found!");
+                return;
+            }
+
+            assignCardClickListeners(scrollView);
+            Log.d(TAG, "CardView listeners setup successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up card view listeners", e);
+        }
+    }
+
+    /**
+     * Recursively assign click listeners to all CardViews
+     */
+    private void assignCardClickListeners(View parent) {
+        if (!(parent instanceof ViewGroup)) return;
+
+        ViewGroup viewGroup = (ViewGroup) parent;
+
+        try {
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                View child = viewGroup.getChildAt(i);
+
+                if (child instanceof CardView) {
+                    CardView cardView = (CardView) child;
+                    String topicTitle = getTopicTitleFromCard(cardView);
+
+                    cardView.setOnClickListener(v -> {
+                        Log.d(TAG, "CardView clicked: " + topicTitle);
+                        navigateToFlashcard(topicTitle);
+                    });
+
+                    Log.d(TAG, "Assigned click listener for CardView: " + topicTitle);
+                } else if (child instanceof ViewGroup) {
+                    // Tìm cardview trong viewgroup
+                    assignCardClickListeners(child);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error assigning card click listeners", e);
+        }
+    }
+
+    /**
+     * Get topic title from CardView
+     */
+    private String getTopicTitleFromCard(CardView cardView) {
+        try {
+            String title = findTextInView(cardView);
+            return (title != null && !title.isEmpty()) ? title : "Unknown Topic";
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting topic title", e);
+            return "Unknown Topic";
+        }
+    }
+
+    /**
+     * Recursively find text in view hierarchy
+     */
+    private String findTextInView(View view) {
+        try {
+            if (view instanceof android.widget.TextView) {
+                String text = ((android.widget.TextView) view).getText().toString();
+                if (!text.isEmpty() && !text.matches("\\d+.*")) { // Skip numbers
+                    return text;
+                }
+            }
+
+            if (view instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) view;
+                for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                    String result = findTextInView(viewGroup.getChildAt(i));
+                    if (result != null && !result.isEmpty()) {
+                        return result;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error finding text in view", e);
+        }
+
+        return "Unknown Topic";
+    }
+
+    /**
+     * Navigate to Flashcard fragment
+     */
+    private void navigateToFlashcard(String topicTitle) {
+        try {
+            Log.d(TAG, "Navigating to flashcard: " + topicTitle);
+
+            if (getActivity() == null) {
+                Log.e(TAG, "Activity is null, cannot navigate");
+                showError("Cannot open flashcard");
+                return;
+            }
+
+            FlashcardFragment flashcardFragment = FlashcardFragment.newInstance(topicTitle);
+
+            // Use Activity's FragmentManager for navigation
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_in_right,  // enter
+                            R.anim.slide_out_left,  // exit
+                            R.anim.slide_in_left,   // popEnter
+                            R.anim.slide_out_right  // popExit
+                    )
+                    .replace(R.id.container, flashcardFragment, "FlashcardFragment")
+                    .addToBackStack("VocabularyToFlashcard")
+                    .commit();
+
+            Log.d(TAG, "Fragment transaction committed successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to flashcard", e);
+            showError("Failed to open flashcard");
+        }
+    }
+
+    /**
+     * Show notification dialog
      */
     private void showNotificationFragment() {
         try {
             NotificationFragment fragment = new NotificationFragment();
-            fragment.show(getParentFragmentManager(), "notification_dialog");
+            FragmentManager fragmentManager = getParentFragmentManager();
+            fragment.show(fragmentManager, "notification_dialog");
+            Log.d(TAG, "Notification dialog shown");
         } catch (Exception e) {
-            Log.e(TAG, "Lỗi hiển thị thông báo", e);
+            Log.e(TAG, "Error showing notification", e);
+            showError("Failed to show notifications");
         }
     }
 
+    /**
+     * Show error message to user
+     */
     private void showError(String message) {
         if (getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
@@ -132,7 +251,9 @@ public class LessonFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Dọn dẹp helper khi fragment bị hủy
+        Log.d(TAG, "LessonFragment destroyed");
+
+        // Clean up references
         tabNavigationHelper = null;
     }
 }

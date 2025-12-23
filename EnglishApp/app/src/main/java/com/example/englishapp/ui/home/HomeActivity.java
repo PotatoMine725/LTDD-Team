@@ -17,24 +17,15 @@ import androidx.core.os.TraceCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.englishapp.Fragment.LessonFragment;
-import com.example.englishapp.ui.common.NotificationFragment;
-//import com.example.englishapp.Fragment.NotificationFragment;
 import com.example.englishapp.ui.vocabulary.LessonFragment;
-//import com.example.englishapp.Fragment.NotificationFragment;
-//import com.example.englishapp.Fragment.ProfileFragment;
-import com.example.englishapp.ui.auth.LoginActivity;
+import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.ui.profile.ProfileFragment;
-
-import com.example.englishapp.Fragment.StatisticsFragment;
+import com.example.englishapp.ui.stats.StatisticsFragment;
+import com.example.englishapp.ui.listening.ListeningActivity;
 import com.example.englishapp.R;
-import com.example.englishapp.debug.FirebaseDebugHelper;
-import com.example.englishapp.test.FirebaseConnectionTest;
-import com.example.englishapp.ui.listening.ListeningFragment;
-import com.example.englishapp.ui.speaking.SpeakingFragment;
+import com.example.englishapp.ui.speaking.SpeakingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -47,13 +38,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
-        }
-
         setContentView(R.layout.home);
 
         try {
@@ -63,17 +47,12 @@ public class HomeActivity extends AppCompatActivity {
 
             // Hàm thiết lập xử lý nút back mới
             setupOnBackPressed();
-            
-            // Test Firebase connection khi app khởi động
-            testFirebaseConnection();
 
             handleIncomingIntent();
-
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
             Toast.makeText(this, "Failed to initialize app", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     private void setupViews() {
@@ -150,6 +129,7 @@ public class HomeActivity extends AppCompatActivity {
 
             Log.d(TAG, "Navigating to Home");
 
+            // 🔧 FIX #3: Clear ALL fragments properly
             clearAllFragmentsProperly();
 
             // Show home content
@@ -251,6 +231,8 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Thêm vào HomeActivity.java
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -271,6 +253,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 switch (selectedTab) {
                     case "VOCABULARY":
+                        // 🔧 FIX: Navigate đến Lesson, rồi trigger tab Vocabulary
                         navigateToLesson();
                         if (bottomNavigationView != null) {
                             bottomNavigationView.setSelectedItemId(R.id.nav_lesson);
@@ -278,10 +261,12 @@ public class HomeActivity extends AppCompatActivity {
                         break;
 
                     case "LISTENING":
+                        // 🔧 FIX: Navigate đến Listening tab
                         navigateToListeningTab();
                         break;
 
                     case "SPEAKING":
+                        // 🔧 FIX: Navigate đến Speaking tab
                         navigateToSpeakingTab();
                         break;
 
@@ -327,10 +312,10 @@ public class HomeActivity extends AppCompatActivity {
             setHomeContentVisibility(View.GONE);
             setTopBarVisibility(View.GONE);
 
-            // Load ListeningFragment fragment
-            Fragment listeningFragment = new ListeningFragment();
+            // Load ListeningActivity fragment
+            Fragment listeningFragment = new ListeningActivity();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, listeningFragment, "ListeningFragment")
+                    .replace(R.id.container, listeningFragment, "ListeningActivity")
                     .commit();
 
             currentTab = "lesson";
@@ -355,10 +340,10 @@ public class HomeActivity extends AppCompatActivity {
             setHomeContentVisibility(View.GONE);
             setTopBarVisibility(View.GONE);
 
-            // Load SpeakingFragment fragment
-            Fragment speakingFragment = new SpeakingFragment();
+            // Load SpeakingActivity fragment
+            Fragment speakingFragment = new SpeakingActivity();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, speakingFragment, "SpeakingFragment")
+                    .replace(R.id.container, speakingFragment, "SpeakingActivity")
                     .commit();
 
             currentTab = "lesson";
@@ -373,20 +358,31 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * Clear all fragments properly
+     * 🔧 FIX #3: Clear all fragments PROPERLY - sử dụng popBackStackImmediate
+     * Phương pháp này đảm bảo back stack được clear NGAY LẬP TỨC và ĐỒNG BỘ
      */
     private void clearAllFragmentsProperly() {
         try {
             FragmentManager fm = getSupportFragmentManager();
 
+            // Method 1: Pop tất cả back stack entries NGAY LẬP TỨC
             if (fm.getBackStackEntryCount() > 0) {
                 Log.d(TAG, "Clearing " + fm.getBackStackEntryCount() + " back stack entries");
+
+                // 🔧 SỬ DỤNG popBackStackImmediate thay vì popBackStack
+                // popBackStackImmediate() thực thi ĐỒNG BỘ (synchronous)
+                // popBackStack() thực thi BẤT ĐỒNG BỘ (asynchronous) → có thể gây bug
                 fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
 
+            // Method 2: Remove current fragment if exists
             Fragment currentFragment = fm.findFragmentById(R.id.container);
             if (currentFragment != null) {
                 Log.d(TAG, "Removing current fragment: " + currentFragment.getClass().getSimpleName());
+
+                // 🔧 SỬ DỤNG commitNow() thay vì commit()
+                // commitNow() thực thi ĐỒNG BỘ (synchronous)
+                // commit() thực thi BẤT ĐỒNG BỘ (asynchronous)
                 fm.beginTransaction()
                         .remove(currentFragment)
                         .commitNow();
@@ -396,6 +392,7 @@ public class HomeActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error clearing fragments", e);
 
+            // Fallback: Nếu có lỗi, thử clear bằng cách khác
             try {
                 FragmentManager fm = getSupportFragmentManager();
                 for (Fragment fragment : fm.getFragments()) {
@@ -514,22 +511,5 @@ public class HomeActivity extends AppCompatActivity {
 
         // Đăng ký callback với dispatcher của Activity
         getOnBackPressedDispatcher().addCallback(this, callback);
-    }
-    
-    /**
-     * Test Firebase connection và log kết quả
-     */
-    private void testFirebaseConnection() {
-        Log.d(TAG, "Testing Firebase connection from HomeActivity...");
-        
-        // Test basic connection
-        FirebaseDebugHelper.testFirebaseConnection();
-        
-        // Test specific topics
-        FirebaseDebugHelper.testTopicData("lt_daily");
-        FirebaseDebugHelper.testTopicData("lt_technology");
-        
-        // Run comprehensive test
-        FirebaseConnectionTest.testBasicConnection();
     }
 }

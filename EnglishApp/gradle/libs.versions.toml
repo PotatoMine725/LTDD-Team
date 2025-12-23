@@ -10,7 +10,6 @@ constraintlayout = "2.2.1"
 cardview = "1.0.0"
 legacySupportV4 = "1.0.0"
 recyclerview = "1.4.0"
-playServicesMeasurementApi = "22.1.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -23,7 +22,6 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
-play-services-measurement-api = { group = "com.google.android.gms", name = "play-services-measurement-api", version.ref = "playServicesMeasurementApi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

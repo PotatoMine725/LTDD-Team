@@ -1,8 +1,0 @@
-diff a/EnglishApp/.vscode/settings.json b/EnglishApp/.vscode/settings.json	(rejected hunks)
-@@ -1,3 +1,4 @@
- {
--    "java.configuration.updateBuildConfiguration": "interactive"
-+    "java.configuration.updateBuildConfiguration": "interactive",
-+    "kiroAgent.configureMCP": "Disabled"
- }
-\ No newline at end of file

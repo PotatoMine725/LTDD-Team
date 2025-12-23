@@ -2,54 +2,20 @@
   "quizzes": {
     "listening_quiz": {
       "q_01": {
-        "audio_url": "https://ssl.gstatic.com/dictionary/static/sounds/oxford/fifteen--_gb_1.mp3",
-        "correct_index": 1,
-        "options": [
-          "10",
-          "15",
-          "20",
-          "50"
-        ],
-        "question": "What number do you hear?"
-      },
-      "q_02": {
-        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        "correct_index": 1,
-        "options": [
-          "No",
-          "Yes",
-          "Maybe",
-          "Unknown"
-        ],
-        "question": "Does the music start with a drum beat?"
-      },
-      "q_03": {
-        "audio_url": "https://actions.google.com/sounds/v1/alarms/beep_short.ogg",
-        "correct_index": 2,
-        "options": [
-          "Barking",
-          "Meowing",
-          "Beeping",
-          "Roaring"
-        ],
-        "question": "What sound is this?"
-      },
-      "q_04": {
-        "audio_url": "https://actions.google.com/sounds/v1/animals/cat_purr.ogg",
+        "audio_url": "url_quiz_audio_1",
         "correct_index": 0,
         "options": [
-          "Cat",
-          "Dog",
-          "Bird",
-          "Lion"
+          "15",
+          "50",
+          "5",
+          "55"
         ],
-        "question": "Which animal makes this sound?"
+        "question": "What number did you hear?"
       }
     },
     "vocabulary_quiz": {
       "q_01": {
         "correct_index": 1,
-        "image_url": "https://img.freepik.com/free-photo/delicious-burger-with-fresh-ingredients_23-2150857908.jpg",
         "options": [
           "Tệ hại",
           "Ngon miệng",
@@ -60,7 +26,6 @@
       },
       "q_02": {
         "correct_index": 2,
-        "image_url": "https://img.freepik.com/free-photo/happy-young-asian-woman-jumping-air_23-2148037166.jpg",
         "options": [
           "Sad",
           "Angry",
@@ -68,39 +33,6 @@
           "Tired"
         ],
         "question": "Choose the synonym for: 'Happy'"
-      },
-      "q_03": {
-        "correct_index": 1,
-        "image_url": "https://img.freepik.com/free-photo/cheetah-running-fast_181624-6014.jpg",
-        "options": [
-          "Quick",
-          "Slow",
-          "Rapid",
-          "Speedy"
-        ],
-        "question": "Choose the antonym for: 'Fast'"
-      },
-      "q_04": {
-        "correct_index": 2,
-        "image_url": "https://images.pexels.com/photos/133394/pexels-photo-133394.jpeg?auto=compress&cs=tinysrgb&w=600",
-        "options": [
-          "Tiny",
-          "Small",
-          "Huge",
-          "Short"
-        ],
-        "question": "Choose the word meaning: 'Very big'"
-      },
-      "q_05": {
-        "correct_index": 3,
-        "image_url": "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg?auto=compress&cs=tinysrgb&w=600",
-        "options": [
-          "Run",
-          "Jump",
-          "Swim",
-          "Book"
-        ],
-        "question": "Which word is a NOUN (Danh từ)?"
       }
     }
   },
@@ -110,7 +42,6 @@
         "description": "Listening practice about everyday activities",
         "id": "lt_daily",
         "image_res_name": "topic_daily_life",
-        "image_url": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe",
         "lessons": {
           "ls_daily_01": {
             "audio_url": "https://res.cloudinary.com/dvao7bjak/video/upload/v1766025319/2._Location_jjkhds.mp3",
@@ -119,128 +50,128 @@
             "image_url": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe",
             "questions": [
               {
-                "correct_index": 2,
+                "correct_index": 1,
                 "options": [
-                  "It is cheaper",
-                  "It is safer",
-                  "It is faster",
-                  "It is cleaner"
+                  "At 5 a.m.",
+                  "At 6 a.m.",
+                  "At 7 a.m.",
+                  "At 8 a.m."
                 ],
                 "order": 1,
-                "question_text": "Why does the woman prefer the subway over the bus?"
+                "question_text": "What time does the man wake up?"
               },
               {
-                "correct_index": 0,
+                "correct_index": 2,
                 "options": [
-                  "He might lose his job",
-                  "He will get a promotion",
-                  "He will be transferred",
-                  "He will quit"
+                  "He watches TV",
+                  "He goes back to sleep",
+                  "He exercises",
+                  "He reads news"
                 ],
                 "order": 2,
-                "question_text": "What might happen to Bob if he doesn't improve?"
-              },
-              {
-                "correct_index": 3,
-                "options": [
-                  "The food",
-                  "The location",
-                  "The size",
-                  "The comfortable beds"
-                ],
-                "order": 3,
-                "question_text": "What does the man like about the hotel?"
+                "question_text": "What does he do after breakfast?"
               },
               {
                 "correct_index": 1,
                 "options": [
-                  "Snowy weather",
-                  "A warmer climate",
-                  "Rainy days",
-                  "Cold winters"
+                  "By car",
+                  "By bus",
+                  "By train",
+                  "On foot"
                 ],
-                "order": 4,
-                "question_text": "What kind of climate does the woman prefer?"
+                "order": 3,
+                "question_text": "How does he go to work?"
               },
               {
-                "correct_index": 2,
+                "correct_index": 0,
                 "options": [
-                  "It is too expensive",
-                  "It is too cold",
-                  "It is too greasy",
-                  "It is too spicy"
+                  "A laptop",
+                  "A book",
+                  "Food",
+                  "Nothing"
+                ],
+                "order": 4,
+                "question_text": "What does he bring with him?"
+              },
+              {
+                "correct_index": 1,
+                "options": [
+                  "He wakes up late",
+                  "He has many tasks",
+                  "He lives far away",
+                  "He dislikes mornings"
                 ],
                 "order": 5,
-                "question_text": "Why does the woman think the pizza is terrible?"
+                "question_text": "Why is his morning busy?"
               }
             ],
-            "title": "Topic: Opinion",
-            "transcript": "Conversations involving opinions on transportation, work performance, hotels, weather preferences, and food."
+            "title": "A Busy Morning",
+            "transcript": "You will hear a short talk about a man's busy morning. Question 1. What time does he wake up? Question 2. What does he do after breakfast? Question 3. How does he go to work? Question 4. What does he bring with him? Question 5. Why is his morning busy?"
           },
           "ls_daily_02": {
-            "audio_url": "https://res.cloudinary.com/dzgfrukxc/video/upload/v1766219159/1._A_New_Day_dcldho.mp4",
+            "audio_url": "https://res.cloudinary.com/dvao7bjak/video/upload/v1766025316/8._Strategy_Practice_nfwt1s.mp3",
             "duration": 195,
             "id": "ls_daily_02",
             "image_url": "https://imageio.forbes.com/specials-images/imageserve/638a98b6a088e5ce47202972/Girls-carrying-shopping-bags/960x0.jpg?format=jpg&width=960",
             "questions": [
               {
-                "correct_index": 1,
-                "options": [
-                  "I think I could",
-                  "I know I can",
-                  "I hope I might",
-                  "I will try"
-                ],
-                "order": 1,
-                "question_text": "What phrase must you state instead of 'I think I could'?"
-              },
-              {
                 "correct_index": 0,
                 "options": [
-                  "Use this time",
-                  "Waste this time",
-                  "Ignore the day",
-                  "Sleep all day"
+                  "To the mall",
+                  "To the market",
+                  "To the office",
+                  "To school"
                 ],
-                "order": 2,
-                "question_text": "What does the speaker urge you to do with the day?"
+                "order": 1,
+                "question_text": "Where does the woman go?"
               },
               {
                 "correct_index": 3,
                 "options": [
-                  "Find a way",
-                  "See the day",
-                  "Look around",
-                  "Own this day"
+                  "Clothes",
+                  "Food",
+                  "Books",
+                  "Shoes"
                 ],
-                "order": 3,
-                "question_text": "Which phrase expresses taking control of your life?"
+                "order": 2,
+                "question_text": "What does she want to buy?"
               },
               {
                 "correct_index": 2,
                 "options": [
-                  "To go to sleep",
-                  "To sit down",
-                  "To take action",
-                  "To be quiet"
+                  "In the morning",
+                  "At noon",
+                  "In the afternoon",
+                  "In the evening"
+                ],
+                "order": 3,
+                "question_text": "When does she go shopping?"
+              },
+              {
+                "correct_index": 0,
+                "options": [
+                  "Her friend",
+                  "Her sister",
+                  "Her mother",
+                  "She goes alone"
                 ],
                 "order": 4,
-                "question_text": "What is implied by the command 'Get up now'?"
+                "question_text": "Who goes with her?"
               },
               {
                 "correct_index": 1,
                 "options": [
-                  "Read silently only",
-                  "Slowly, Faster, Natural pace",
-                  "Only listen",
-                  "Read backwards"
+                  "Bored",
+                  "Excited",
+                  "Tired",
+                  "Angry"
                 ],
                 "order": 5,
-                "question_text": "How does the video suggest practicing reading?"
+                "question_text": "How does she feel about shopping?"
               }
             ],
-            "title": "Topic: A New Day",
-            "transcript": "A motivational poem about seizing the day, building confidence, and practicing oral reading fluency."
+            "title": "Going Shopping",
+            "transcript": "You will hear a conversation about going shopping. Question 1. Where does the woman go? Question 2. What does she want to buy? Question 3. When does she go shopping? Question 4. Who goes with her? Question 5. How does she feel about shopping?"
           }
         },
         "name": "Daily Life",
@@ -252,7 +183,7 @@
         "image_res_name": "topic_technology",
         "lessons": {
           "ls_tech_01": {
-            "audio_url": "https://res.cloudinary.com/dvao7bjak/video/upload/v1766025319/2._Location_jjkhds.mp3",
+            "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
             "duration": 220,
             "id": "ls_tech_01",
             "image_url": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9",
@@ -260,61 +191,61 @@
               {
                 "correct_index": 2,
                 "options": [
-                  "To a movie",
-                  "To a restaurant",
-                  "To a concert",
-                  "To a museum"
+                  "Laptop",
+                  "Tablet",
+                  "Smartphone",
+                  "Smartwatch"
                 ],
                 "order": 1,
-                "question_text": "Where are they going on Sunday evening?"
+                "question_text": "What device is discussed?"
               },
               {
                 "correct_index": 1,
                 "options": [
-                  "Buy a new desk",
-                  "Paint it or buy a rug",
-                  "Sell the office",
-                  "Move to a new room"
+                  "Gaming",
+                  "Communication",
+                  "Studying",
+                  "Work only"
                 ],
                 "order": 2,
-                "question_text": "What is the woman's intent for her ugly office?"
-              },
-              {
-                "correct_index": 0,
-                "options": [
-                  "Delivered to the office",
-                  "Eaten at the restaurant",
-                  "Picked up later",
-                  "Shared with friends"
-                ],
-                "order": 3,
-                "question_text": "How does the woman want her pizza?"
+                "question_text": "What is it mainly used for?"
               },
               {
                 "correct_index": 2,
                 "options": [
-                  "It is too far",
-                  "They are tired",
-                  "It is raining harder",
-                  "The bus is late"
+                  "Rarely",
+                  "Sometimes",
+                  "Often",
+                  "Never"
+                ],
+                "order": 3,
+                "question_text": "How often does the speaker use it?"
+              },
+              {
+                "correct_index": 0,
+                "options": [
+                  "Battery life",
+                  "Screen size",
+                  "High cost",
+                  "Slow speed"
                 ],
                 "order": 4,
-                "question_text": "Why do they decide to take a cab?"
+                "question_text": "What problem is mentioned?"
               },
               {
                 "correct_index": 1,
                 "options": [
-                  "A skirt",
-                  "A dress",
-                  "Jeans",
-                  "A suit"
+                  "Use it more",
+                  "Turn it off at night",
+                  "Buy a new one",
+                  "Ignore problems"
                 ],
                 "order": 5,
-                "question_text": "What does the woman decide to wear to the party?"
+                "question_text": "What advice is given?"
               }
             ],
-            "title": "Topic: Intent",
-            "transcript": "Conversations focusing on plans and intentions regarding outings, office renovation, food ordering, and clothing choices."
+            "title": "Using Smartphones",
+            "transcript": "You will hear a talk about smartphone usage. Question 1. What device is discussed? Question 2. What is it mainly used for? Question 3. How often does the speaker use it? Question 4. What problem is mentioned? Question 5. What advice is given?"
           },
           "ls_tech_02": {
             "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
@@ -325,61 +256,61 @@
               {
                 "correct_index": 1,
                 "options": [
-                  "The cafe downstairs",
-                  "The cafe next to the park",
-                  "The office cafeteria",
-                  "A restaurant nearby"
+                  "Traditional learning",
+                  "Online learning",
+                  "Group learning",
+                  "Self-study"
                 ],
                 "order": 1,
-                "question_text": "Which cafe do they decide to go to?"
-              },
-              {
-                "correct_index": 2,
-                "options": [
-                  "Room 32, 2nd floor",
-                  "Room 23, 3rd floor",
-                  "Room 23, 2nd floor",
-                  "Room 22, 3rd floor"
-                ],
-                "order": 2,
-                "question_text": "What is the woman's room location?"
-              },
-              {
-                "correct_index": 0,
-                "options": [
-                  "At the restaurant",
-                  "In the cab",
-                  "At the office",
-                  "On the bus"
-                ],
-                "order": 3,
-                "question_text": "Where did the man leave his cell phone?"
-              },
-              {
-                "correct_index": 3,
-                "options": [
-                  "Aisle 1",
-                  "Aisle 4",
-                  "Aisle 9",
-                  "Aisle 5"
-                ],
-                "order": 4,
-                "question_text": "In which aisle are the frozen dinners located?"
+                "question_text": "What type of learning is discussed?"
               },
               {
                 "correct_index": 1,
                 "options": [
-                  "New York",
-                  "Los Angeles",
-                  "Hawaii",
-                  "Chicago"
+                  "Low cost",
+                  "Flexible time",
+                  "Easy exams",
+                  "Less homework"
+                ],
+                "order": 2,
+                "question_text": "What is an advantage mentioned?"
+              },
+              {
+                "correct_index": 1,
+                "options": [
+                  "Too many students",
+                  "Poor internet connection",
+                  "Hard teachers",
+                  "Short lessons"
+                ],
+                "order": 3,
+                "question_text": "What is a disadvantage?"
+              },
+              {
+                "correct_index": 2,
+                "options": [
+                  "Teachers",
+                  "Office workers",
+                  "Students",
+                  "Children"
+                ],
+                "order": 4,
+                "question_text": "Who benefits the most?"
+              },
+              {
+                "correct_index": 1,
+                "options": [
+                  "It will disappear",
+                  "It will grow",
+                  "It will stay the same",
+                  "It will be replaced"
                 ],
                 "order": 5,
-                "question_text": "Where will the flight land before connecting to Hawaii?"
+                "question_text": "What is said about the future?"
               }
             ],
-            "title": "Topic: Location",
-            "transcript": "Dialogues identifying specific locations such as cafes, hotel rooms, lost items, supermarket aisles, and flight destinations."
+            "title": "Online Learning",
+            "transcript": "You will hear a discussion about online learning. Question 1. What type of learning is discussed? Question 2. What is an advantage? Question 3. What is a disadvantage? Question 4. Who benefits the most? Question 5. What is the future of online learning?"
           }
         },
         "name": "Technology",
@@ -389,143 +320,25 @@
     "speaking": {
       "st_01": {
         "id": "st_01",
-        "name": "Self Introduction",
         "image_res_name": "ic_person",
-        "total_questions": 5,
+        "name": "Self Introduction",
         "questions": {
           "sq_01": {
-            "order": 1,
+            "sample_audio": "url_sample_1",
             "text": "Tell me about yourself."
           },
           "sq_02": {
-            "order": 2,
-            "text": "How old are you?"
-          },
-          "sq_03": {
-            "order": 3,
-            "text": "Where are you from?"
-          },
-          "sq_04": {
-            "order": 4,
-            "text": "What do you do?"
-          },
-          "sq_05": {
-            "order": 5,
-            "text": "What do you like to do in your free time?"
+            "sample_audio": "url_sample_2",
+            "text": "What are your hobbies?"
           }
-        }
+        },
+        "total_lessons": 3
       },
       "st_02": {
         "id": "st_02",
-        "name": "Daily Routine",
-        "image_res_name": "ic_clock",
-        "total_questions": 5,
-        "questions": {
-          "sq_01": {
-            "order": 1,
-            "text": "What time do you wake up?"
-          },
-          "sq_02": {
-            "order": 2,
-            "text": "What do you do in the morning?"
-          },
-          "sq_03": {
-            "order": 3,
-            "text": "Do you work or study?"
-          },
-          "sq_04": {
-            "order": 4,
-            "text": "What do you do in the evening?"
-          },
-          "sq_05": {
-            "order": 5,
-            "text": "How is your daily routine?"
-          }
-        }
-      },
-      "st_03": {
-        "id": "st_03",
-        "name": "Hobbies",
-        "image_res_name": "ic_hobby",
-        "total_questions": 5,
-        "questions": {
-          "sq_01": {
-            "order": 1,
-            "text": "What are your hobbies?"
-          },
-          "sq_02": {
-            "order": 2,
-            "text": "When do you do your hobbies?"
-          },
-          "sq_03": {
-            "order": 3,
-            "text": "Why do you like them?"
-          },
-          "sq_04": {
-            "order": 4,
-            "text": "Do you do them alone or with others?"
-          },
-          "sq_05": {
-            "order": 5,
-            "text": "Do you want to learn a new hobby?"
-          }
-        }
-      },
-      "st_04": {
-        "id": "st_04",
-        "name": "Work & Study",
-        "image_res_name": "ic_work",
-        "total_questions": 5,
-        "questions": {
-          "sq_01": {
-            "order": 1,
-            "text": "What do you do?"
-          },
-          "sq_02": {
-            "order": 2,
-            "text": "Where do you work or study?"
-          },
-          "sq_03": {
-            "order": 3,
-            "text": "What do you like about it?"
-          },
-          "sq_04": {
-            "order": 4,
-            "text": "What is difficult about it?"
-          },
-          "sq_05": {
-            "order": 5,
-            "text": "What are your future plans?"
-          }
-        }
-      },
-      "st_05": {
-        "id": "st_05",
-        "name": "Travel",
-        "image_res_name": "ic_travel",
-        "total_questions": 5,
-        "questions": {
-          "sq_01": {
-            "order": 1,
-            "text": "Do you like traveling?"
-          },
-          "sq_02": {
-            "order": 2,
-            "text": "Where did you go last time?"
-          },
-          "sq_03": {
-            "order": 3,
-            "text": "Who did you go with?"
-          },
-          "sq_04": {
-            "order": 4,
-            "text": "What did you like there?"
-          },
-          "sq_05": {
-            "order": 5,
-            "text": "Where do you want to go next?"
-          }
-        }
+        "image_res_name": "ic_shopping_cart",
+        "name": "Shopping",
+        "total_lessons": 5
       }
     },
     "vocabulary": {
@@ -566,311 +379,7 @@
     }
   },
   "users": {
-    "ZEdSAb7Ca4XZ2S6UKqpEY25eke72": {
-      "chats": {
-        "-Oh-ZVKdIuzXVLBAPLen": {
-          "message": "What time do u wake up",
-          "sender": "user",
-          "timestamp": 1766314869713,
-          "viewType": 0
-        },
-        "-Oh-ZVbcCnMHwoEMTwEn": {
-          "message": "That's a great question! I actually don't \"wake up\" in the same way humans do because I'm an AI. I'm available 24/7! 😊\n\nBut if I were a person, I usually try to wake up around **7:00 AM** to start my day.\n\nWhat time do *you* usually wake up? Do you like mornings?",
-          "sender": "ai",
-          "timestamp": 1766314870866,
-          "viewType": 1
-        }
-      },
-      "speaking_state": {
-        "current_topic": "st_02",
-        "topics_progress": {
-          "st_01": {
-            "current_order": 3,
-            "answers": {}
-          },
-          "st_02": {
-            "current_order": 1,
-            "answers": {}
-          }
-        }
-      }
-    },
-    "p2iZh1OBHRXjRRaE0YYHYbTutj22": {
-      "profile": {
-        "avatar_url": "default",
-        "created_at": 1766252200607,
-        "display_name": "hihi@gmail.com",
-        "email": "hihi@gmail.com",
-        "uid": "p2iZh1OBHRXjRRaE0YYHYbTutj22"
-      }
-    },
-    "xt9TzynVsvNjk9TMX9VaB0WHMHf1": {
-      "chats": {
-        "-Ogx5j5O9qb6qntGocE4": {
-          "message": "Hi",
-          "sender": "user",
-          "timestamp": 1766256734644,
-          "viewType": 0
-        },
-        "-Ogx5j78X3upttVDRYwz": {
-          "message": "Error code: 429 - ",
-          "sender": "ai",
-          "timestamp": 1766256734756,
-          "viewType": 1
-        },
-        "-Ogx6V34s4Nl2eobf3sb": {
-          "message": "Alo",
-          "sender": "user",
-          "timestamp": 1766256935196,
-          "viewType": 0
-        },
-        "-Ogx6V50G1T8WdkY0Dud": {
-          "message": "Error code: 429 - ",
-          "sender": "ai",
-          "timestamp": 1766256935320,
-          "viewType": 1
-        },
-        "-Ogx7ZyL4GJBpIyMKvD5": {
-          "message": "Hallo",
-          "sender": "user",
-          "timestamp": 1766257217476,
-          "viewType": 0
-        },
-        "-Ogx7_50U0xlOXSXNAs6": {
-          "message": "Error 404: ",
-          "sender": "ai",
-          "timestamp": 1766257217967,
-          "viewType": 1
-        },
-        "-Ogx7fI7teaHkq4ni-sb": {
-          "message": "Alo",
-          "sender": "user",
-          "timestamp": 1766257243381,
-          "viewType": 0
-        },
-        "-Ogx7fJW10scgj6SiBvu": {
-          "message": "Error 404: ",
-          "sender": "ai",
-          "timestamp": 1766257243470,
-          "viewType": 1
-        },
-        "-Ogx879MoKmqbu4NBkFJ": {
-          "message": "Who are you?",
-          "sender": "user",
-          "timestamp": 1766257361619,
-          "viewType": 0
-        },
-        "-Ogx87WX02E9Sy2z9Isw": {
-          "message": "The sentence \"Who are you?\" is **already grammatically correct**.\n\n**Correction:** None needed.\n\n**Simple Explanation:**\n\nIt's a perfectly normal and common question used to ask for someone's name or identity.\n\n* **Who:** The question word asking for a person.\n* **are:** The verb linking \"Who\" and \"you.\"\n* **you:** The person being asked.",
-          "sender": "ai",
-          "timestamp": 1766257363102,
-          "viewType": 1
-        },
-        "-Ogx8Io7eGOWJ5rhL1oK": {
-          "message": "You look so beautiful",
-          "sender": "user",
-          "timestamp": 1766257409348,
-          "viewType": 0
-        },
-        "-Ogx8J8BhCwEUzWVZfI2": {
-          "message": "The sentence **\"You look so beautiful\"** is already **perfect English**.\n\nIt's natural, grammatically correct, and commonly used.\n\n---\n\n### Simple Explanation:\n\n**No correction is needed.**\n\nYou are correctly using:\n\n1.  **\"You look\"**: (Subject + linking verb)\n2.  **\"so\"**: (Intensity modifier/adverb)\n3.  **\"beautiful\"**: (Adjective)\n\nIt's a wonderful, direct compliment!",
-          "sender": "ai",
-          "timestamp": 1766257410696,
-          "viewType": 1
-        },
-        "-Ogx9iuWObwlYxSKZx_W": {
-          "message": "Hello my name is Sinbad, I 10 years old",
-          "sender": "user",
-          "timestamp": 1766257782466,
-          "viewType": 0
-        },
-        "-Ogx9jJE9q5zGV-Ndkt5": {
-          "message": "Here are a few correct ways to phrase that sentence, depending on the exact nuance you want:\n\n**Most Common & Natural Correction:**\n\n> **Hello, my name is Sinbad. I am 10 years old.**\n\n***\n\n### Simple Explanation of the Correction\n\nThe original sentence combined two separate ideas that need proper grammatical separation and a linking verb.\n\n1.  **Punctuation:** \"Hello my name is Sinbad\" needs a comma after \"Hello\" and should probably end with a period before starting the next sentence.\n2.  **The Missing Verb:** In English, when you state your age, you must use the verb **\"to be\"** (am, is, are).\n    *   **Incorrect:** *I 10 years old.*\n    *   **Correct:** *I **am** 10 years old.*\n\n**In short:** You need the word \"**am**\" to correctly link \"I\" to your age.",
-          "sender": "ai",
-          "timestamp": 1766257784112,
-          "viewType": 1
-        },
-        "-Ogx9nFf3PzoUgW0EYXd": {
-          "message": "Bạn có thể nói tiếng việt không",
-          "sender": "user",
-          "timestamp": 1766257800268,
-          "viewType": 0
-        },
-        "-Ogx9njk--HsvpTDZ5X1": {
-          "message": "The correct English sentence is:\n\n**Can you speak Vietnamese?**\n\n---\n\n### Simple Explanation\n\nThis is the standard way to ask someone if they have the ability to speak the language.\n\n**Important Note on Capitalization:**\n\nIn English, languages and nationalities (like **Vietnamese**) are always capitalized.",
-          "sender": "ai",
-          "timestamp": 1766257802256,
-          "viewType": 1
-        },
-        "-Ogx9utYhggRTE2dVgbS": {
-          "message": "What a your name ?",
-          "sender": "user",
-          "timestamp": 1766257831556,
-          "viewType": 0
-        },
-        "-Ogx9vC5EvL5dqrEl9MT": {
-          "message": "The correct English sentence is:\n\n**What is your name?**\n\nHere's a simple explanation of why:\n\n* **\"What\"** is the question word we use when asking for information like a name.\n* **\"is\"** is the linking verb that connects the subject (\"your name\") to the question word.\n* **\"your name\"** is the thing you are asking about.\n\nThe original sentence, \"What a your name?\", incorrectly uses **\"a\"** (which is an article used before singular nouns, like \"a dog\" or \"a book\") where the verb **\"is\"** is needed.",
-          "sender": "ai",
-          "timestamp": 1766257832807,
-          "viewType": 1
-        },
-        "-OgxHkxvPBuC5GxBjfOW": {
-          "message": "Hi",
-          "sender": "user",
-          "timestamp": 1766259887995,
-          "viewType": 0
-        },
-        "-OgxHkyQ1k28bTvPH5OE": {
-          "message": "Unable to resolve host \"generativelanguage.googleapis.com\": No address associated with hostname",
-          "sender": "ai",
-          "timestamp": 1766259888027,
-          "viewType": 1
-        },
-        "-OgxHoag3TPsaixhBMpj": {
-          "message": "Bạn có thể nói tiếng việt không",
-          "sender": "user",
-          "timestamp": 1766259902914,
-          "viewType": 0
-        },
-        "-OgxHpOc9ZlSltkedwhj": {
-          "message": "The original sentence is Vietnamese: **\"Bạn có thể nói tiếng việt không?\"**\n\nAssuming you want the correct English sentence for this phrase:\n\n### **Correction**\n\n**Can you speak Vietnamese?**\n\n---\n\n### **Simple Explanation**\n\nThe original phrase means \"You can speak Vietnamese?\" In English, when we ask a yes/no question using a word like \"can,\" we must **switch the order** of the subject (you) and the modal verb (can):\n\n*   **Statement:** You can speak...\n*   **Question:** Can you speak...?",
-          "sender": "ai",
-          "timestamp": 1766259906174,
-          "viewType": 1
-        },
-        "-Oh-Uf1dOwBXYdVUaajr": {
-          "message": "What is the \"ossascom\" rule?",
-          "sender": "user",
-          "timestamp": 1766313603628,
-          "viewType": 0
-        },
-        "-Oh-Uf5nkYbXF35446TK": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766313603894,
-          "viewType": 1
-        },
-        "-Oh-a5xZPLRR6LcMxZ5Y": {
-          "message": "Hello",
-          "sender": "user",
-          "timestamp": 1766315290847,
-          "viewType": 0
-        },
-        "-Oh-a60ALOsdSdGyXEok": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766315291078,
-          "viewType": 1
-        },
-        "-Oh-b79ylJXBHkmnmTPC": {
-          "message": "Alo",
-          "sender": "user",
-          "timestamp": 1766315557948,
-          "viewType": 0
-        },
-        "-Oh-b7DuEkq-w_YuXz7d": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766315558200,
-          "viewType": 1
-        },
-        "-Oh-b9WnewfCRa-x3ayH": {
-          "message": "Alo",
-          "sender": "user",
-          "timestamp": 1766315567601,
-          "viewType": 0
-        },
-        "-Oh-b9Y9wT6ULei0bNol": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766315567687,
-          "viewType": 1
-        },
-        "-Oh-bAQCsfyn-ymG-IAE": {
-          "message": "Alo",
-          "sender": "user",
-          "timestamp": 1766315571275,
-          "viewType": 0
-        },
-        "-Oh-bARPUXJw4eDigYM1": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766315571352,
-          "viewType": 1
-        },
-        "-Oh-bXrLhUrK8X-0AXho": {
-          "message": "Alo",
-          "sender": "user",
-          "timestamp": 1766315667283,
-          "viewType": 0
-        },
-        "-Oh-bXv7xZ_k5v5Uq6-Q": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766315667526,
-          "viewType": 1
-        },
-        "-Oh-c-ooweMNE8oIOrhE": {
-          "message": "Hello",
-          "sender": "user",
-          "timestamp": 1766315790007,
-          "viewType": 0
-        },
-        "-Oh-c-suVXyxfADk9Mp3": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766315790269,
-          "viewType": 1
-        },
-        "-Oh-cEgqru5hVPA4otcS": {
-          "message": "Hi",
-          "sender": "user",
-          "timestamp": 1766315850938,
-          "viewType": 0
-        },
-        "-Oh-cElgniqRXeNp50YX": {
-          "message": "Error 403",
-          "sender": "ai",
-          "timestamp": 1766315851248,
-          "viewType": 1
-        },
-        "-Oh-cl2zZVO3bIL6VSoW": {
-          "message": "Hi",
-          "sender": "user",
-          "timestamp": 1766315987590,
-          "viewType": 0
-        },
-        "-Oh-clIhvzB_1tmSUtKc": {
-          "message": "Hi there! 👋 Welcome! I'm happy to chat with you.\n\nHow are you doing today? Is there anything specific you'd like to talk about or practice in English? 😊",
-          "sender": "ai",
-          "timestamp": 1766315988596,
-          "viewType": 1
-        },
-        "-Oh-cu1U3THghMiyi5UY": {
-          "message": "What is nominalization?",
-          "sender": "user",
-          "timestamp": 1766316024358,
-          "viewType": 0
-        },
-        "-Oh-cvCGnRnAQlEAbXaV": {
-          "message": "That is an excellent question! It sounds technical, but it's actually a very common process in English.\n\n**Nominalization** is just a fancy term for **turning a verb or an adjective into a noun.**\n\nWe do this all the time, especially when we want to sound more formal, academic, or professional, or when we want to summarize an action or a quality.\n\nHere are some simple examples:\n\n### 1. From Verb to Noun\n\nWhen we take an action (a verb) and turn it into a thing or concept (a noun).\n\n| Verb (Action) | Noun (Concept/Thing) |\n| :---: | :---: |\n| Decide | Decision |\n| Discuss | Discussion |\n| Achieve | Achievement |\n| Improve | Improvement |\n| Analyze | Analysis |\n\n**Example of use:**\n\n*   *Simple:* \"We need to **discuss** this problem.\"\n*   *Formal/Nominalized:* \"We need to have a **discussion** about this problem.\"\n\n### 2. From Adjective to Noun\n\nWhen we take a descriptive word (an adjective) and turn it into a state or quality (a noun).\n\n| Adjective (Description) | Noun (Quality/State) |\n| :---: | :---: |\n| Happy | Happiness |\n| Kind | Kindness |\n| Active | Activity |\n| Good | Goodness |\n\n**Example of use:**\n\n*   *Simple:* \"The student was very **active** in class.\"\n*   *Formal/Nominalized:* \"The student's **activity** in class was noted.\"\n\n***\n\n### Why is this important for English learners?\n\nNominalization is a key feature of academic or bureaucratic writing. If you want to read formal reports, essays, or news articles, you'll see a lot of it!\n\nDo you want to try finding the nominalized form of the verb **'to communicate'**? Let me know! 😊",
-          "sender": "ai",
-          "timestamp": 1766316029144,
-          "viewType": 1
-        },
-        "-Oh-jza6kVRHdHqCxuAn": {
-          "message": "In ielts writing task 2, what should i do with the opinion question type?",
-          "sender": "user",
-          "timestamp": 1766317882118,
-          "viewType": 0
-        },
-        "-Oh-k-MOQbdoSBTM7ySK": {
-          "message": "That's a great question! IELTS Writing Task 2 opinion questions (sometimes called 'Agree or Disagree' or 'To what extent do you agree or disagree?') are very common.\n\nTo handle them well, you need a clear structure and strong arguments. Here’s a simple breakdown of what you should do:\n\n### 1. Understand the Question (The Most Important Step!)\n\nFirst, read the prompt carefully and identify:\n*   **The Topic:** What is the general subject? (e.g., technology, education, environment)\n*   **The Opinion/Statement:** What exactly is the writer saying that you need to respond to? (e.g., \"All university education should be free of charge.\")\n\n### 2. Decide Your Position (Your Thesis)\n\nYou must take a clear stance. You generally have three choices:\n\n*   **Strongly Agree:** Your whole essay supports the statement.\n*   **Strongly Disagree:** Your whole essay argues against the statement.\n*   **Partially Agree/Disagree (The Balanced View):** You agree with some parts but disagree with others. *(This is often the safest and most nuanced approach!)*\n\nYour position must be clearly stated in your **Introduction** (your thesis statement).\n\n### 3. Structure Your Essay (The Roadmap)\n\nA standard 4-paragraph structure works very well for opinion essays:\n\n**Paragraph 1: Introduction**\n1.  **Paraphrase the Topic:** Rewrite the prompt in your own words.\n2.  **Thesis Statement:** State your clear opinion/position (e.g., \"While I agree that X is important, I ultimately believe Y is more significant, and this essay will explore both sides.\")\n\n**Paragraph 2: Body Paragraph 1 (Your Strongest Point or Agreement)**\n1.  **Topic Sentence:** Introduce the main idea of this paragraph.\n2.  **Explanation:** Explain *why* this idea supports your stance.\n3.  **Example/Evidence:** Give a specific, clear example to prove your point.\n\n**Paragraph 3: Body Paragraph 2 (Your Second Point or Disagreement/Counter-Argument)**\n1.  **Topic Sentence:** Introduce the second main idea.\n2.  **Explanation:** Explain how this supports your overall position.\n3.  **Example/Evidence:** Provide supporting detail.\n\n**Paragraph 4: Conclusion**\n1.  **Summarize:** Briefly restate the main points you discussed.\n2.  **Restate Thesis (in new words):** Reconfirm your overall opinion strongly. **Do not introduce new ideas here!**\n\n---\n\n### A Quick Tip on Choosing Your Stance:\n\nIf you choose the **Balanced View** (Partially Agree/Disagree), you can dedicate Body Paragraph 1 to the side you agree with more, and Body Paragraph 2 to the side you disagree with, leading to a very balanced and well-supported essay!\n\nDoes this general overview help? We can go deeper into any of these sections, like how to write a strong thesis statement, if you like!",
-          "sender": "ai",
-          "timestamp": 1766317885271,
-          "viewType": 1
-        }
-      },
+    "user_placeholder_id_1": {
       "notifications": {
         "notif_01": {
           "is_read": false,
@@ -884,7 +393,7 @@
         "created_at": 1715420000000,
         "display_name": "Student A",
         "email": "test@example.com",
-        "uid": "xt9TzynVsvNjk9TMX9VaB0WHMHf1"
+        "uid": "user_placeholder_id_1"
       },
       "progress": {
         "listening": {
@@ -911,6 +420,28 @@
         "time_spent_minutes": 120,
         "total_xp": 350,
         "words_learned": 25
+      },
+      "chats": {
+        "chat_001": {
+          "sender": "user",
+          "message": "i very like learn english",
+          "timestamp": 1715423600000
+        },
+        "chat_002": {
+          "sender": "ai",
+          "message": "You should say: 'I really like learning English.'",
+          "timestamp": 1715423605000
+        },
+        "chat_003": {
+          "sender": "user",
+          "message": "Can you explain why?",
+          "timestamp": 1715423610000
+        },
+        "chat_004": {
+          "sender": "ai",
+          "message": "Because after 'like' we usually use a verb ending in -ing.",
+          "timestamp": 1715423615000
+        }
       }
     }
   }
