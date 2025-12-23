@@ -1,9 +1,12 @@
 package com.example.englishapp.ui.speaking;
 
-import android.app.Activity;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,18 +18,19 @@ import android.widget.Toast;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.core.content.ContextCompat;
 
 import com.example.englishapp.R;
 import com.example.englishapp.data.api.OpenAICallBack;
 import com.example.englishapp.data.model.SpeakingQuestion;
 import com.example.englishapp.data.repository.SpeakingRepository;
-import com.example.englishapp.utils.SpeechToTextHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +45,11 @@ public class SpeakingTestFragment extends Fragment {
 
     private static final String TAG = "SpeakingTestFragment";
     private static final String ARG_TOPIC_ID = "TOPIC_ID";
-    private ActivityResultLauncher<Intent> speechLauncher;
+    private ActivityResultLauncher<String> audioPermissionLauncher;
+    private SpeechRecognizer speechRecognizer;
+    private Intent speechRecognizerIntent;
+    private boolean isListening = false;
+    private AnimatorSet micPulseAnimator;
 
     // UI Components
     private TextView tvPageNumber;
@@ -73,17 +81,13 @@ public class SpeakingTestFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        speechLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        ArrayList<String> res = data.getStringArrayListExtra(
-                                RecognizerIntent.EXTRA_RESULTS);
-                        if (res != null && !res.isEmpty()) {
-                            String spokenText = res.get(0);
-                            sendToAI(spokenText);
-                        }
+        audioPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                granted -> {
+                    if (granted) {
+                        startSpeechInternal();
+                    } else {
+                        showError("Can cap quyen micro de thu am.");
                     }
                 });
 
@@ -94,7 +98,124 @@ public class SpeakingTestFragment extends Fragment {
     }
 
     private void startSpeech() {
-        speechLauncher.launch(SpeechToTextHelper.create());
+        if (getContext() == null) return;
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED) {
+            startSpeechInternal();
+        } else {
+            audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO);
+        }
+    }
+
+    private void startSpeechInternal() {
+        if (getContext() == null) return;
+        if (speechRecognizer == null) {
+            initSpeechRecognizer();
+        }
+        if (speechRecognizer == null) {
+            showError("Khong the khoi tao nhan dang giong noi.");
+            return;
+        }
+        if (isListening) {
+            speechRecognizer.stopListening();
+            stopMicPulse();
+            isListening = false;
+            return;
+        }
+        speechRecognizer.startListening(speechRecognizerIntent);
+        isListening = true;
+    }
+
+    private void initSpeechRecognizer() {
+        if (getContext() == null) return;
+        if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
+            showError("Thiet bi khong ho tro nhan dang giong noi.");
+            return;
+        }
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle params) {
+                startMicPulse();
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {
+            }
+
+            @Override
+            public void onRmsChanged(float rmsdB) {
+            }
+
+            @Override
+            public void onBufferReceived(byte[] buffer) {
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+                stopMicPulse();
+            }
+
+            @Override
+            public void onError(int error) {
+                stopMicPulse();
+                isListening = false;
+                showError("Khong nhan dien duoc giong noi.");
+            }
+
+            @Override
+            public void onResults(Bundle results) {
+                stopMicPulse();
+                isListening = false;
+                ArrayList<String> res = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (res != null && !res.isEmpty()) {
+                    sendToAI(res.get(0));
+                }
+            }
+
+            @Override
+            public void onPartialResults(Bundle partialResults) {
+            }
+
+            @Override
+            public void onEvent(int eventType, Bundle params) {
+            }
+        });
+
+        speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
+    }
+
+    private void startMicPulse() {
+        if (btnMic == null) return;
+        stopMicPulse();
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(btnMic, View.SCALE_X, 1f, 1.15f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(btnMic, View.SCALE_Y, 1f, 1.15f, 1f);
+        scaleX.setRepeatCount(ValueAnimator.INFINITE);
+        scaleY.setRepeatCount(ValueAnimator.INFINITE);
+        scaleX.setRepeatMode(ValueAnimator.RESTART);
+        scaleY.setRepeatMode(ValueAnimator.RESTART);
+        scaleX.setDuration(650);
+        scaleY.setDuration(650);
+
+        micPulseAnimator = new AnimatorSet();
+        micPulseAnimator.playTogether(scaleX, scaleY);
+        micPulseAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        micPulseAnimator.start();
+    }
+
+    private void stopMicPulse() {
+        if (micPulseAnimator != null) {
+            micPulseAnimator.cancel();
+            micPulseAnimator = null;
+        }
+        if (btnMic != null) {
+            btnMic.setScaleX(1f);
+            btnMic.setScaleY(1f);
+        }
     }
 
     private void sendToAI(String answer) {
@@ -138,33 +259,25 @@ public class SpeakingTestFragment extends Fragment {
         }
         try {
             JSONObject json = new JSONObject(cleaned);
-            int score = json.optInt("score", -1);
             int pronunciation = json.optInt("pronunciation", -1);
-            boolean matches = json.optBoolean("matches_question", false);
             String shortFeedback = json.optString("short_feedback", "").trim();
 
             StringBuilder sb = new StringBuilder();
-            if (score >= 0) {
-                sb.append("\r\n" + //
-                        "Pronunciation point: ").append(score).append("/10\n");
-            }
             if (pronunciation >= 0) {
-                sb.append("Pronun: ").append(pronunciation).append("/10\n");
+                sb.append("Pronunciation: ").append(pronunciation).append("/10\n");
             }
-            sb.append("Dung cau hoi: ").append(matches ? "Co" : "Khong").append("\n");
             if (!shortFeedback.isEmpty()) {
                 sb.append(shortFeedback).append("\n");
             }
 
             String issue = firstOfArray(json.optJSONArray("pronunciation_issues"));
             if (!issue.isEmpty()) {
-                sb.append("\r\n" + //
-                        "Pronunciation error: ").append(issue).append("\n");
+                sb.append("Pronunciation error: ").append(issue).append("\n");
             }
 
             String tip = firstOfArray(json.optJSONArray("pronunciation_tips"));
             if (!tip.isEmpty()) {
-                sb.append("pronunciation suggestions: ").append(tip);
+                sb.append("Pronunciation tips: ").append(tip);
             }
             return sb.toString().trim();
         } catch (JSONException e) {
@@ -180,13 +293,53 @@ public class SpeakingTestFragment extends Fragment {
         }
         try {
             JSONObject json = new JSONObject(cleaned);
+            int pronunciation = json.optInt("pronunciation", -1);
             int score = json.optInt("score", -1);
-            if (score >= 0) {
-                showMessage("Diem: " + score + "/10");
-                updateMascotForScore(score);
+            int displayScore = pronunciation >= 0 ? pronunciation : score;
+            if (displayScore >= 0) {
+                showScoreToast(displayScore);
+                updateMascotForScore(displayScore);
             }
         } catch (JSONException ignored) {
         }
+    }
+
+    private void showScoreToast(int score) {
+        if (getContext() == null) return;
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View layout = inflater.inflate(R.layout.toast_score_layout, null);
+
+        TextView tvTitle = layout.findViewById(R.id.toast_title);
+        TextView tvScore = layout.findViewById(R.id.toast_score);
+        TextView tvMessage = layout.findViewById(R.id.toast_message);
+        ImageView ivIcon = layout.findViewById(R.id.toast_icon);
+
+        tvTitle.setText("Diem phat am");
+        tvScore.setText(score + "/10");
+        if (score >= 8) {
+            tvMessage.setText("Tuyet lam!");
+        } else if (score >= 5) {
+            tvMessage.setText("On on, co gang them nhe!");
+            ivIcon.setImageResource(R.drawable.ic_star);
+        } else {
+            tvMessage.setText("Co gang len nhe!");
+            ivIcon.setImageResource(R.drawable.ic_star);
+        }
+
+        layout.setAlpha(0f);
+        layout.setScaleX(0.9f);
+        layout.setScaleY(0.9f);
+        layout.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(220)
+                .start();
+
+        Toast toast = new Toast(getContext());
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(layout);
+        toast.show();
     }
 
     private void updateMascotForScore(int score) {
@@ -449,6 +602,11 @@ public class SpeakingTestFragment extends Fragment {
         Log.d(TAG, "SpeakingTestFragment destroyed");
 
         // Clean up references
+        stopMicPulse();
+        if (speechRecognizer != null) {
+            speechRecognizer.destroy();
+            speechRecognizer = null;
+        }
         tvPageNumber = null;
         tvQuestion = null;
         icPrev = null;
