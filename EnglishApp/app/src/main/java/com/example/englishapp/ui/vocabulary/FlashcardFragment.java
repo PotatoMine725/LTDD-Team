@@ -2,6 +2,7 @@ package com.example.englishapp.ui.vocabulary;
 
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+import android.speech.tts.TextToSpeech;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FlashcardFragment extends Fragment {
 
@@ -37,13 +39,16 @@ public class FlashcardFragment extends Fragment {
     private int currentIndex = 0;
     private boolean isFrontVisible = true;
     private String topicId = "vt_01";
+    private String topicName = "";
+    private String initialWordEnglish = null;
+    private TextToSpeech textToSpeech;
 
     // Các thành phần UI
     private CardView cardFlashcard;
     private LinearLayout llFrontSide, llBackSide;
-    private TextView tvIdiom, tvPhonetic, tvIdiomBack, tvVietnamese, tvEngDef, tvExample, tvExTrans, tvCurrentProgress, tvTitle;
-    private ImageView ivIdiomImage, ivNext, ivPrev, ivAudioBack, ivBackArrow;
-    private View btnListen;
+    private TextView tvIdiom, tvPhonetic, tvPhoneticBack, tvIdiomBack, tvVietnamese, tvEngDef, tvExample, tvExTrans, tvCurrentProgress, tvTitle, tvSavedCount;
+    private ImageView ivIdiomImage, ivNext, ivPrev, ivAudioBack, ivBackArrow, ivExampleAudio;
+    private View btnListen, btnSave;
 
     @Nullable
     @Override
@@ -55,15 +60,16 @@ public class FlashcardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Nhận topicId từ màn hình LessonFragment gửi sang
+        // Nhận topicId và từ cần focus (nếu có) từ màn hình LessonFragment gửi sang
         if (getArguments() != null) {
             topicId = getArguments().getString("topic_id", "vt_01");
+            initialWordEnglish = getArguments().getString("target_word", null);
         }
 
         initViews(view);
         setupFlipLogic();
         setupNavigation();
-        loadDataFromFirebase();
+        loadTopicInfo();
     }
 
     private void initViews(View view) {
@@ -76,16 +82,20 @@ public class FlashcardFragment extends Fragment {
         ivIdiomImage = view.findViewById(R.id.iv_idiom_image);
 
         tvIdiomBack = view.findViewById(R.id.tv_idiom_back);
+        tvPhoneticBack = view.findViewById(R.id.tv_phonetic_back);
         tvVietnamese = view.findViewById(R.id.tv_vietnamese_meaning);
         tvEngDef = view.findViewById(R.id.tv_english_definition);
         tvExample = view.findViewById(R.id.tv_example);
         tvExTrans = view.findViewById(R.id.tv_example_translation);
 
         tvCurrentProgress = view.findViewById(R.id.tv_current_progress);
+        tvSavedCount = view.findViewById(R.id.tv_saved_count);
         ivNext = view.findViewById(R.id.iv_next_arrow);
         ivPrev = view.findViewById(R.id.iv_previous_arrow);
         btnListen = view.findViewById(R.id.btn_listen);
+        btnSave = view.findViewById(R.id.btn_save);
         ivAudioBack = view.findViewById(R.id.iv_audio_back);
+        ivExampleAudio = view.findViewById(R.id.iv_example_audio);
         ivBackArrow = view.findViewById(R.id.iv_back_arrow);
         tvTitle = view.findViewById(R.id.tv_title);
 
@@ -93,6 +103,13 @@ public class FlashcardFragment extends Fragment {
         ivBackArrow.setOnClickListener(v -> {
             if (getActivity() != null) {
                 getActivity().getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
+        // Khởi tạo TTS
+        textToSpeech = new TextToSpeech(requireContext(), status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech.setLanguage(Locale.US);
             }
         });
     }
@@ -108,6 +125,31 @@ public class FlashcardFragment extends Fragment {
                 llBackSide.setVisibility(View.GONE);
             }
             isFrontVisible = !isFrontVisible;
+        });
+    }
+
+    private void loadTopicInfo() {
+        // Lấy thông tin topic (name) rồi load danh sách từ
+        DatabaseReference topicRef = FirebaseDatabase.getInstance()
+                .getReference("topics")
+                .child("vocabulary")
+                .child(topicId);
+
+        topicRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                topicName = snapshot.child("name").getValue(String.class);
+                if (tvTitle != null && topicName != null) {
+                    tvTitle.setText(topicName);
+                }
+                loadDataFromFirebase();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Firebase Error topic info: " + error.getMessage());
+                loadDataFromFirebase();
+            }
         });
     }
 
@@ -130,6 +172,16 @@ public class FlashcardFragment extends Fragment {
                 }
 
                 if (!wordList.isEmpty()) {
+                    // Nếu có yêu cầu focus vào một từ cụ thể, set currentIndex tương ứng
+                    if (initialWordEnglish != null) {
+                        for (int i = 0; i < wordList.size(); i++) {
+                            WordModel w = wordList.get(i);
+                            if (w != null && w.getEnglish().equalsIgnoreCase(initialWordEnglish)) {
+                                currentIndex = i;
+                                break;
+                            }
+                        }
+                    }
                     updateUI();
                 } else {
                     Toast.makeText(getContext(), "Chủ đề này chưa có dữ liệu!", Toast.LENGTH_SHORT).show();
@@ -161,6 +213,7 @@ public class FlashcardFragment extends Fragment {
 
         // Hiển thị mặt sau
         tvIdiomBack.setText(word.getEnglish());
+        tvPhoneticBack.setText("(" + (word.type != null ? word.type : "n") + ") " + word.getPronunciation());
         tvVietnamese.setText(word.getVietnamese());
         tvEngDef.setText("= " + (word.english_definition != null ? word.english_definition : "N/A"));
         tvExample.setText(word.example);
@@ -168,6 +221,7 @@ public class FlashcardFragment extends Fragment {
 
         // Cập nhật tiến độ học
         tvCurrentProgress.setText((currentIndex + 1) + "/" + wordList.size());
+        updateSavedCount();
 
         // Mỗi khi sang từ mới, luôn bắt đầu bằng mặt trước
         llFrontSide.setVisibility(View.VISIBLE);
@@ -175,9 +229,30 @@ public class FlashcardFragment extends Fragment {
         isFrontVisible = true;
 
         // Gán sự kiện phát âm thanh
-        View.OnClickListener audioListener = v -> playAudio(word.audio_url);
-        btnListen.setOnClickListener(audioListener);
-        ivAudioBack.setOnClickListener(audioListener);
+        View.OnClickListener frontAudioListener = v -> {
+            if (!playAudio(word.audio_url)) {
+                speakEnglish(word.getEnglish());
+            }
+        };
+
+        View.OnClickListener mainBackAudioListener = v -> {
+            if ("idiom".equalsIgnoreCase(word.type)) {
+                speakIdiomDefinition(word);
+            } else if (!playAudio(word.audio_url)) {
+                speakEnglish(word.getEnglish());
+            }
+        };
+
+        View.OnClickListener exampleAudioListener = v -> {
+            if (!playAudio(word.example_audio_url)) {
+                speakDefinitionAndExample(word);
+            }
+        };
+
+        btnListen.setOnClickListener(frontAudioListener);
+        ivAudioBack.setOnClickListener(mainBackAudioListener);
+        ivExampleAudio.setOnClickListener(exampleAudioListener);
+        btnSave.setOnClickListener(v -> saveCurrentWord());
     }
 
     private void setupNavigation() {
@@ -200,10 +275,9 @@ public class FlashcardFragment extends Fragment {
         });
     }
 
-    private void playAudio(String url) {
+    private boolean playAudio(String url) {
         if (url == null || url.isEmpty()) {
-            Toast.makeText(getContext(), "Không tìm thấy file âm thanh cho từ này!", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
         MediaPlayer mediaPlayer = new MediaPlayer();
@@ -218,6 +292,66 @@ public class FlashcardFragment extends Fragment {
             mediaPlayer.setOnCompletionListener(MediaPlayer::release); // Giải phóng bộ nhớ sau khi phát xong
         } catch (IOException e) {
             Log.e(TAG, "MediaPlayer error: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private void speakEnglish(String text) {
+        if (textToSpeech != null && text != null && !text.isEmpty()) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts_word");
+        }
+    }
+
+    private void speakIdiomDefinition(WordModel word) {
+        if (textToSpeech == null || word == null) return;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(word.getEnglish());
+        if (word.english_definition != null && !word.english_definition.isEmpty()) {
+            sb.append(". ").append(word.english_definition);
+        }
+
+        textToSpeech.speak(sb.toString(), TextToSpeech.QUEUE_FLUSH, null, "tts_idiom_def");
+    }
+
+    private void speakDefinitionAndExample(WordModel word) {
+        if (textToSpeech == null || word == null) return;
+
+        StringBuilder sb = new StringBuilder();
+        if (word.english_definition != null && !word.english_definition.isEmpty()) {
+            sb.append("Definition: ").append(word.english_definition);
+        }
+        if (word.example != null && !word.example.isEmpty()) {
+            if (sb.length() > 0) sb.append(". ");
+            sb.append("Example: ").append(word.example);
+        }
+
+        textToSpeech.speak(sb.toString(), TextToSpeech.QUEUE_FLUSH, null, "tts_example");
+    }
+
+    private void saveCurrentWord() {
+        if (getContext() == null || wordList.isEmpty()) return;
+        WordModel word = wordList.get(currentIndex);
+        if (word == null) return;
+        VocabProgressStore.addWord(requireContext(), topicId, word.getEnglish());
+        updateSavedCount();
+        Toast.makeText(getContext(), "Saved " + word.getEnglish(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateSavedCount() {
+        if (getContext() == null) return;
+        int saved = VocabProgressStore.getSavedWords(requireContext(), topicId).size();
+        tvSavedCount.setText(saved + " saved");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+            textToSpeech = null;
         }
     }
 }
