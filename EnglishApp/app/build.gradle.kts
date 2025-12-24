@@ -86,4 +86,6 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
     // dependency để kết nối fire store
     implementation ("com.google.firebase:firebase-firestore")
+    // dùng để sử dụng biểu đồ
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

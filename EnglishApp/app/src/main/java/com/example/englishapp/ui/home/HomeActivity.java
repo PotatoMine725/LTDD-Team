@@ -25,7 +25,8 @@ import com.example.englishapp.ui.vocabulary.LessonFragment;
 import com.example.englishapp.ui.auth.LoginActivity;
 import com.example.englishapp.ui.profile.ProfileFragment;
 
-import com.example.englishapp.Fragment.StatisticsFragment;
+//import com.example.englishapp.Fragment.StatisticsFragment;
+import com.example.englishapp.ui.stats.StatisticsFragment;
 import com.example.englishapp.R;
 import com.example.englishapp.debug.FirebaseDebugHelper;
 import com.example.englishapp.test.FirebaseConnectionTest;
