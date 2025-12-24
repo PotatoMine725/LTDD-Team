@@ -71,6 +71,7 @@ dependencies {
     
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
 // Thư viện Analytics (hoặc Firestore/Auth sau này bạn cần)

@@ -1,6 +1,5 @@
 package com.example.englishapp.ui.speaking;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.englishapp.R;
 import com.example.englishapp.data.model.SpeakingTopic;
 
@@ -45,16 +45,17 @@ public class SpeakingTopicAdapter extends RecyclerView.Adapter<SpeakingTopicAdap
         SpeakingTopic topic = topics.get(position);
         holder.tvName.setText(topic.name);
         holder.tvDesc.setText("Practice speaking with this topic");
-        // load ảnh
-        Context context = holder.itemView.getContext();
-        int imgRes = context.getResources().getIdentifier(
-                topic.image_res_name,
-                "drawable",
-                context.getPackageName()
-        );
-        if(imgRes != 0) {
-            holder.img.setImageResource(imgRes);
-        };
+        // load image from database url
+        if (topic.image_url != null && !topic.image_url.trim().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(topic.image_url)
+                    .placeholder(R.drawable.topic_placeholder)
+                    .error(R.drawable.topic_placeholder)
+                    .into(holder.img);
+        } else {
+            holder.img.setImageResource(R.drawable.topic_placeholder);
+        }
+
         holder.itemView.setOnClickListener(v -> listener.onTopicClick(topic)); //gọi call back
     }
 
