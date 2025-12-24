@@ -9,7 +9,6 @@ import com.example.englishapp.service.FirebaseService;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.function.Consumer;
 
 public class SpeakingRepository {
     private  final GeminiService geminiService = new GeminiService();
-    private final DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+    private final DatabaseReference rootRef = FirebaseService.getInstance().getDatabase();
     public void startSpeaking(String uid, String topicId, String topicName, int totalQuestion){
 // mỗi khi user bấm vào topic thfi cần lấy được topic hiệntaijd dang làm
         // để có theer update được progress
@@ -72,6 +71,13 @@ public class SpeakingRepository {
                     SpeakingTopic topic = dataSnapshot.getValue(SpeakingTopic.class);
                     if(topic != null){
                         topic.id = dataSnapshot.getKey(); // firebase khoong tự động map cái id tự sinh vào được (st_01)
+                        String imageUrl = dataSnapshot.child("image_url").getValue(String.class);
+                        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+                            imageUrl = dataSnapshot.child("imageUrl").getValue(String.class);
+                        }
+                        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                            topic.image_url = imageUrl;
+                        }
                         list.add(topic);
                     }
                     }
@@ -89,7 +95,6 @@ public class SpeakingRepository {
         geminiService.evaluateSpeaking(question, answer, callback);
     }
 }
-
 
 
 
