@@ -88,8 +88,6 @@ public class SpeakingRepository {
     public void evaluateSpeaking(String question, String answer, OpenAICallBack callback) {
         geminiService.evaluateSpeaking(question, answer, callback);
     }
-
-
 }
 
 
