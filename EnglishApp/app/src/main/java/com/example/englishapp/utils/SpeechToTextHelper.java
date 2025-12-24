@@ -8,9 +8,9 @@ import java.util.Locale;
 public class SpeechToTextHelper {
     public static Intent create(){
         //RecognizerIntent.ACTION_RECOGNIZE_SPEECH mở ra trang chuyển dọng nois thành văn bản
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); // mở màn hình microphone
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, // cho phép nói tự do trong ngôn ngữ
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM); // ngôn ngữ tự do
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM); // nói tự  do không giới hạn câu
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, // ngôn ngữ
                 Locale.ENGLISH);// tiếng anh
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, // thông báo trên màn hình
