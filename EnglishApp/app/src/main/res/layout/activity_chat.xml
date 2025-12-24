@@ -126,6 +126,19 @@
         </LinearLayout>
 
         <ImageButton
+            android:id="@+id/btnMic"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/micro"
+            android:background="@drawable/bg_micro"
+            android:padding="12dp"
+            android:scaleType="centerInside"
+            app:tint="#FFFFFF"
+            android:elevation="4dp"
+            android:contentDescription="Voice"/>
+
+        <ImageButton
             android:id="@+id/btnSend"
             android:layout_width="52dp"
             android:layout_height="52dp"
