@@ -80,6 +80,9 @@ Let's learn English with AI assistant!"
             </RelativeLayout>
 
             <!-- VUỐT NGANG TOPIC CARDS -->
+
+
+            <!-- Chatting Label -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvSpeakingTopics"
                 android:layout_width="match_parent"
@@ -90,8 +93,6 @@ Let's learn English with AI assistant!"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_speaking_topic" />
 
-
-            <!-- Chatting Label -->
             <TextView
                 android:id="@+id/tvChatting"
                 android:layout_width="wrap_content"

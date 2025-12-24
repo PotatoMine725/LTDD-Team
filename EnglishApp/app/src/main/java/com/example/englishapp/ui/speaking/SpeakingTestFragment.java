@@ -3,6 +3,8 @@ package com.example.englishapp.ui.speaking;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -32,6 +34,7 @@ import com.example.englishapp.data.api.OpenAICallBack;
 import com.example.englishapp.data.model.SpeakingQuestion;
 import com.example.englishapp.data.repository.SpeakingRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -62,6 +65,11 @@ public class SpeakingTestFragment extends Fragment {
     private TextView tvQuestion, tvPage;
     private ImageView btnNext, btnPrev, btnMic;
     private TextView tvFeedback;
+
+    // MediaPlayer for audio playback
+    private MediaPlayer mediaPlayer;
+    private List<SpeakingQuestion> currentQuestions;
+    private SpeakingViewModel viewModel;
 
     // Data
     private String topicName;
@@ -405,21 +413,27 @@ public class SpeakingTestFragment extends Fragment {
         imgAvatar = view.findViewById(R.id.imageView19);
         tvFeedback = view.findViewById(R.id.textView16);
         String topicId = getArguments().getString("TOPIC_ID");
-        SpeakingViewModel vm = new ViewModelProvider(this).get(SpeakingViewModel.class);
-        vm.getQuestions().observe(getViewLifecycleOwner(), list -> {
-            updateUI(vm, list);
+        viewModel = new ViewModelProvider(this).get(SpeakingViewModel.class);
+        viewModel.getQuestions().observe(getViewLifecycleOwner(), list -> {
+            updateUI(viewModel, list);
         });
 
-        vm.getCurrentIndex().observe(getViewLifecycleOwner(), i -> {
-            updateUI(vm, vm.getQuestions().getValue());
+        viewModel.getCurrentIndex().observe(getViewLifecycleOwner(), i -> {
+            updateUI(viewModel, viewModel.getQuestions().getValue());
         });
 
-        btnNext.setOnClickListener(v -> vm.next());
-        btnPrev.setOnClickListener(v -> vm.prev());
+        btnNext.setOnClickListener(v -> viewModel.next());
+        btnPrev.setOnClickListener(v -> viewModel.prev());
 
-        vm.loadQuestions(topicId);
+        viewModel.loadQuestions(topicId);
 
         btnMic.setOnClickListener(v -> startSpeech());
+        
+        // Setup click listener for iv_ear to play audio
+        icEars = view.findViewById(R.id.iv_ear);
+        if (icEars != null) {
+            icEars.setOnClickListener(v -> playQuestionAudio());
+        }
     }
 
     private void updateUI(SpeakingViewModel vm,
@@ -427,11 +441,110 @@ public class SpeakingTestFragment extends Fragment {
         if (list == null || list.isEmpty())
             return;
 
+        currentQuestions = list;
         int i = vm.getCurrentIndex().getValue();
         SpeakingQuestion q = list.get(i);
 
         tvQuestion.setText(q.text);
         tvPage.setText((i + 1) + "/" + list.size());
+    }
+    
+    /**
+     * Play audio from url_speak of current question
+     */
+    private void playQuestionAudio() {
+        if (viewModel == null) {
+            showError("ViewModel chua duoc khoi tao.");
+            return;
+        }
+        
+        if (currentQuestions == null || currentQuestions.isEmpty()) {
+            showError("Khong co cau hoi de phat am.");
+            return;
+        }
+        
+        Integer currentIndexValue = viewModel.getCurrentIndex().getValue();
+        if (currentIndexValue == null) {
+            showError("Khong xac dinh duoc cau hoi hien tai.");
+            return;
+        }
+        
+        int currentIndex = currentIndexValue;
+        if (currentIndex < 0 || currentIndex >= currentQuestions.size()) {
+            showError("Chi so cau hoi khong hop le.");
+            return;
+        }
+        
+        SpeakingQuestion currentQuestion = currentQuestions.get(currentIndex);
+        if (currentQuestion == null || currentQuestion.url_speak == null || currentQuestion.url_speak.isEmpty()) {
+            showError("Khong co audio cho cau hoi nay.");
+            return;
+        }
+        
+        playAudio(currentQuestion.url_speak);
+    }
+    
+    /**
+     * Play audio from URL using MediaPlayer
+     */
+    private void playAudio(String audioUrl) {
+        try {
+            // Release previous MediaPlayer if exists
+            releaseMediaPlayer();
+            
+            if (audioUrl == null || audioUrl.isEmpty()) {
+                showError("URL audio khong hop le.");
+                return;
+            }
+            
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build());
+            
+            mediaPlayer.setDataSource(audioUrl);
+            mediaPlayer.prepareAsync();
+            
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                Log.d(TAG, "Audio started playing: " + audioUrl);
+            });
+            
+            mediaPlayer.setOnCompletionListener(mp -> {
+                releaseMediaPlayer();
+                Log.d(TAG, "Audio playback completed");
+            });
+            
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Log.e(TAG, "MediaPlayer error: what=" + what + ", extra=" + extra);
+                showError("Loi phat audio.");
+                releaseMediaPlayer();
+                return true;
+            });
+            
+        } catch (IOException e) {
+            Log.e(TAG, "Error playing audio", e);
+            showError("Loi khi phat audio: " + e.getMessage());
+            releaseMediaPlayer();
+        }
+    }
+    
+    /**
+     * Release MediaPlayer resources
+     */
+    private void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            try {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+                mediaPlayer.release();
+            } catch (Exception e) {
+                Log.e(TAG, "Error releasing MediaPlayer", e);
+            }
+            mediaPlayer = null;
+        }
     }
 
     /**
@@ -603,6 +716,7 @@ public class SpeakingTestFragment extends Fragment {
 
         // Clean up references
         stopMicPulse();
+        releaseMediaPlayer();
         if (speechRecognizer != null) {
             speechRecognizer.destroy();
             speechRecognizer = null;
@@ -616,5 +730,21 @@ public class SpeakingTestFragment extends Fragment {
         icMicro = null;
         icEars = null;
         tvFeedback = null;
+        currentQuestions = null;
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Pause audio when fragment is paused
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Optionally resume audio if needed
     }
 }
