@@ -18,6 +18,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -61,7 +62,7 @@ public class StatisticsFragment extends Fragment {
 
         // Description
         Description description = new Description();
-        description.setText("XP Progress");
+        description.setText("Words learned per day");
         description.setTextColor(Color.GRAY);
         description.setTextSize(12f);
         lineChart.setDescription(description);
@@ -73,10 +74,31 @@ public class StatisticsFragment extends Fragment {
         xAxis.setDrawAxisLine(false);
         xAxis.setTextColor(Color.GRAY);
 
+        // không chia số thập phân
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+        //ép hiển thị số nguyên
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.valueOf((int) value + 1);
+            }
+        });
+
         // Trục Y trái
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setTextColor(Color.GRAY);
+
+        leftAxis.setGranularity(1f);
+        leftAxis.setGranularityEnabled(true);
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.valueOf((int) value);
+            }
+        });
 
         // Tắt trục Y phải
         lineChart.getAxisRight().setEnabled(false);
@@ -107,9 +129,9 @@ public class StatisticsFragment extends Fragment {
                 int index = 0;
 
                 for (DataSnapshot dateSnap : snapshot.getChildren()) {
-                    Long xp = dateSnap.child("xp").getValue(Long.class);
-                    if (xp != null) {
-                        entries.add(new Entry(index++, xp));
+                    Long words = dateSnap.child("words_learned").getValue(Long.class);
+                    if (words != null) {
+                        entries.add(new Entry(index++, words));
                     }
                 }
 
@@ -123,11 +145,11 @@ public class StatisticsFragment extends Fragment {
     }
 
     /**
-     * Vẽ biểu đồ MIỀN đẹp hơn (không XML)
+     * Vẽ biểu đồ MIỀN
      */
     private void renderBeautifulChart(List<Entry> entries) {
 
-        LineDataSet dataSet = new LineDataSet(entries, "XP");
+        LineDataSet dataSet = new LineDataSet(entries, "Words learned");
 
         // Đường cong mượt
         dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
