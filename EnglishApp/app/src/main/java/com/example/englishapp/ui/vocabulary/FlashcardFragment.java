@@ -4,15 +4,21 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.speech.tts.TextToSpeech;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.englishapp.R;
 import com.example.englishapp.model.WordModel;
 import com.google.firebase.database.DataSnapshot;
@@ -44,17 +50,9 @@ public class FlashcardFragment extends Fragment {
     private ImageView ivIdiomImage, ivNext, ivPrev, ivAudioBack, ivBackArrow, ivExampleAudio;
     private View btnListen, btnSave;
 
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            topicTitle = getArguments().getString(ARG_TOPIC_TITLE);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.flashcard_vocabulary_layout_v1, container, false);
     }
 

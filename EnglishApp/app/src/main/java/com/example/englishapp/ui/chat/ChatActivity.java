@@ -1,4 +1,4 @@
-public class ChatActivity {
+package com.example.englishapp.ui.chat;
 
 import android.Manifest;
 import android.animation.AnimatorSet;
