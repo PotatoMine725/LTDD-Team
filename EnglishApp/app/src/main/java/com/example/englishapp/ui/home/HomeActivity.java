@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -17,15 +18,24 @@ import androidx.core.os.TraceCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.englishapp.ui.common.NotificationFragment;
+//import com.example.englishapp.Fragment.NotificationFragment;
 import com.example.englishapp.ui.vocabulary.LessonFragment;
 import com.example.englishapp.ui.common.NotificationFragment;
 import com.example.englishapp.ui.profile.ProfileFragment;
+
+//import com.example.englishapp.Fragment.StatisticsFragment;
 import com.example.englishapp.ui.stats.StatisticsFragment;
-import com.example.englishapp.ui.listening.ListeningActivity;
 import com.example.englishapp.R;
 import com.example.englishapp.ui.speaking.SpeakingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -35,6 +45,8 @@ public class HomeActivity extends AppCompatActivity {
     private View scrollViewHomeContent;
     private String currentTab = "home";
 
+    private TextView tvGreeting;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +54,7 @@ public class HomeActivity extends AppCompatActivity {
 
         try {
             setupViews();
+            loadUserGreeting();
             setupBottomNavigation();
             setupVocabularyButton();
 
@@ -65,6 +78,8 @@ public class HomeActivity extends AppCompatActivity {
             topBar = findViewById(R.id.top_bar);
             scrollViewHomeContent = findViewById(R.id.scrollView2);
             bottomNavigationView = findViewById(R.id.bottom_navigation);
+            tvGreeting = findViewById(R.id.tvGreeting);
+
         } catch (Exception e) {
             Log.e(TAG, "Error setting up views", e);
         }
@@ -511,5 +526,60 @@ public class HomeActivity extends AppCompatActivity {
 
         // Đăng ký callback với dispatcher của Activity
         getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    private void loadUserGreeting() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || tvGreeting == null) return;
+
+        String uid = user.getUid();
+        String emailAuth = user.getEmail();
+
+        FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(uid)
+                .child("profile")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        String name = null;
+
+                        if (snapshot.exists()) {
+                            name = snapshot.child("display_name").getValue(String.class);
+                        }
+
+                        if (name == null || name.isEmpty()) {
+                            name = (emailAuth != null)
+                                    ? emailAuth.split("@")[0]
+                                    : "User";
+                        }
+
+                        tvGreeting.setText("Hi " + name + ", ready for today?");
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        tvGreeting.setText("Hi User, ready for today?");
+                    }
+                });
+    }
+
+    /**
+     * Test Firebase connection và log kết quả
+     */
+    private void testFirebaseConnection() {
+        Log.d(TAG, "Testing Firebase connection from HomeActivity...");
+        
+        // Test basic connection
+        FirebaseDebugHelper.testFirebaseConnection();
+        
+        // Test specific topics
+        FirebaseDebugHelper.testTopicData("lt_daily");
+        FirebaseDebugHelper.testTopicData("lt_technology");
+        
+        // Run comprehensive test
+        FirebaseConnectionTest.testBasicConnection();
     }
 }

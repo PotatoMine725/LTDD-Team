@@ -54,7 +54,16 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    // Thư viện nòng cốt (BOM) - Giúp quản lý phiên bản tự động
+    
+    // Firebase BOM - Quản lý phiên bản Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-analytics")
+    
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
 // Thư viện Analytics (hoặc Firestore/Auth sau này bạn cần)
@@ -67,4 +76,8 @@ dependencies {
 
     // dùng để gửi request từ phía client
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+    // dependency để kết nối fire store
+    implementation ("com.google.firebase:firebase-firestore")
+    // dùng để sử dụng biểu đồ
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

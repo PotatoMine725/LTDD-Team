@@ -124,12 +124,11 @@
                     android:textSize="16sp"
                     android:layout_marginBottom="8dp" />
 
-                <ImageView
-                    android:id="@+id/imgChart"
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/lineChart"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:src="@drawable/chart_placeholder"
-                    android:scaleType="fitXY" />
+                    android:layout_height="200dp" />
+
             </LinearLayout>
 
             <LinearLayout
